@@ -50,7 +50,7 @@ input {
 }
 
 #password {
-  padding-right: 30px;
+  padding-right: 40px;
 }
 
 input:focus {
@@ -65,7 +65,7 @@ h1 {
 
 button,
 a {
-  margin-top: 40px;
+  margin-top: 30px;
   padding: 8px 12px;
   background-color: #71d58e;
   font-size: 1em;

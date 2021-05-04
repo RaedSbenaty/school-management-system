@@ -11,7 +11,7 @@ class Login extends Component {
     account: { email: "", password: "" },
   };
 
-  handleChande = ({ currentTarget }) => {
+  handleChange = ({ currentTarget }) => {
     let account = { ...this.state.account };
     account[currentTarget.name] = currentTarget.value;
     this.setState({ account });
@@ -33,7 +33,7 @@ class Login extends Component {
                 type="email"
                 name="email"
                 value={email}
-                handleChange={this.handleChande}
+                handleChange={this.handleChange}
                 placeholder="Email"
               />
               <Password value={password} handleChange={this.handleChande} />

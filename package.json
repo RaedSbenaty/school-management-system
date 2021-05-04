@@ -1,0 +1,26 @@
+{
+  "name": "school-management-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "env-cmd -f ./config/dev.env node src/index.js",
+    "devNode": "env-cmd -f ./config/dev.env nodemon src/index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.3",
+    "multer": "^1.4.2",
+    "validator": "^13.5.2"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0",
+    "nodemon": "^2.0.7"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -5,20 +5,18 @@ import React, { Component } from "react";
 import Input from "./Input";
 import Password from "./Password";
 import { Link } from "react-router-dom";
+import Form from "./Form";
+import Joi from "joi-browser";
 
-class Login extends Component {
+class Login extends Form {
   state = {
     account: { email: "", password: "" },
+    errors: { email: "", password: "" },
   };
 
-  handleChange = ({ currentTarget }) => {
-    let account = { ...this.state.account };
-    account[currentTarget.name] = currentTarget.value;
-    this.setState({ account });
-  };
-
-  handleSubmit = (event) => {
-    event.preventDefault();
+  schema = {
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
   };
 
   render() {
@@ -35,9 +33,14 @@ class Login extends Component {
                 value={email}
                 handleChange={this.handleChange}
                 placeholder="Email"
+                error={this.state.errors.email}
               />
-              <Password value={password} handleChange={this.handleChande} />
-              <button type="submit">Log in</button>
+              <Password
+                value={password}
+                handleChange={this.handleChange}
+                error={this.state.errors.password}
+              />
+              {this.renderSubmitButton("Log in")}
               <Link className="button" to="/signup">
                 Back to sign up
               </Link>

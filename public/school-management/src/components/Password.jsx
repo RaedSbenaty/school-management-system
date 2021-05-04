@@ -23,11 +23,12 @@ class Password extends Component {
           type={this.state.type}
           name="password"
           value={this.props.password}
-          handleChange={this.props.handleChande}
+          handleChange={this.props.handleChange}
           placeholder="Password"
           isPassword="password"
+          error={this.props.error}
         />
-        <div class="eye">
+        <div className="eye">
           <i className={this.determineClasses()} onClick={this.handleEye}></i>
         </div>
       </div>

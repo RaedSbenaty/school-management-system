@@ -40,11 +40,20 @@ div#login div#log-section form {
   position: relative;
 }
 
+div#form-control {
+  margin-bottom: 15px;
+}
+
+div#form-control #error {
+  text-align: left;
+  color: red;
+  font-size: 0.8em;
+}
+
 input {
   padding: 8px 12px;
   border-radius: 3px;
   font-size: 0.9em;
-  margin-bottom: 15px;
   border: 1px solid rgb(134, 134, 134);
   width: 100%;
 }
@@ -65,7 +74,7 @@ h1 {
 
 button,
 a {
-  margin-top: 30px;
+  margin-top: 20px;
   padding: 8px 12px;
   background-color: #71d58e;
   font-size: 1em;
@@ -95,13 +104,12 @@ div#eye-container {
 
 div.eye {
   position: absolute;
-  top: 10%;
+  top: 8%;
   left: 90%;
   cursor: pointer;
   width: 20px;
   height: 20px;
   font-size: 1em;
-  background-color: #fff;
 }
 
 @media (max-width: 600px) {

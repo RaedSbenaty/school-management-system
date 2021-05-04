@@ -1,0 +1,116 @@
+div#login {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  width: 70%;
+  max-width: 800px;
+}
+
+div#login div#pic-section img {
+  width: 100%;
+  height: 100%;
+}
+
+div#login div#log-container {
+  flex-basis: 40%;
+  position: relative;
+  padding-top: 20px;
+}
+
+div#login div#log-container #log-section {
+  position: relative;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+div#login div#pic-section {
+  flex-basis: 55%;
+  position: relative;
+  text-align: center;
+}
+
+div#login div#log-section form {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+input {
+  padding: 8px 12px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  margin-bottom: 15px;
+  border: 1px solid rgb(134, 134, 134);
+  width: 100%;
+}
+
+#password {
+  padding-right: 30px;
+}
+
+input:focus {
+  outline: none;
+}
+
+h1 {
+  color: #71d58e;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+button,
+a {
+  margin-top: 40px;
+  padding: 8px 12px;
+  background-color: #71d58e;
+  font-size: 1em;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+
+button {
+  height: 39px;
+}
+
+a {
+  display: block;
+  margin-top: 15px;
+  background-color: white;
+  color: #71d58e;
+  border: 1px solid #71d58e;
+  text-decoration: none;
+  text-align: center;
+}
+
+div#eye-container {
+  position: relative;
+}
+
+div.eye {
+  position: absolute;
+  top: 10%;
+  left: 90%;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  font-size: 1em;
+  background-color: #fff;
+}
+
+@media (max-width: 600px) {
+  div#login div#pic-section {
+    display: none;
+  }
+
+  div#login div#log-container {
+    flex-basis: 100%;
+    text-align: center;
+  }
+}

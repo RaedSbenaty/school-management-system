@@ -2,6 +2,8 @@ require('./db/sequelize')
 var path = require('path')
 var express = require('express')
 var app = express()
+var account = require('./models/account')
+var Teacher = require('./models/teacher')
 
 var publicPath = path.join(__dirname, '../public')
 

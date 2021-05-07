@@ -21,25 +21,20 @@ class Login extends Form {
 
   render() {
     const { email, password } = this.state.account;
+    const errors = this.state.errors;
     return (
       <div id="login">
         <div id="log-container">
           <div id="log-section">
             <h1>Log in</h1>
             <form onSubmit={this.handleSubmit} autoComplete="off">
-              <Input
-                type="email"
-                name="email"
-                value={email}
-                handleChange={this.handleChange}
-                placeholder="Email"
-                error={this.state.errors.email}
-              />
-              <Password
-                value={password}
-                handleChange={this.handleChange}
-                error={this.state.errors.password}
-              />
+              {this.renderInput("email", email, "Email", errors.email, "email")}
+              {this.renderPassword(
+                "password",
+                password,
+                "Password",
+                errors.password
+              )}
               {this.renderSubmitButton("Log in")}
               <Link className="button" to="/signup">
                 Back to sign up

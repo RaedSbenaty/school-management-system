@@ -1,5 +1,8 @@
 import { Component } from "react";
 import Joi from "joi-browser";
+import Input from "./Input";
+import Password from "./Password";
+import Date from "./Date";
 
 class Form extends Component {
   state = {};
@@ -16,20 +19,55 @@ class Form extends Component {
     this.setState({ account, errors });
   };
 
+  renderDate = (name, value, placeholder, error) => {
+    return (
+      <Date
+        name={name}
+        value={value}
+        handleChange={this.handleChange}
+        placeholder={placeholder}
+        error={error}
+      />
+    );
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
     let errors = this.validate();
-    if (Object.keys(errors) !== 0) {
+    console.log(Object.keys(errors).length);
+    if (Object.keys(errors).length !== 0) {
       this.setState({ errors });
       return;
     }
+    this.customValidation();
   };
 
   renderSubmitButton = (text) => {
+    return <button type="submit">{text}</button>;
+  };
+
+  renderInput = (name, value, placeholder, error, type = "text") => {
     return (
-      <button type="submit" disabled={Object.keys(this.validate()) === 0}>
-        {text}
-      </button>
+      <Input
+        type={type}
+        name={name}
+        handleChange={this.handleChange}
+        placeholder={placeholder}
+        value={value}
+        error={error}
+      />
+    );
+  };
+
+  renderPassword = (name, value, placeholder, error) => {
+    return (
+      <Password
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        handleChange={this.handleChange}
+        error={error}
+      />
     );
   };
 

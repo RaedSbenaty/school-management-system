@@ -21,10 +21,10 @@ class Password extends Component {
       <div id="eye-container">
         <Input
           type={this.state.type}
-          name="password"
+          name={this.props.name}
           value={this.props.password}
           handleChange={this.props.handleChange}
-          placeholder="Password"
+          placeholder={this.props.placeholder}
           isPassword="password"
           error={this.props.error}
         />

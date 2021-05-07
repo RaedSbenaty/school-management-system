@@ -12,7 +12,7 @@ function Input({
   return (
     <div id="form-control">
       <input
-        id={isPassword}
+        className={isPassword}
         type={type}
         name={name}
         value={value}

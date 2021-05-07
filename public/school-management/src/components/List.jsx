@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 class List extends Component {
   state = {
@@ -23,7 +24,7 @@ class List extends Component {
             onClick={() => this.handleClick(index)}
             key={item}
           >
-            {item}
+            <Link to={`/signup/${item}`}>{item}</Link>
           </li>
         ))}
       </ul>

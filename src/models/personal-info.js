@@ -8,7 +8,6 @@ Personal_Info.init({
     lastName: {type: DataTypes.STRING, allowNull: false},
     birthDate: {type: DataTypes.DATE, allowNull: false},
     residentialAddress: {type: DataTypes.STRING, allowNull: false},
-    personalImage: {type: DataTypes.STRING.BINARY}
 },{sequelize})
 
 

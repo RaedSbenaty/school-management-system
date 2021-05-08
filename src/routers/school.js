@@ -1,7 +1,9 @@
-var express = require('express')
-var router = express.Router()
-var School = require('../models/school')
-var auth = require('../middleware/auth')
+const express = require('express')
+const router = express.Router()
+const School = require('../models/school')
+const auth = require('../middleware/auth')
+
+//example
 /*{
     "schoolInfo": {
         "schoolName": "Raghad",
@@ -18,10 +20,10 @@ var auth = require('../middleware/auth')
 //sign up
 router.post('/signup/schools', async (req, res) => {
     try {
-        var school = await School.create(req.body.schoolInfo)
-        var account = await school.createAccount(req.body.accountInfo)
+        var school = await School.create(req.body.school)
+        var account = await school.createAccount(req.body.account)
 
-        res.status(201).send({school, account, token: account.generateAuthToken() })
+        res.status(201).send({ school, account, token: account.generateAuthToken() })
     }
     catch (e) {
         console.log(e)

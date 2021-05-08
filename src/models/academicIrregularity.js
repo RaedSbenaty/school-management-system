@@ -17,11 +17,9 @@ AcademicIrregularity.init({
     date: {
         type: DataTypes.DATE
     }
-},{sequelize})
-
-
+}, { sequelize })
 
 //AcademicIrregularity Relations
-Student.hasMany(AcademicIrregularity)
+
 
 module.exports = AcademicIrregularity

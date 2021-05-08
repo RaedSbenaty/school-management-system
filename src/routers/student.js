@@ -10,7 +10,7 @@ const auth = require('../middleware/auth')
         "fatherName": "Aamer",
         "motherName": "Hanaa",   
         "lastSchoolAttended": "Bla",
-        "lastDegree": "bachleor"       //optional
+        "lastDegree": "bachleor"           //optional
     },
     "personal_info": {
         "firstName": "Raghad",
@@ -21,7 +21,9 @@ const auth = require('../middleware/auth')
     "account": {
         "email": "abd@hbd.com",
         "password": "12345678",
-        "phoneNumber": "+961994418888"
+        "phoneNumber": "+961994418888",
+        "personalImage": ""                 //optional
+
     }
 }
 */

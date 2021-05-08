@@ -17,7 +17,9 @@ var auth = require('../middleware/auth')
     "account" : {
         "email": "raed@hbd.com",
         "password": "12345678",
-        "phoneNumber": "+963994418123"
+        "phoneNumber": "+963994418123",
+        "personalImage": ""                 //optional
+
     }
 }
  */

@@ -31,7 +31,7 @@ class Teacher extends Form {
     name: Joi.string().required().label("name"),
     email: Joi.string().email().required().label("email"),
     password: Joi.string().min(8).required().label("password"),
-    confirmPassword: Joi.string().min(8).required().label("confirm password"),
+    confirmPassword: Joi.string().required().label("confirm password"),
     birthDate: Joi.string().required().label("birth date"),
     specification: Joi.string().required().label("spacification"),
     graduationCollage: Joi.string().required().label("graduation collage"),

@@ -10,10 +10,16 @@ function Date({ name, value, handleChange, placeholder, error }) {
         name={name}
         value={value}
         onChange={handleChange}
-        placeholder={placeholder}
         onFocus={() => editType("date")}
-        onBlur={() => editType("text")}
+        onBlur={() => {
+          if (value) {
+            placeholder = value;
+            editType("text");
+          }
+        }}
+        placeholder={placeholder}
       />
+
       <div id="error">{error}</div>
     </div>
   );

@@ -22,7 +22,7 @@ class Password extends Component {
         <Input
           type={this.state.type}
           name={this.props.name}
-          value={this.props.password}
+          value={this.props.value}
           handleChange={this.props.handleChange}
           placeholder={this.props.placeholder}
           isPassword="password"

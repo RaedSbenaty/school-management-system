@@ -8,14 +8,41 @@ class Form extends Component {
   state = {};
   schema = {};
 
+  handlePasswordMatch = (currentTarget, errors) => {
+    let { name, value } = currentTarget;
+    if (name === "confirmPassword") {
+      if (
+        errors["confirmPassword"] ||
+        value === this.state.account["password"]
+      ) {
+        return errors;
+      } else {
+        errors["confirmPassword"] = "passwords don't match";
+      }
+    } else if (name === "password") {
+      if (this.state.account["confirmPassword"]) {
+        if (this.state.account["confirmPassword"] === value) {
+          errors["confirmPassword"] = "";
+        } else {
+          errors["confirmPassword"] = "passwords don't match";
+        }
+      }
+    }
+    return errors;
+  };
+
   handleChange = ({ currentTarget }) => {
     let account = { ...this.state.account };
     account[currentTarget.name] = currentTarget.value;
 
     let error = this.validateOneField(currentTarget);
     let errors = { ...this.state.errors };
-
     errors[currentTarget.name] = error;
+
+    if ("confirmPassword" in account) {
+      errors = this.handlePasswordMatch(currentTarget, errors);
+    }
+
     this.setState({ account, errors });
   };
 
@@ -31,15 +58,26 @@ class Form extends Component {
     );
   };
 
+  passwordMatch = () => {
+    let values = { ...this.state.account };
+    if ("confirmPassword" in values && values["confirmPassword"]) {
+      if (values["confirmPassword"] !== values["password"]) {
+        return [true, "passwords don't match"];
+      }
+    }
+    return false;
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
     let errors = this.validate();
-    console.log(Object.keys(errors).length);
+    let result = this.passwordMatch();
+    if (result[0]) errors["confirmPassword"] = result[1];
     if (Object.keys(errors).length !== 0) {
       this.setState({ errors });
       return;
     }
-    this.customValidation();
+    console.log("I'm All Set");
   };
 
   renderSubmitButton = (text) => {

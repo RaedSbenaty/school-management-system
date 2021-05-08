@@ -34,7 +34,7 @@ class Student extends Form {
     name: Joi.string().required().label("name"),
     email: Joi.string().email().required().label("email"),
     password: Joi.string().min(8).required().label("password"),
-    confirmPassword: Joi.string().min(8).required().label("confirm password"),
+    confirmPassword: Joi.string().required().label("confirm password"),
     birthDate: Joi.string().required().label("birth date"),
     address: Joi.string().required().label("address"),
     fatherName: Joi.string().required().label("father name"),

@@ -141,20 +141,20 @@ div#signup {
 div#signup ul {
   list-style: none;
   text-align: center;
+  margin-top: 5px;
 }
 
 div#signup ul li {
   display: inline-block;
-  padding: 10px 0;
   font-size: 1.1em;
   cursor: pointer;
-  height: 43px;
   position: relative;
   margin-right: 15px;
 }
 
 div#signup ul li a {
   text-decoration: none;
+  padding: 10px 0;
   color: #000;
 }
 

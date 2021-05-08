@@ -42,11 +42,12 @@ span {
  Animate
 */
 
-div#signup ul li.active::before {
+div#signup ul li.active a::before {
   content: "";
   position: absolute;
-  top: 41px;
   left: 0;
+  top: 100%;
+  margin-top: 5px;
   background-color: #71d58e;
   display: block;
   width: 0px;

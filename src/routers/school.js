@@ -10,12 +10,12 @@ const auth = require('../middleware/auth')
         "location": "midan",
         "foundationDate": "08-05-2021",                            //optional
         "facebookPage": "https://www.facebook.com/AlHudoodNet/",   //optional
-        "logo": ""                                                 //optional
     },   
     "accountInfo": {
         "email": "dodeh@hbd.com",
         "password": "100009078",
-        "phoneNumber": "+963944656499"
+        "phoneNumber": "+963944656499",
+        "personalImage": ""                                        //optional
     } 
 }
 */

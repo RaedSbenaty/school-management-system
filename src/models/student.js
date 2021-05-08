@@ -9,6 +9,14 @@ class Student extends Model { }
 
 //Student properties
 Student.init({
+    fatherName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    motherName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     lastSchoolAttended: {
         type: DataTypes.STRING,
         allowNull: false

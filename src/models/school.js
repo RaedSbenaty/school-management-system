@@ -25,9 +25,6 @@ School.init({
             is: /^(http|https)\:\/\/www.facebook.com\/.*/i
         }
     },
-    isOpened: {
-        type: DataTypes.BOOLEAN
-    },
     logo: {
         type: DataTypes.STRING.BINARY
     },

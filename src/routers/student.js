@@ -7,12 +7,14 @@ const auth = require('../middleware/auth')
 /*
 {
     "student": {
+        "fatherName": "Aamer",
+        "motherName": "Hanaa",   
         "lastSchoolAttended": "Bla",
-        "lastDegree": "bachleor"
+        "lastDegree": "bachleor"       //optional
     },
     "personal_info": {
-        "firstName": "Raed",
-        "lastName": "Sbenaty",
+        "firstName": "Raghad",
+        "lastName": "Al-Halabi",
         "birthDate": "04-17-2001",
         "residentialAddress": "Damascus"
     },

@@ -9,8 +9,8 @@ class Account extends Model {
     }
 
     toJSON() {
-        var { email, phoneNumber } = this
-        return { email, phoneNumber }
+        var { email, phoneNumber, personalImage } = this
+        return { email, phoneNumber, personalImage }
     }
 }
 
@@ -25,6 +25,7 @@ Account.init({
     },
     phoneNumber: { type: DataTypes.STRING, allowNull: false, unique: true },
     personalImage: { type: DataTypes.STRING.BINARY }
+
 }, { sequelize })
 
 Account.beforeSave(async (account) => {

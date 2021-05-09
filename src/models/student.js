@@ -24,7 +24,7 @@ Student.init({
     lastDegree: {
         type: DataTypes.STRING,
     },
-}, { sequelize })
+}, { sequelize,timestamps:false })
 
 //Student relations
 Account.hasOne(Student)

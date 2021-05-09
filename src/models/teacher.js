@@ -10,8 +10,7 @@ Teacher.init({
     certification: {type: DataTypes.STRING, allowNull: false},
     certificationIssuer: {type: DataTypes.STRING},
     certificationDate: {type: DataTypes.DATE},
-}, {sequelize})
-
+}, {sequelize, timestamps: false})
 
 
 Account.hasOne(Teacher)

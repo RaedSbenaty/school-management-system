@@ -1,7 +1,8 @@
 var express = require('express')
 var router = express.Router()
 var Teacher = require('../models/teacher')
-var auth = require('../middleware/auth')
+var Account = require('../models/account')
+var auth = require('../middlewares/auth')
 
 /*
 {
@@ -18,23 +19,23 @@ var auth = require('../middleware/auth')
         "email": "raed@hbd.com",
         "password": "12345678",
         "phoneNumber": "+963994418123",
-        "personalImage": ""                 //optional
-
     }
 }
  */
 
 router.post('/signup/teachers', async (req, res) => {
     try {
-        var teacher = await Teacher.create(req.body.studying_data)
-        var personal_info = await teacher.createPersonal_Info(req.body.personal_info)
-        req.body.account.user = "teacher"
-        var account = await teacher.createAccount(req.body.account)
+        req.body.account.user = 'Teacher'
+        var account = await Account.create(req.body.account)
 
+        var teacher = await Teacher.create(req.body.studying_data)
+        await teacher.setAccount(account)
+
+        var personal_info = await teacher.createPersonal_Info(req.body.personal_info)
         res.status(201).send({ personal_info, teacher, account, token: account.generateAuthToken() })
     } catch (e) {
         console.log(e)
-        res.status(400).send('Sign up failed')
+        res.status(400).send('Sign up failed.')
     }
 })
 

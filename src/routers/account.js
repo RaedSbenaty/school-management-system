@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const auth = require('../middleware/auth')
+const auth = require('../middlewares/auth')
 const Account = require('../models/account')
 
 //example
-/*{
+/*
+{
    "email": "abd@hbd.com",
    "password": "12345678" 
 }
@@ -13,9 +14,9 @@ const Account = require('../models/account')
 //login
 router.post('/login', async (req, res) => {
     try {
-        const account = await Account.findByCredentials(req.body.email, req.body.password)
-
-        res.status(201).send({ account, token: account.generateAuthToken() })
+        var response = await Account.findByCredentials(req.body.email, req.body.password)
+        response.token = response.account.generateAuthToken()
+        res.status(200).send(response)
     }
     catch (e) {
         console.log(e)

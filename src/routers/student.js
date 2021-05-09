@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const Student = require('../models/student')
-const auth = require('../middleware/auth')
+var Account = require('../models/account')
+const auth = require('../middlewares/auth')
 
 //example
 /*
@@ -10,7 +11,7 @@ const auth = require('../middleware/auth')
         "fatherName": "Aamer",
         "motherName": "Hanaa",   
         "lastSchoolAttended": "Bla",
-        "lastDegree": "bachleor"           //optional
+        "lastDegree": "bachleor"
     },
     "personal_info": {
         "firstName": "Raghad",
@@ -22,7 +23,7 @@ const auth = require('../middleware/auth')
         "email": "abd@hbd.com",
         "password": "12345678",
         "phoneNumber": "+961994418888",
-        "personalImage": ""                 //optional
+        "personalImage": ""
 
     }
 }
@@ -31,17 +32,17 @@ const auth = require('../middleware/auth')
 //sign up
 router.post('/signup/students', async (req, res) => {
     try {
-        var student = await Student.create(req.body.student)
-        var personal_info = await student.createPersonal_Info(req.body.personal_info)
-        var account = await student.createAccount(req.body.account)
-        account.user = 'student'
+        req.body.account.user = 'Student'
+        var account = await Account.create(req.body.account)
 
-        console.log(account);
-        res.status(201).send({ personal_info, student, account, token: account.generateAuthToken() })
-    }
-    catch (e) {
+        var student = await Student.create(req.body.student)
+        await student.setAccount(account)
+
+        var personal_info = await student.createPersonal_Info(req.body.personal_info)
+        res.status(201).send({personal_info, student, account, token: account.generateAuthToken()})
+    } catch (e) {
         console.log(e)
-        res.status(400).send('Sign up failed')
+        res.status(400).send('Sign up failed.')
     }
 })
 

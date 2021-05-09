@@ -22,13 +22,10 @@ School.init({
         type: DataTypes.STRING,
         validate: {
             isUrl: true,
-            is: /^(http|https)\:\/\/www.facebook.com\/.*/i
+            is: /^(http|https):\/\/www.facebook.com\/.*/i
         }
     },
-    logo: {
-        type: DataTypes.STRING.BINARY
-    },
-}, { sequelize })
+}, { sequelize,timestamps:false })
 
 //School relations
 Account.hasOne(School)

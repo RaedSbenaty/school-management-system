@@ -17,7 +17,7 @@ AcademicIrregularity.init({
     date: {
         type: DataTypes.DATE
     }
-}, { sequelize })
+}, { sequelize,timestamps:false })
 
 //AcademicIrregularity Relations
 

@@ -3,7 +3,8 @@ var sequelize = require('./db/sequelize')
 
 var runDataBaseServer = async () => {
     await sequelize.authenticate()
-    await sequelize.sync({ force: true })
+    await sequelize.sync({force: true})
+//    await sequelize.sync({})
 }
 
 runDataBaseServer()

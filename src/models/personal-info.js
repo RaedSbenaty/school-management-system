@@ -8,7 +8,7 @@ Personal_Info.init({
     lastName: { type: DataTypes.STRING, allowNull: false },
     birthDate: { type: DataTypes.DATE, allowNull: false },
     residentialAddress: { type: DataTypes.STRING, allowNull: false },
-}, { sequelize })
+}, { sequelize,timestamps:false })
 
 
 module.exports = Personal_Info

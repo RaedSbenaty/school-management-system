@@ -24,7 +24,7 @@ class Account extends Model {
     }
 
     generateAuthToken() {
-        return jwt.sign({id: this.id, email: this.email}, process.env.JWT_SECRET)
+       return  jwt.sign({id: this.id, email: this.email, user:this.user}, process.env.JWT_SECRET)
     }
 
     toJSON() {

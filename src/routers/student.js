@@ -34,7 +34,9 @@ router.post('/signup/students', async (req, res) => {
         var student = await Student.create(req.body.student)
         var personal_info = await student.createPersonal_Info(req.body.personal_info)
         var account = await student.createAccount(req.body.account)
+        account.user = 'student'
 
+        console.log(account);
         res.status(201).send({ personal_info, student, account, token: account.generateAuthToken() })
     }
     catch (e) {

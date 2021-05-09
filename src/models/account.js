@@ -4,6 +4,32 @@ var jwt = require('jsonwebtoken')
 var bcrypt = require('bcrypt')
 
 class Account extends Model {
+    static async findByCredentials(email, password) {
+
+        const account = await Account.findOne({ where: { email } })
+
+        if (!account)
+            throw new Error('Unable to log in')
+
+        const isMatch = await bcrypt.compare(password, account.password)
+
+        if (!isMatch)
+            throw new Error('Unable to log in')
+
+            console.log(account.user);
+        if (account.user === 'teacher')
+            account.teacher = await account.getTeacher()
+
+        else if (account.user === 'student')
+            account.student = await account.getStudent()
+
+        else if (account.user === 'school')
+            account.school = await account.getSchool()
+
+        return account
+    }
+
+
     generateAuthToken() {
         return jwt.sign({ id: this.id, email: this.email }, process.env.JWT_SECRET)
     }
@@ -22,6 +48,9 @@ Account.init({
     password: {
         type: DataTypes.STRING, allowNull: false,
         validate: { min: 8 }
+    },
+    user: {
+        type: DataTypes.STRING
     },
     phoneNumber: { type: DataTypes.STRING, allowNull: false, unique: true },
     personalImage: { type: DataTypes.STRING.BINARY }

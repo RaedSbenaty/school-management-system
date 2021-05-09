@@ -28,9 +28,10 @@ router.post('/signup/teachers', async (req, res) => {
     try {
         var teacher = await Teacher.create(req.body.studying_data)
         var personal_info = await teacher.createPersonal_Info(req.body.personal_info)
+        req.body.account.user = "teacher"
         var account = await teacher.createAccount(req.body.account)
 
-        res.status(201).send({personal_info, teacher, account, token: account.generateAuthToken()})
+        res.status(201).send({ personal_info, teacher, account, token: account.generateAuthToken() })
     } catch (e) {
         console.log(e)
         res.status(400).send('Sign up failed')

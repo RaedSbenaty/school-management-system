@@ -12,11 +12,11 @@ class Account extends Model {
         if (!isMatch) throw new Error('Unable to log in.')
 
         var user = {account}
-        if(account.user==='School') user.data = await account.getSchool()
+        if (account.user === 'School') user.data = await account.getSchool()
 
         else {
-            if(account.user==='Teacher') user.data = await account.getTeacher()
-            else  user.data =await account.getStudent()
+            if (account.user === 'Teacher') user.data = await account.getTeacher()
+            else user.data = await account.getStudent()
 
             user.personal_info = await user.data.getPersonal_Info()
         }
@@ -24,7 +24,7 @@ class Account extends Model {
     }
 
     generateAuthToken() {
-       return  jwt.sign({id: this.id, email: this.email, user:this.user}, process.env.JWT_SECRET)
+        return jwt.sign({id: this.id, email: this.email, user: this.user}, process.env.JWT_SECRET)
     }
 
     toJSON() {
@@ -47,10 +47,7 @@ Account.init({
         type: DataTypes.STRING,
         allowNull: false
     },
-    phoneNumber: {
-        type: DataTypes.STRING, allowNull: false,
-        unique: true
-    },
+    phoneNumber: {type: DataTypes.STRING, allowNull: false},
     Image: {type: DataTypes.STRING.BINARY}
 }, {sequelize, timestamps: false})
 

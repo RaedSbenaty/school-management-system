@@ -1,24 +1,29 @@
-import React, { Component } from "react";
+import React from "react";
 import Form from "../Form";
-import Input from "../Input";
 import Joi from "joi-browser";
 import { Link } from "react-router-dom";
+import { signUpStudent } from "../../services/studentService";
+import axios from "axios";
 
 class Student extends Form {
   state = {
     account: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
       birthDate: "",
-      address: "",
       fatherName: "",
-      phoneNumber: "",
       motherName: "",
+      address: "",
+      phoneNumber: "",
+      lastSchoolAttended: "",
+      previousClass: "",
     },
     errors: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -27,11 +32,14 @@ class Student extends Form {
       fatherName: "",
       phoneNumber: "",
       motherName: "",
+      lastSchoolAttended: "",
+      previousClass: "",
     },
   };
 
   schema = {
-    name: Joi.string().required().label("name"),
+    firstName: Joi.string().required().label("first name"),
+    lastName: Joi.string().required().label("last name"),
     email: Joi.string().email().required().label("email"),
     password: Joi.string().min(8).required().label("password"),
     confirmPassword: Joi.string().required().label("confirm password"),
@@ -40,6 +48,8 @@ class Student extends Form {
     fatherName: Joi.string().required().label("father name"),
     motherName: Joi.string().required().label("mother name"),
     phoneNumber: Joi.number().required().label("phone number"),
+    lastSchoolAttended: Joi.string().required().label("previous school"),
+    previousClass: Joi.string().required().label("previous class"),
   };
 
   customValidation = () => {
@@ -48,9 +58,22 @@ class Student extends Form {
     this.setState({ errors });
   };
 
+  completeSubmit = async () => {
+    try {
+      await signUpStudent(this.state.account);
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        let errors = { ...this.state.errors };
+        errors["email"] = "student already exists";
+        this.setState({ errors });
+      }
+    }
+  };
+
   render() {
     let {
-      name,
+      firstName,
+      lastName,
       email,
       password,
       confirmPassword,
@@ -59,13 +82,21 @@ class Student extends Form {
       fatherName,
       motherName,
       phoneNumber,
+      lastSchoolAttended,
+      previousClass,
     } = this.state.account;
 
     let { errors } = this.state;
 
     return (
       <form onSubmit={this.handleSubmit} autoComplete="off">
-        {this.renderInput("name", name, "Name", errors.name)}
+        {this.renderInput(
+          "firstName",
+          firstName,
+          "First Name",
+          errors.firstName
+        )}
+        {this.renderInput("lastName", lastName, "Last Name", errors.lastName)}
         {this.renderInput("email", email, "Email", errors.email, "email")}
         {this.renderPassword("password", password, "Password", errors.password)}
         {this.renderPassword(
@@ -98,6 +129,18 @@ class Student extends Form {
           phoneNumber,
           "Phone Number",
           errors.phoneNumber
+        )}
+        {this.renderInput(
+          "lastSchoolAttended",
+          lastSchoolAttended,
+          "Previous School",
+          errors.lastSchoolAttended
+        )}
+        {this.renderInput(
+          "previousClass",
+          previousClass,
+          "Previous Class",
+          errors.previousClass
         )}
         {this.renderSubmitButton("Sign up")}
         <Link to="/login">Back to log in</Link>

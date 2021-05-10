@@ -1,12 +1,11 @@
 import loginpic from "../images/Fingerprint-bro.png";
 import "../App.css";
 import "../styles/form.css";
-import React, { Component } from "react";
-import Input from "./Input";
-import Password from "./Password";
+import React from "react";
 import { Link } from "react-router-dom";
 import Form from "./Form";
 import Joi from "joi-browser";
+import { login } from "../services/loginService";
 
 class Login extends Form {
   state = {
@@ -17,6 +16,19 @@ class Login extends Form {
   schema = {
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
+  };
+
+  completeSubmit = async () => {
+    try {
+      await login(this.state.account);
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        let errors = { ...this.state.errors };
+        errors["email"] = "failed to log in";
+        errors["password"] = "failed to log in";
+        this.setState({ errors });
+      }
+    }
   };
 
   render() {
@@ -44,7 +56,7 @@ class Login extends Form {
         </div>
 
         <div id="pic-section">
-          <img src={loginpic} alt="login image" />
+          <img src={loginpic} alt="login" />
         </div>
       </div>
     );

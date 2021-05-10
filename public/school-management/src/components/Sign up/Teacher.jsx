@@ -1,25 +1,32 @@
-import React, { Component } from "react";
+import React from "react";
 import Form from "../Form";
 import Joi from "joi-browser";
 import { Link } from "react-router-dom";
+import { signUpTeacher } from "../../services/teacherService";
 
 class Teacher extends Form {
   state = {
     account: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
+      phoneNumber: "",
+      address: "",
       birthDate: "",
       specification: "",
       graduationCollage: "",
       graduationYear: "",
     },
     errors: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
+      phoneNumber: "",
+      address: "",
       birthDate: "",
       specification: "",
       graduationCollage: "",
@@ -28,10 +35,13 @@ class Teacher extends Form {
   };
 
   schema = {
-    name: Joi.string().required().label("name"),
+    firstName: Joi.string().required().label("name"),
+    lastName: Joi.string().required().label("name"),
     email: Joi.string().email().required().label("email"),
     password: Joi.string().min(8).required().label("password"),
     confirmPassword: Joi.string().required().label("confirm password"),
+    phoneNumber: Joi.number().required().label("phone number"),
+    address: Joi.string().required().label("address"),
     birthDate: Joi.string().required().label("birth date"),
     specification: Joi.string().required().label("spacification"),
     graduationCollage: Joi.string().required().label("graduation collage"),
@@ -42,12 +52,27 @@ class Teacher extends Form {
       .label("graduation year"),
   };
 
+  completeSubmit = async () => {
+    try {
+      await signUpTeacher(this.state.account);
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        let errors = { ...this.state.errors };
+        errors["email"] = "teacher already exists";
+        this.setState({ errors });
+      }
+    }
+  };
+
   render() {
     let {
-      name,
+      firstName,
+      lastName,
       email,
       password,
       confirmPassword,
+      phoneNumber,
+      address,
       birthDate,
       specification,
       graduationCollage,
@@ -58,7 +83,13 @@ class Teacher extends Form {
 
     return (
       <form onSubmit={this.handleSubmit} autoComplete="off">
-        {this.renderInput("name", name, "Name", errors.name)}
+        {this.renderInput(
+          "firstName",
+          firstName,
+          "First Name",
+          errors.firstName
+        )}
+        {this.renderInput("lastName", lastName, "Last Name", errors.lastName)}
         {this.renderInput("email", email, "Email", errors.email, "email")}
         {this.renderPassword("password", password, "Password", errors.password)}
         {this.renderPassword(
@@ -67,12 +98,19 @@ class Teacher extends Form {
           "Confirm Password",
           errors.confirmPassword
         )}
+        {this.renderInput(
+          "phoneNumber",
+          phoneNumber,
+          "Phone Number",
+          errors.phoneNumber
+        )}
         {this.renderDate(
           "birthDate",
           birthDate,
           "Birth Date",
           errors.birthDate
         )}
+        {this.renderInput("address", address, "Address", errors.address)}
         {this.renderInput(
           "specification",
           specification,

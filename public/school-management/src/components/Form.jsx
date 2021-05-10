@@ -68,6 +68,8 @@ class Form extends Component {
     return false;
   };
 
+  completeSubmit = () => {};
+
   handleSubmit = (event) => {
     event.preventDefault();
     let errors = this.validate();
@@ -77,7 +79,7 @@ class Form extends Component {
       this.setState({ errors });
       return;
     }
-    console.log("I'm All Set");
+    this.completeSubmit();
   };
 
   renderSubmitButton = (text) => {

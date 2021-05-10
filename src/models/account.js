@@ -6,10 +6,10 @@ var bcrypt = require('bcrypt')
 class Account extends Model {
     static async findByCredentials(email, password) {
         var account = await Account.findOne({where: {email}})
-        if (!account) throw new Error('Unable to log in.')
+        if (!account) throw new Error('cannot find account')
 
         var isMatch = await bcrypt.compare(password, account.password)
-        if (!isMatch) throw new Error('Unable to log in.')
+        if (!isMatch) throw new Error('cannot find account')
 
         var user = {account}
         if (account.user === 'School') user.data = await account.getSchool()

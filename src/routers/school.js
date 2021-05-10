@@ -12,7 +12,7 @@ const auth = require('../middlewares/auth')
         "foundationDate": "08-05-2021",                            //optional
         "facebookPage": "https://www.facebook.com/AlHudoodNet/"    //optional
     },   
-    "accountInfo": {
+    "account": {
         "email": "dodeh@hbd.com",
         "password": "100009078",
         "phoneNumber": "+963944656499"
@@ -29,7 +29,7 @@ router.post('/signup/schools', async (req, res) => {
         var school = await School.create(req.body.schoolInfo)
         await school.setAccount(account)
 
-        res.status(201).send({school, account, token: account.generateAuthToken()})
+        res.status(201).send({ school, account, token: account.generateAuthToken() })
     } catch (e) {
         console.log(e)
         res.status(400).send('Sign up failed.')

@@ -10,6 +10,10 @@ var accountRouter = require('./routers/account')
 
 app.use(express.static(publicPath))
 app.use(express.json())
+app.use((req,res,next)=> {
+    res.setHeader('Access-Control-Allow-Origin','http://localhost')
+    next()
+})
 app.use(teacherRouter)
 app.use(studentRouter)
 app.use(schoolRouter)

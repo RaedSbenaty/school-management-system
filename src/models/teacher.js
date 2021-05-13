@@ -1,7 +1,7 @@
 var {DataTypes, Model} = require('sequelize')
 var sequelize = require('../db/sequelize')
-var Personal_Info = require('./personal-info')
 var Account = require('./account')
+var PersonalInfo = require('./personalInfo')
 
 class Teacher extends Model {
 }
@@ -10,14 +10,14 @@ Teacher.init({
     certification: {type: DataTypes.STRING, allowNull: false},
     certificationIssuer: {type: DataTypes.STRING},
     certificationDate: {type: DataTypes.DATE},
-}, {sequelize, timestamps: false})
+}, {sequelize, modelName: 'teacher', timestamps: false})
 
 
-Account.hasOne(Teacher)
 Teacher.belongsTo(Account, {foreignKey: {allowNull: false}})
+Account.hasOne(Teacher)
 
-Personal_Info.hasOne(Teacher)
-Teacher.belongsTo(Personal_Info, {foreignKey: {allowNull: false}})
+Teacher.belongsTo(PersonalInfo, {foreignKey: {allowNull: false}})
+PersonalInfo.hasOne(Teacher)
 
 
 module.exports = Teacher

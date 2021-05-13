@@ -1,9 +1,9 @@
 //modules
-const { DataTypes, Model } = require('sequelize')
+const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../db/sequelize')
-const Account = require('./account')
-
-class School extends Model { }
+var Account = require('./account')
+class School extends Model {
+}
 
 //School properties
 School.init({
@@ -25,11 +25,16 @@ School.init({
             is: /^(http|https):\/\/www.facebook.com\/.*/i
         }
     },
-}, { sequelize,timestamps:false })
+    siteName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {is: /^[a-zA-Z0-9_-]+$/}
+    }
+}, {sequelize,modelName:'school', timestamps: false})
 
 //School relations
+School.belongsTo(Account, {foreignKey: {allowNull: false}})
 Account.hasOne(School)
-School.belongsTo(Account, { foreignKey: { allowNull: false } })
 
 //School.hasMany(Content)
 

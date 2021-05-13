@@ -1,11 +1,12 @@
 //modules
 const sequelize = require('../db/sequelize')
-const { DataTypes, Model } = require('sequelize')
+const {DataTypes, Model} = require('sequelize')
 const Account = require('./account')
-const Personal_Info = require('./personal-info')
+const PersonalInfo = require('./personalInfo')
 const AcademicIrregularity = require('./academicIrregularity')
 
-class Student extends Model { }
+class Student extends Model {
+}
 
 //Student properties
 Student.init({
@@ -24,14 +25,15 @@ Student.init({
     lastDegree: {
         type: DataTypes.STRING,
     },
-}, { sequelize,timestamps:false })
+}, {sequelize, modelName: 'student', timestamps: false})
 
 //Student relations
-Account.hasOne(Student)
-Student.belongsTo(Account, { foreignKey: { allowNull: false } })
+Student.belongsTo(PersonalInfo, {foreignKey: {allowNull: false}})
+PersonalInfo.hasOne(Student)
 
-Personal_Info.hasOne(Student)
-Student.belongsTo(Personal_Info, { foreignKey: { allowNull: false } })
+Student.belongsTo(Account, {foreignKey: {allowNull: false}})
+Account.hasOne(Student)
+
 
 // Student.hasMany(AcademicIrregularity)
 // AcademicIrregularity.belongsTo(Student)

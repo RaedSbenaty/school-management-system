@@ -1,5 +1,6 @@
-const express = require('express')
-const router = express.Router()
+var express = require('express')
+var {Op} = require('sequelize')
+var router = express.Router()
 var School = require('../models/school')
 var Account = require('../models/account')
 var schoolClass = require('../models/schoolClass')
@@ -34,23 +35,30 @@ router.post('/schools/signup', async (req, res) => {
     }
 })
 
+// alhbd/classes?start=2020&end=2021
 router.get('/:schoolName/classes', auth, async (req, res) => {
+    var {start, end} = req.query
     try {
-       var school = await School.findOne({
-            include: {association: 'schoolClasses', include: 'class'},
-            where: {siteName: req.params.schoolName},
+        var school = await School.findOne({
+            include: {
+                association: 'schoolClasses', include: 'class',
+                where: {startYear: {[Op.gte]: start || 0}, endYear: {[Op.lte]: end || 99999}}
+            },
+            where: {siteName: req.params.schoolName}
         })
-       res.send(school.schoolClasses)
+        res.send(school.schoolClasses)
     } catch (e) {
         console.log(e)
-        res.status(200).send('Unable to get classes for this school.')
+        res.status(404).send('Unable to get classes for this school.')
     }
 })
 
 /*
+start <= end
 alhbd/classes/add
 {
-   year: 2021
+   startYear: 2020,
+   endYear: 2021,
    classes: [1,3,5]
 }
  */
@@ -62,8 +70,10 @@ router.post('/:schoolName/classes/add', auth, async (req, res) => {
             where: {siteName: req.params.schoolName},
         })
 
-        for (let classId of req.body.classes)
-            await school.createSchoolClass({classId, year: req.body.year})
+        for (let classId of req.body.classes) {
+            var {startYear, endYear} = req.body
+            await school.createSchoolClass({classId, startYear, endYear})
+        }
 
         res.send(`Classes with id: ${req.body.classes.toString()} were added.`)
     } catch (e) {

@@ -9,7 +9,7 @@ router.post('/login',async (req, res) => {
     try {
         var account = await Account.findByCredentials(req.body.email, req.body.password)
         account.dataValues.token = account.generateAuthToken()
-        res.status(200).send(account)
+        res.status(201).send(account)
     } catch (e) {
         console.log(e)
         res.status(400).send('Unable to log in.')

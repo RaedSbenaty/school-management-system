@@ -5,10 +5,12 @@ var bcrypt = require('bcrypt')
 
 class Account extends Model {
     static async findByCredentials(email, password) {
-        var account = await Account.findOne({ include: ['school',
+        var account = await Account.findOne({
+            include: ['school',
                 {association: 'teacher', include: 'personalInfo'},
                 {association: 'student', include: 'personalInfo'},
-            ]}, {where: {email}})
+            ]
+        }, {where: {email}})
 
         if (!account) throw new Error('Cannot find account.')
 
@@ -34,7 +36,7 @@ Account.init({
     },
     user: {type: DataTypes.STRING, allowNull: false},
     phoneNumber: {type: DataTypes.STRING, allowNull: false},
-    Image: {type: DataTypes.STRING.BINARY}
+    image: {type: DataTypes.BLOB}
 
 }, {sequelize, modelName: 'account', timestamps: false})
 

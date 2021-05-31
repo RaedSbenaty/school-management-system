@@ -31,6 +31,7 @@ var auth = require('../middlewares/auth')
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
+        req.body.account.siteName = req.body.schoolName
         var school = await School.create(req.body, {include: [Account]})
         school.dataValues.token = school.account.generateAuthToken()
         res.status(201).send(school)

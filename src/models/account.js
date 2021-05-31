@@ -20,8 +20,10 @@ class Account extends Model {
         return account
     }
 
-    generateAuthToken() {
-        return jwt.sign({id: this.id, email: this.email, user: this.user}, process.env.JWT_SECRET)
+    async generateAuthToken() {
+        var payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
+        console.log(payload)
+        return jwt.sign(payload, process.env.JWT_SECRET)
     }
 }
 
@@ -36,8 +38,8 @@ Account.init({
     },
     user: {type: DataTypes.STRING, allowNull: false},
     phoneNumber: {type: DataTypes.STRING, allowNull: false},
-    image: {type: DataTypes.BLOB}
-
+    image: {type: DataTypes.BLOB},
+    siteName:{type: DataTypes.STRING}
 }, {sequelize, modelName: 'account', timestamps: false})
 
 Account.beforeSave(async (account) => {

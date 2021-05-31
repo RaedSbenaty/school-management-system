@@ -38,7 +38,7 @@ var image = multer({
 
 router.post('/me/image', auth, image.single('image'), async (req, res) => {
     req.account.image = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
-    await req.account.save()
+    await req.account.save({attributes: ['image']})
     res.send('Image was added successfully.')
 }, (error, req, res, next) => {
     res.status(400).send(error.message)

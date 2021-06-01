@@ -1,5 +1,5 @@
 var express = require('express')
-var {Op} = require('sequelize')
+var { Op } = require('sequelize')
 var router = express.Router()
 
 var School = require('../models/school')
@@ -32,8 +32,8 @@ router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
         req.body.account.siteName = req.body.schoolName
-        var school = await School.create(req.body, {include: [Account]})
-        school.dataValues.token = school.account.generateAuthToken()
+        var school = await School.create(req.body, { include: [Account] })
+        school.dataValues.token = await school.account.generateAuthToken()
         res.status(201).send(school)
     } catch (e) {
         console.log(e)
@@ -49,12 +49,12 @@ router.post('/:schoolName/:startYear-:endYear/classes/add', auth, async (req, re
     try {
         var school = await School.findOne({
             include: [SchoolClass],
-            where: {siteName: req.params.schoolName},
+            where: { siteName: req.params.schoolName },
         })
 
         for (let classId of req.body.classes) {
-            var {startYear, endYear} = req.params
-            await school.createSchoolClass({classId, startYear, endYear})
+            var { startYear, endYear } = req.params
+            await school.createSchoolClass({ classId, startYear, endYear })
         }
 
         res.send(`Classes with id: ${req.body.classes} were added.`)
@@ -66,14 +66,14 @@ router.post('/:schoolName/:startYear-:endYear/classes/add', auth, async (req, re
 
 ///alhbd/2020-2021/classes
 router.get('/:schoolName/:startYear-:endYear/classes', auth, async (req, res) => {
-    var {startYear, endYear} = req.params
+    var { startYear, endYear } = req.params
     try {
         var school = await School.findOne({
             include: {
                 association: 'schoolClasses', include: 'class',
-                where: {startYear: {[Op.gte]: startYear || 0}, endYear: {[Op.lte]: endYear || 99999}}
+                where: { startYear: { [Op.gte]: startYear || 0 }, endYear: { [Op.lte]: endYear || 99999 } }
             },
-            where: {siteName: req.params.schoolName}
+            where: { siteName: req.params.schoolName }
         })
         res.send(school.schoolClasses)
     } catch (e) {
@@ -100,7 +100,7 @@ classrooms:[
 router.post('/:schoolName/:startYear-:endYear/classes/:classId/classrooms/add',
     auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
+            var searchClass = { ...req.params }
             delete searchClass.schoolName
 
             var schoolClass = await SchoolClass.findByCriteria(req.params.schoolName, searchClass)
@@ -121,7 +121,7 @@ router.post('/:schoolName/:startYear-:endYear/classes/:classId/classrooms/add',
 router.get('/:schoolName/:startYear-:endYear/classes/:classID/classrooms'
     , auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
+            var searchClass = { ...req.params }
             delete searchClass.schoolName
 
             var schoolClass = await SchoolClass.findByCriteria(req.params.schoolName, searchClass)
@@ -143,7 +143,7 @@ router.get('/:schoolName/:startYear-:endYear/classes/:classID/classrooms'
 router.patch('/:schoolName/:startYear-:endYear/classes/:classID/classrooms/:classroomNumber'
     , auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
+            var searchClass = { ...req.params }
             delete searchClass.schoolName
             delete searchClass.classroomNumber
 
@@ -162,7 +162,7 @@ router.patch('/:schoolName/:startYear-:endYear/classes/:classID/classrooms/:clas
 router.delete('/:schoolName/:startYear-:endYear/classes/:classID/classrooms/:classroomNumber'
     , auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
+            var searchClass = { ...req.params }
             delete searchClass.schoolName
             delete searchClass.classroomNumber
 

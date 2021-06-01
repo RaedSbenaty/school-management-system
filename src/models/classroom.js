@@ -7,16 +7,17 @@ var Student = require('./student')
 
 
 class Classroom extends Model {
-    static async findByCriteria(siteName, searchClass, classroomNumber) {
-        var school = await School.findOne({
-            where: {siteName},
+    static async findByCriteria(schoolId, startYear, endYear, className, classroomNumber) {
+        return await Classroom.findOne({
+            where: {classroomNumber},
             include: {
-                association: 'schoolClasses', where: searchClass,
-                include: {association: 'classrooms', where: {classroomNumber}}
+                association: 'schoolClass', where: {schoolId, startYear, endYear},
+                include: {association: 'class', where: {name: className}}
             }
         })
-        return school.schoolClasses[0].classrooms[0]
     }
+
+
 }
 
 Classroom.init({

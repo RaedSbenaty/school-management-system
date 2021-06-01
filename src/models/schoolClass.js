@@ -4,12 +4,12 @@ var School = require('./school')
 var Class = require('./class')
 
 class SchoolClass extends Model {
-    static async findByCriteria(siteName, searchClass) {
-        var school = await School.findOne({
-            where: {siteName},
-            include: {association: 'schoolClasses', where: searchClass, include: 'classrooms'}
-        })
-        return school.schoolClasses[0]
+    static async findByCriteria(schoolId, startYear, endYear, className) {
+        className = className.replace('_',' ')
+        return await SchoolClass.findOne({
+            where: {schoolId, startYear, endYear},
+            include: ['classrooms',{association:'class',where:{name:className}}],
+        }) || {classrooms: []}
     }
 }
 
@@ -18,8 +18,8 @@ SchoolClass.init({
     endYear: {
         type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass',
         validate: {
-            isValidYears(value) {
-                if (value < this.startYear)
+            isValidYears(year) {
+                if (year < this.startYear)
                     throw new Error('Start year must be before end year.')
             }
         }

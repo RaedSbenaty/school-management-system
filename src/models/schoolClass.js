@@ -10,7 +10,7 @@ class SchoolClass extends Model {
         className = className.replace('_',' ')
         return await SchoolClass.findOne({
             where: {schoolId, startYear, endYear},
-            include: ['classrooms', 'subjectInYears',{association:'class',where:{name:className}}],
+            include: ['classrooms', 'subjectInYears',{association:'class',where:{name:className}},{association: 'section'}],
         }) || {classrooms: []}
     }
 }

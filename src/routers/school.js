@@ -1,5 +1,5 @@
 var express = require('express')
-var {Op} = require('sequelize')
+var { Op } = require('sequelize')
 var router = express.Router()
 
 var School = require('../models/school')
@@ -16,7 +16,7 @@ const Category = require('../models/category')
 
 //example
 /*
-{{
+{
         "schoolName": "Raghad",
         "location": "midan",
         "foundationDate": "08-05-2021",
@@ -34,7 +34,7 @@ const Category = require('../models/category')
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
-        var school = await School.create(req.body, {include: [Account]})
+        var school = await School.create(req.body, { include: [Account] })
         school.dataValues.token = await school.account.generateAuthToken()
         console.log(school.dataValues.token);
         res.status(201).send(school)
@@ -52,12 +52,13 @@ router.post('/:schoolName/:startYear-:endYear/classes/add', auth, async (req, re
     try {
         var school = await School.findOne({
             include: [SchoolClass],
-            where: {id: req.account.school.id},
+            where: { id: req.account.school.id },
         })
 
         for (let classId of req.body.classes) {
-            var {startYear, endYear} = req.params
-            await school.createSchoolClass({classId, startYear, endYear})
+            var { startYear, endYear } = req.params
+            var s = await school.createSchoolClass({ classId, startYear, endYear })
+            console.log(s);
         }
 
         res.send(`Classes with id: ${req.body.classes} were added.`)
@@ -177,21 +178,6 @@ router.delete('/:schoolName/:startYear-:endYear/classes/:className/classrooms/:c
     })
 
 
-    /*
-/alhbd/2020-2021/subjects/3/add
-{
-subjects:[
-        {
-        "categoryI":1,
-        "name":50
-        },{
-        "classroomNumber":2,
-        "studentsNumber":100
-        }
-]
-}
- */
-
 //adding subjects from possible categories to a school class through specific semesters
 
 /*
@@ -205,26 +191,27 @@ subjects:[
     ]
 }
 */
-    router.post('/:schoolName/:startYear-:endYear/subjects/:classId/add', auth, async (req, res) => {
-        try {
-            var searchClass = {...req.params}
-            delete searchClass.schoolName
+router.post('/:schoolName/:startYear-:endYear/subjects/:className/add', auth, async (req, res) => {
+    try {
+        var className = req.params.className.replace('_', ' ')
 
-            var schoolClass = await SchoolClass.findByCriteria(req.params.schoolName, searchClass)
-             
-            for ( let subject of req.body.subjects)
-                {subjectInYear = await schoolClass.createSubjectInYear(subject.name, subject.categoryId)
-                
-                    for ( let semester of subject.semesters)
-                  await subjectInYear.createSubjectInSemester(semester)
-                }
-               
-    
-            res.send(`Subjects were added for classID: ${req.params.classID}.`)
-        } catch (e) {
-            console.log(e)
-            res.status(200).send('Unable to add all subjects.')
+        var schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
+            req.params.endYear, className)
+
+        for (let subject of req.body.subjects) {
+            subjectInYear = await schoolClass.createSubjectInYear(subject.name, subject.categoryId)
         }
-    })
+        //     for (let semester of subject.semesters)
+        //         await subjectInYear.createSubjectInSemester(semester)
+        // }
+
+
+
+        res.send(`Subjects were added for classID: ${req.params.classID}.`)
+    } catch (e) {
+        console.log(e)
+        res.status(200).send('Unable to add all subjects.')
+    }
+})
 
 module.exports = router

@@ -28,10 +28,10 @@ SubjectInYear.init({
     },
 }, { sequelize, modelName: 'subjectInYear', timestamps: false })
 
-SubjectInYear.belongsTo(Category, { foreignKey: { allowNull: false, unique: 'uniqueSubjectInYear' } })
+SubjectInYear.belongsTo(Category, { foreignKey: { allowNull: false} })
 Category.hasMany(SubjectInYear)
 
-SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false, unique: 'uniqueSubjectInYear' } })
+SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false } })
 SchoolClass.hasMany(SubjectInYear)
 
 module.exports = SubjectInYear

@@ -7,7 +7,7 @@ class SchoolClass extends Model {
     static async findByCriteria(siteName, searchClass) {
         var school = await School.findOne({
             where: {siteName},
-            include: {association: 'schoolClasses', where: searchClass, include: 'classrooms'}
+            include: {association: 'schoolClasses', where: searchClass, include: ['classrooms','subjectInYears']}
         })
         return school.schoolClasses[0]
     }

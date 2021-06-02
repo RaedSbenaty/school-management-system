@@ -5,6 +5,7 @@ var router = express.Router()
 var Class = require('../models/class')
 var Account = require('../models/account')
 var auth = require('../middlewares/auth')
+const Category = require('../models/category')
 
 router.post('/login', async (req, res) => {
     try {
@@ -23,6 +24,15 @@ router.get('/classes', async (req, res) => {
         await res.send(classes)
     } catch (e) {
         res.status(500).send('Failed to fetch classes')
+    }
+})
+
+router.get('/categories', async(req, res) => {
+    try {
+        var categories = await Category.findAll()
+        await res.send(categories)
+    } catch (e) {
+        res.status(500).send('Failed to fetch categories')
     }
 })
 

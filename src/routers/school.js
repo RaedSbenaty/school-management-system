@@ -9,6 +9,9 @@ var SchoolClass = require('../models/schoolClass')
 var Classroom = require('../models/classroom')
 
 var auth = require('../middlewares/auth')
+const SubjectInYear = require('../models/SubjectInYear')
+const SubjectInSemester = require('../models/subjectInSemester')
+const Category = require('../models/category')
 
 
 //example
@@ -33,7 +36,8 @@ router.post('/schools/signup', async (req, res) => {
         req.body.account.user = 'School'
         req.body.account.siteName = req.body.schoolName
         var school = await School.create(req.body, {include: [Account]})
-        school.dataValues.token = school.account.generateAuthToken()
+        school.dataValues.token = await school.account.generateAuthToken()
+        console.log(school.dataValues.token);
         res.status(201).send(school)
     } catch (e) {
         console.log(e)
@@ -173,6 +177,57 @@ router.delete('/:schoolName/:startYear-:endYear/classes/:classID/classrooms/:cla
         } catch (e) {
             console.log(e)
             res.status(400).send('Deletion failed.')
+        }
+    })
+
+
+    /*
+/alhbd/2020-2021/subjects/3/add
+{
+subjects:[
+        {
+        "categoryI":1,
+        "name":50
+        },{
+        "classroomNumber":2,
+        "studentsNumber":100
+        }
+]
+}
+ */
+
+//adding subjects from possible categories to a school class through specific semesters
+
+/*
+{
+    "subjects": [
+        {
+            "categoryId": 1,
+            "name": "bla",
+            "semesters": [1,2]
+        }
+    ]
+}
+*/
+    router.post('/:schoolName/:startYear-:endYear/subjects/:classId/add', auth, async (req, res) => {
+        try {
+            var searchClass = {...req.params}
+            delete searchClass.schoolName
+
+            var schoolClass = await SchoolClass.findByCriteria(req.params.schoolName, searchClass)
+             
+            for ( let subject of req.body.subjects)
+                {subjectInYear = await schoolClass.createSubjectInYear(subject.name, subject.categoryId)
+                
+                    for ( let semester of subject.semesters)
+                  await subjectInYear.createSubjectInSemester(semester)
+                }
+               
+    
+            res.send(`Subjects were added for classID: ${req.params.classID}.`)
+        } catch (e) {
+            console.log(e)
+            res.status(200).send('Unable to add all subjects.')
         }
     })
 

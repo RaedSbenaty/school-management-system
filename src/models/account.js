@@ -29,7 +29,7 @@ class Account extends Model {
 
 Account.init({
     email: {
-        type: DataTypes.STRING, allowNull: false, unique: true,
+        type: DataTypes.STRING, allowNull: false,
         validate: {isEmail: true}
     },
     password: {
@@ -46,12 +46,23 @@ Account.init({
 }, {sequelize, modelName: 'account', timestamps: false})
 
 Account.beforeSave(async (account) => {
+        let errorMessage = ''
+
+        if (await Account.findOne({where: {email: account.email}}))
+            errorMessage += 'Validation error: email must be unique.\n'
+
         if (!account.siteName && account.user === 'School')
-            throw new Error('School must has a site name.')
+            errorMessage += 'Validation error: School must has a site name.\n'
+
+        if (account.siteName && await Account.findOne({where: {siteName: account.siteName}}))
+            errorMessage += 'Validation error: site name must be unique.\n'
+
+        if(errorMessage!=='') throw new Error(errorMessage)
 
         if (account.changed('password', true))
             account.password = await bcrypt.hash(account.password, 8)
     }
 )
+
 
 module.exports = Account

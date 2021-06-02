@@ -11,13 +11,24 @@ class School extends Model {
             include: {association: 'schoolClasses', where: {startYear, endYear}, include: 'class'}
         }) || {schoolClasses: []}
     }
+
+    async createSchoolClasses(startYear, endYear, classes) {
+        var oldClasses = classes.filter(newClass =>
+            this.schoolClasses.find(schoolClass => schoolClass.classId === newClass))
+
+        if (oldClasses.length)
+            throw new Error(`Classes with id: ${oldClasses} are already existing.`)
+
+        for (let classId of classes)
+            await this.createSchoolClass({classId, startYear, endYear})
+    }
 }
 
 //School properties
 School.init({
     schoolName: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,unique: true
     },
     location: {
         type: DataTypes.STRING,

@@ -2,7 +2,6 @@ var jwt = require('jsonwebtoken')
 var Account = require('../models/account')
 
 module.exports = async (req, res, next) => {
-
     try {
         var token = req.header('Authorization').replace('Bearer ', '')
         var payload = jwt.verify(token, process.env.JWT_SECRET)

@@ -14,7 +14,8 @@ class School extends Model {
 
     async createSchoolClasses(startYear, endYear, classes) {
         var oldClasses = classes.filter(newClass =>
-            this.schoolClasses.find(schoolClass => schoolClass.classId === newClass))
+            this.schoolClasses.find(schoolClass => schoolClass.classId === newClass
+                && schoolClass.startYear == startYear && schoolClass.endYear == endYear))
 
         if (oldClasses.length)
             throw new Error(`Classes with id: ${oldClasses} are already existing.`)
@@ -28,7 +29,7 @@ class School extends Model {
 School.init({
     schoolName: {
         type: DataTypes.STRING,
-        allowNull: false,unique: true
+        allowNull: false, unique: true
     },
     location: {
         type: DataTypes.STRING,

@@ -198,16 +198,27 @@ router.post('/:schoolName/:startYear-:endYear/subjects/:className/add', auth, as
         var schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
             req.params.endYear, className)
 
-        for (let subject of req.body.subjects) {
-            subjectInYear = await schoolClass.createSubjectInYear(subject.name, subject.categoryId)
-        }
+            var o = {
+                "categoryId": 1,
+            "name": "bla"
+                }
+            console.log(schoolClass+' has been found');
+            await schoolClass.createSubjectInYear(o)
+        // for (let subject of req.body.subjects) {
+        //     for (let semester of subject.semesters) {
+        //          {
+        //             subjectInYear = await schoolClass.createSubjectInYear({categoryId:1, name:'bla'})
+
+        //         }
+        //     }
+        // }
         //     for (let semester of subject.semesters)
         //         await subjectInYear.createSubjectInSemester(semester)
         // }
 
 
 
-        res.send(`Subjects were added for classID: ${req.params.classID}.`)
+        res.send('Subjects were added for this class.')
     } catch (e) {
         console.log(e)
         res.status(200).send('Unable to add all subjects.')

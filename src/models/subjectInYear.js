@@ -31,7 +31,7 @@ SubjectInYear.init({
 SubjectInYear.belongsTo(Category, { foreignKey: { allowNull: false} })
 Category.hasMany(SubjectInYear)
 
-SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false } })
+SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false },unique: 'uniqueSubjectInYear' })
 SchoolClass.hasMany(SubjectInYear)
 
 module.exports = SubjectInYear

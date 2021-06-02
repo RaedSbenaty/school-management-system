@@ -6,7 +6,7 @@ class Category extends Model {
 
 Category.init({
     name: {type: DataTypes.STRING, allowNull: false}
-}, {sequelize, modelName: 'section', timestamps: false})
+}, {sequelize, modelName: 'category', timestamps: false})
 
 Category.defaultCategories = [
     {name: "Physics"}, {name: "Math"}, {name: "Religion"}, {name: "Language"},

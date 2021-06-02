@@ -2,7 +2,15 @@
 const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../db/sequelize')
 var Account = require('./account')
+
 class School extends Model {
+
+    static async findByCriteriaInPeriod(schoolId, startYear, endYear) {
+        return await School.findOne({
+            where: {id: schoolId},
+            include: {association: 'schoolClasses', where: {startYear, endYear}, include: 'class'}
+        }) || {schoolClasses: []}
+    }
 }
 
 //School properties
@@ -25,12 +33,7 @@ School.init({
             is: /^(http|https):\/\/www.facebook.com\/.*/i
         }
     },
-    siteName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {is: /^[a-zA-Z0-9_-]+$/}
-    }
-}, {sequelize,modelName:'school', timestamps: false})
+}, {sequelize, modelName: 'school', timestamps: false})
 
 //School relations
 School.belongsTo(Account, {foreignKey: {allowNull: false}})

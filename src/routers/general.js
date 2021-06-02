@@ -9,7 +9,7 @@ const Category = require('../models/category')
 
 router.post('/login', async (req, res) => {
     try {
-        var account = await Account.findByCredentials(req.body.email, req.body.password)
+        var account = await Account.findByCriteria(req.body.email, req.body.password)
         account.dataValues.token = account.generateAuthToken()
         res.status(201).send(account)
     } catch (e) {

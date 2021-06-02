@@ -16,13 +16,13 @@ const Category = require('../models/category')
 
 //example
 /*
-{
+{{
         "schoolName": "Raghad",
         "location": "midan",
         "foundationDate": "08-05-2021",
         "facebookPage": "https://www.facebook.com/AlHudoodNet/",
-        "siteName": "alhbd",
         "account": {
+        "siteName": "alhbd",
         "email": "dodeh@hbd.com",
         "password": "100009078",
         "phoneNumber": "+963944656499"
@@ -34,7 +34,6 @@ const Category = require('../models/category')
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
-        req.body.account.siteName = req.body.schoolName
         var school = await School.create(req.body, {include: [Account]})
         school.dataValues.token = await school.account.generateAuthToken()
         console.log(school.dataValues.token);
@@ -45,7 +44,7 @@ router.post('/schools/signup', async (req, res) => {
     }
 })
 
-/*
+/* post Classes
 /alhbd/2020-2021/classes/add
 {"classes":[1,3,5]}
  */
@@ -53,7 +52,7 @@ router.post('/:schoolName/:startYear-:endYear/classes/add', auth, async (req, re
     try {
         var school = await School.findOne({
             include: [SchoolClass],
-            where: {siteName: req.params.schoolName},
+            where: {id: req.account.school.id},
         })
 
         for (let classId of req.body.classes) {
@@ -67,18 +66,14 @@ router.post('/:schoolName/:startYear-:endYear/classes/add', auth, async (req, re
         res.status(200).send('Unable to add all classes for this school.')
     }
 })
-
-///alhbd/2020-2021/classes
+/* get Classes
+/alhbd/2020-2021/classes
+ */
 router.get('/:schoolName/:startYear-:endYear/classes', auth, async (req, res) => {
-    var {startYear, endYear} = req.params
     try {
-        var school = await School.findOne({
-            include: {
-                association: 'schoolClasses', include: 'class',
-                where: {startYear: {[Op.gte]: startYear || 0}, endYear: {[Op.lte]: endYear || 99999}}
-            },
-            where: {siteName: req.params.schoolName}
-        })
+        var school = await School.findByCriteriaInPeriod(req.account.school.id
+            , req.params.startYear, req.params.endYear)
+
         res.send(school.schoolClasses)
     } catch (e) {
         console.log(e)
@@ -87,10 +82,10 @@ router.get('/:schoolName/:startYear-:endYear/classes', auth, async (req, res) =>
 })
 
 
-/*
-/alhbd/2020-2021/classes/3/classrooms/add
+/* post Classrooms
+/alhbd/2020-2021/classes/Second_Grade/classrooms/add
 {
-classrooms:[
+"classrooms":[
         {
         "classroomNumber":1,
         "studentsNumber":50
@@ -101,17 +96,18 @@ classrooms:[
 ]
 }
  */
-router.post('/:schoolName/:startYear-:endYear/classes/:classId/classrooms/add',
+router.post('/:schoolName/:startYear-:endYear/classes/:className/classrooms/add',
     auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
-            delete searchClass.schoolName
+            var className = req.params.className.replace('_', ' ')
 
-            var schoolClass = await SchoolClass.findByCriteria(req.params.schoolName, searchClass)
+            var schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
+                req.params.endYear, req.params.className)
+
             for (let classroom of req.body.classrooms)
                 await schoolClass.createClassroom(classroom)
 
-            res.send(`Classrooms were added for classId: ${req.params.classId} `)
+            res.send(`Classrooms were added for ${className}.`)
         } catch (e) {
             console.log(e)
             res.status(400).send('Unable to add all classrooms for this class.')
@@ -119,16 +115,17 @@ router.post('/:schoolName/:startYear-:endYear/classes/:classId/classrooms/add',
     })
 
 
-/*
-/alhbd/2020-2021/classes/3/classrooms
+/* get Classrooms
+/alhbd/2020-2021/classes/Second_Grade
  */
-router.get('/:schoolName/:startYear-:endYear/classes/:classID/classrooms'
+router.get('/:schoolName/:startYear-:endYear/classes/:className/classrooms'
     , auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
-            delete searchClass.schoolName
+            var className = req.params.className.replace('_', ' ')
 
-            var schoolClass = await SchoolClass.findByCriteria(req.params.schoolName, searchClass)
+            var schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
+                req.params.endYear, className)
+
             res.send(schoolClass.classrooms)
         } catch (e) {
             console.log(e)
@@ -136,43 +133,42 @@ router.get('/:schoolName/:startYear-:endYear/classes/:classID/classrooms'
         }
     })
 
-/*
-/alhbd/2020-2021/classes/3/classrooms/1
+/* patch Classroom
+/alhbd/2020-2021/classes/Second_Grade/classrooms/2
 {
     "classroom":{
     "studentsNumber": 400
     }
 }
  */
-router.patch('/:schoolName/:startYear-:endYear/classes/:classID/classrooms/:classroomNumber'
+router.patch('/:schoolName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber'
     , auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
-            delete searchClass.schoolName
-            delete searchClass.classroomNumber
+            var className = req.params.className.replace('_', ' ')
 
-            var classroom = await Classroom.findByCriteria(req.params.schoolName, searchClass, req.params.classroomNumber)
+            var classroom = await Classroom.findByCriteria(req.account.school.id, req.params.startYear,
+                req.params.endYear, className, req.params.classroomNumber)
+
             await classroom.update(req.body.classroom)
             res.send(`Classroom with number ${req.params.classroomNumber} was edited.`)
         } catch (e) {
             console.log(e)
-            res.status(400).send('Deletion failed.')
+            res.status(400).send('Updating failed.')
         }
     })
 
-/*
-//alhbd/2020-2021/classes/3/classrooms/2
+/* delete Classroom
+/alhbd/2020-2021/classes/Second_Grade/classrooms/2
  */
-router.delete('/:schoolName/:startYear-:endYear/classes/:classID/classrooms/:classroomNumber'
+router.delete('/:schoolName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber'
     , auth, async (req, res) => {
         try {
-            var searchClass = {...req.params}
-            delete searchClass.schoolName
-            delete searchClass.classroomNumber
+            var className = req.params.className.replace('_', ' ')
 
-            var classroom = await Classroom.findByCriteria(req.params.schoolName, searchClass, req.params.classroomNumber)
+            var classroom = await Classroom.findByCriteria(req.account.school.id, req.params.startYear,
+                req.params.endYear, className, req.params.classroomNumber)
+
             await classroom.destroy()
-
             res.send(`Classroom with number ${req.params.classroomNumber} was deleted.`)
         } catch (e) {
             console.log(e)

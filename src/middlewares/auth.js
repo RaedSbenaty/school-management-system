@@ -2,6 +2,7 @@ var jwt = require('jsonwebtoken')
 var Account = require('../models/account')
 
 module.exports = async (req, res, next) => {
+
     try {
         var token = req.header('Authorization').replace('Bearer ', '')
         var payload = jwt.verify(token, process.env.JWT_SECRET)
@@ -14,7 +15,13 @@ module.exports = async (req, res, next) => {
             ]
         })
 
-        if (!account || account.email !== payload.email) throw new Error('Account not found.')
+        if (!account || account.email !== payload.email)
+            throw new Error('Account not found.')
+
+        if (account.user === 'School' && req.params.schoolName
+            && account.siteName !== req.params.schoolName)
+            throw new Error('Unauthorized site name.')
+
         req.account = account
         next()
     } catch (e) {

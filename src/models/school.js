@@ -18,7 +18,7 @@ class School extends Model {
                 && schoolClass.startYear == startYear && schoolClass.endYear == endYear))
 
         if (oldClasses.length)
-            throw new Error(`Classes with id: ${oldClasses} are already existing.`)
+            throw new Error(oldClasses)
 
         for (let classId of classes)
             await this.createSchoolClass({classId, startYear, endYear})

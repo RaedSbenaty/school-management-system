@@ -52,7 +52,7 @@ router.post('/:siteName/:startYear-:endYear/classes/add', auth, async (req, res)
         res.send(`Classes with id: ${req.body.classes} were added.`)
     } catch (e) {
         console.log(e)
-        res.status(400).send(e.message)
+        res.status(400).send({error:e.message.split(',').map(n=>parseInt(n))})
     }
 })
 /* get Classes

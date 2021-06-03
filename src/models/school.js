@@ -29,7 +29,7 @@ class School extends Model {
 School.init({
     schoolName: {
         type: DataTypes.STRING,
-        allowNull: false, unique: true
+        allowNull: false
     },
     location: {
         type: DataTypes.STRING,

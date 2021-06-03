@@ -35,6 +35,7 @@ router.post('/schools/signup', async (req, res) => {
         school.dataValues.token = school.account.generateAuthToken()
         res.status(201).send(school)
     } catch (e) {
+        console.log(e)
         res.status(400).send(e.message)
     }
 })

@@ -3,7 +3,7 @@ const sequelize = require('../db/sequelize')
 const {DataTypes, Model} = require('sequelize')
 const Account = require('./account')
 const PersonalInfo = require('./personalInfo')
-const AcademicIrregularity = require('./academicIrregularity')
+var Class = require('./class')
 
 class Student extends Model {
 }
@@ -20,11 +20,7 @@ Student.init({
     },
     lastSchoolAttended: {
         type: DataTypes.STRING,
-        allowNull: false
-    },
-    lastDegree: {
-        type: DataTypes.STRING,
-    },
+    }
 }, {sequelize, modelName: 'student', timestamps: false})
 
 //Student relations
@@ -34,6 +30,8 @@ PersonalInfo.hasOne(Student)
 Student.belongsTo(Account, {foreignKey: {allowNull: false}})
 Account.hasOne(Student)
 
+Student.belongsTo(Class, {foreignKey: {allowNull: false}})
+Class.hasMany(Student)
 
 // Student.hasMany(AcademicIrregularity)
 // AcademicIrregularity.belongsTo(Student)

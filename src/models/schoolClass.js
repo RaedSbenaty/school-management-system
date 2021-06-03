@@ -11,7 +11,8 @@ class SchoolClass extends Model {
         return await SchoolClass.findOne({
             where: {schoolId, startYear, endYear},
             include: ['classrooms', 'subjectInYears',{association:'class',where:{name:className}}],
-        }) || {classrooms: []}
+        }) 
+
     }
 }
 

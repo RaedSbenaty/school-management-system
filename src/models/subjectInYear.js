@@ -24,14 +24,14 @@ class SubjectInYear extends Model {
 
 SubjectInYear.init({
     name: {
-        type: DataTypes.STRING, allowNull: false, unique: true
+        type: DataTypes.STRING, allowNull: false
     },
 }, { sequelize, modelName: 'subjectInYear', timestamps: false })
 
 SubjectInYear.belongsTo(Category, { foreignKey: { allowNull: false} })
 Category.hasMany(SubjectInYear)
 
-SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false },unique: 'uniqueSubjectInYear' })
+SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false } })
 SchoolClass.hasMany(SubjectInYear)
 
 module.exports = SubjectInYear

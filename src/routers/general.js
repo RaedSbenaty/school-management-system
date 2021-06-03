@@ -6,6 +6,7 @@ var Class = require('../models/class')
 var Account = require('../models/account')
 var auth = require('../middlewares/auth')
 const Category = require('../models/category')
+const SubjectInYear = require('../models/SubjectInYear')
 
 router.post('/login', async (req, res) => {
     try {
@@ -30,9 +31,19 @@ router.get('/classes', async (req, res) => {
 router.get('/categories', async(req, res) => {
     try {
         var categories = await Category.findAll()
-        await res.send(categories)
+        await res.status(200).send(categories)
     } catch (e) {
         res.status(500).send('Failed to fetch categories')
+    }
+})
+
+router.get('/subjects', async(req, res) =>{
+    try {
+        var {startYear, endYear} = req.params
+        var subjectsInYear = await SubjectInYear.findAll({include: Category})
+        await res.status(200).send(subjectsInYear)
+    } catch (e) {
+        res.status(500).send('Failed to fetch subjects in year: '+ startYear+'-'+endYear)
     }
 })
 

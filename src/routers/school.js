@@ -52,7 +52,7 @@ router.post('/:siteName/:startYear-:endYear/classes/add', auth, async (req, res)
         res.send(`Classes with id: ${req.body.classes} were added.`)
     } catch (e) {
         console.log(e)
-        res.status(400).send({error:e.message.split(',').map(n=>parseInt(n))})
+        res.status(400).send({error: e.message.split(',').map(n => parseInt(n))})
     }
 })
 /* get Classes
@@ -91,13 +91,14 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/add',
             var schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
                 req.params.endYear, req.params.className)
 
-            if(!schoolClass.id) throw new Error(`${req.params.className} class was not found.`)
+            if (!schoolClass.id)
+                return res.status(400).send(`${req.params.className} class was not found.`)
 
             await schoolClass.createClassrooms(req.body.classrooms)
             res.send(`Classrooms were added for ${className}.`)
         } catch (e) {
-            console.log(e.message)
-            res.status(400).send(e.message)
+            console.log(e)
+            res.status(400).send({error: e.message.split(',').map(n => parseInt(n))})
         }
     })
 

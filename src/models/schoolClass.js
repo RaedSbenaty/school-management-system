@@ -19,7 +19,7 @@ class SchoolClass extends Model {
             .map(classroom => classroom.classroomNumber)
 
         if (oldClassrooms.length)
-            throw new Error(`Classrooms with number: ${oldClassrooms} are already existing.`)
+            throw new Error(oldClassrooms)
 
         for (let classroom of classrooms)
             await this.createClassroom(classroom)

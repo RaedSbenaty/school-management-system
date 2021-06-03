@@ -4,6 +4,7 @@ var Teacher = require('../models/teacher')
 var Account = require('../models/account')
 var PersonalInfo = require('../models/personalInfo')
 
+
 /*
 {
     "certification": "PHD. HBD",
@@ -29,7 +30,7 @@ router.post('/teachers/signup', async (req, res) => {
         res.status(201).send(teacher)
     } catch (e) {
         console.log(e)
-        res.status(400).send('Sign up failed.')
+        res.status(400).send(e.message)
     }
 })
 

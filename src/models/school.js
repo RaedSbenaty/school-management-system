@@ -11,6 +11,18 @@ class School extends Model {
             include: {association: 'schoolClasses', where: {startYear, endYear}, include: 'class'}
         }) || {schoolClasses: []}
     }
+
+    async createSchoolClasses(startYear, endYear, classes) {
+        var oldClasses = classes.filter(newClass =>
+            this.schoolClasses.find(schoolClass => schoolClass.classId === newClass
+                && schoolClass.startYear == startYear && schoolClass.endYear == endYear))
+
+        if (oldClasses.length)
+            throw new Error(oldClasses)
+
+        for (let classId of classes)
+            await this.createSchoolClass({classId, startYear, endYear})
+    }
 }
 
 //School properties

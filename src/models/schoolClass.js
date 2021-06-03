@@ -7,12 +7,25 @@ class SchoolClass extends Model {
 
 
     static async findByCriteria(schoolId, startYear, endYear, className) {
-        className = className.replace('_',' ')
+        className = className.replace('_', ' ')
         return await SchoolClass.findOne({
             where: {schoolId, startYear, endYear},
             include: ['classrooms', 'subjectInYears',{association:'class',where:{name:className}}],
-        }) 
+        }) || {classrooms: []}
 
+    }
+
+    async createClassrooms(classrooms) {
+        //MIND BLOWING :O
+        var oldClassrooms = classrooms.filter(newClassroom => this.classrooms.find(
+            classroom => classroom.classroomNumber === newClassroom.classroomNumber))
+            .map(classroom => classroom.classroomNumber)
+
+        if (oldClassrooms.length)
+            throw new Error(oldClassrooms)
+
+        for (let classroom of classrooms)
+            await this.createClassroom(classroom)
     }
 }
 

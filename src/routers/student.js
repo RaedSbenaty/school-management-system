@@ -90,8 +90,9 @@ router.get('/:siteName/:startYear-:endYear/students', auth, async (req, res) => 
                     association: 'schoolClass'
                     , where: {startYear: req.params.startYear, endYear: req.params.endYear}
                 }
-            }, {association: 'student', include: ['personalInfo', 'account']}]
+            }, {association: 'student', include: ['personalInfo', 'account', 'class']}]
         })
+        //  res.send(studentsInSchool)
         res.send(studentsInSchool.filter(studentInSchool => studentInSchool.studentInClasses.length)
             .map(studentInSchool => studentInSchool.student))
     } catch (e) {

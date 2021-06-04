@@ -77,20 +77,20 @@ router.post('/:siteName/:startYear-:endYear/students/add', auth, async (req, res
 })
 
 // get Students In a School (in a year)
-// /alhbd/2020-2021/students/add
+// /alhbd/2020-2021/students
 router.get('/:siteName/:startYear-:endYear/students', auth, async (req, res) => {
     try {
         var studentsInSchool = await StudentInSchool.findAll({
             where: {
                 schoolId: req.account.school.id,
-            //    startYear: req.params.startYear, endYear: req.params.endYear
+                //    startYear: req.params.startYear, endYear: req.params.endYear
             },
             include: [{
                 association: 'studentInClasses', include: {
                     association: 'schoolClass'
                     , where: {startYear: req.params.startYear, endYear: req.params.endYear}
                 }
-            }, {association: 'student', include: 'personalInfo'}]
+            }, {association: 'student', include: ['personalInfo', 'account']}]
         })
         res.send(studentsInSchool.filter(studentInSchool => studentInSchool.studentInClasses.length)
             .map(studentInSchool => studentInSchool.student))

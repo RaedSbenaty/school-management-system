@@ -1,5 +1,5 @@
 var express = require('express')
-var { Op, where, Association } = require('sequelize')
+var {Op, where, Association} = require('sequelize')
 var router = express.Router()
 
 var School = require('../models/school')
@@ -34,7 +34,7 @@ const Category = require('../models/category')
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
-        var school = await School.create(req.body, { include: [Account] })
+        var school = await School.create(req.body, {include: [Account]})
         school.dataValues.token = await school.account.generateAuthToken()
         res.status(201).send(school)
     } catch (e) {
@@ -56,7 +56,7 @@ router.post('/:siteName/:startYear-:endYear/classes/add', auth, async (req, res)
         res.send(`Classes with id: ${req.body.classes} were added.`)
     } catch (e) {
         console.log(e)
-        res.status(400).send({error: e.message.split(',').map(n => parseInt(n))})
+        res.status(400).send({error: e.message.split(',')})
     }
 })
 /* get Classes
@@ -67,7 +67,8 @@ router.get('/:siteName/:startYear-:endYear/classes', auth, async (req, res) => {
         var school = await School.findByCriteriaInPeriod(req.account.school.id
             , req.params.startYear, req.params.endYear)
 
-        res.send(school.schoolClasses)
+
+        res.send({schoolClasses: school.schoolClasses})
     } catch (e) {
         console.log(e.message)
         res.status(400).send(e.message)
@@ -102,7 +103,7 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/add',
             res.send(`Classrooms were added for ${className}.`)
         } catch (e) {
             console.log(e)
-            res.status(400).send({error: e.message.split(',').map(n => parseInt(n))})
+            res.status(400).send({error: e.message.split(',')})
         }
     })
 
@@ -118,7 +119,7 @@ router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms'
             var schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
                 req.params.endYear, className)
 
-            res.send(schoolClass.classrooms)
+            res.send({classrooms:schoolClass.classrooms})
         } catch (e) {
             console.log(e)
             res.status(404).send('Classrooms not found.')
@@ -196,7 +197,7 @@ router.post('/:schoolName/:startYear-:endYear/subjects/:className/add', auth, as
             return res.status(404).send('This school does not have a ' + className + ' class')
 
         for (let subject of req.body.subjects)
-            await schoolClass.createSubjectInYear(subject, { include: [SubjectInSemester] })
+            await schoolClass.createSubjectInYear(subject, {include: [SubjectInSemester]})
 
         res.status(201).send('Subjects were added for this class.')
     } catch (e) {
@@ -217,7 +218,7 @@ router.get('/:siteName/subjects', async (req, res) => {
             include: {
                 association: 'schoolClass',
                 include: {
-                    association: 'school', where: { schoolName }
+                    association: 'school', where: {schoolName}
                 }
             }
         })

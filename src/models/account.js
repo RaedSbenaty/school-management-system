@@ -22,7 +22,6 @@ class Account extends Model {
 
     generateAuthToken() {
         var payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
-        console.log(payload)
         return jwt.sign(payload, process.env.JWT_SECRET)
     }
 }

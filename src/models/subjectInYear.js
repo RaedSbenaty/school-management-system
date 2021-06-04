@@ -1,4 +1,4 @@
-var { DataTypes, Model } = require('sequelize')
+var {DataTypes, Model} = require('sequelize')
 var sequelize = require('../db/sequelize')
 var Category = require('./category')
 var SchoolClass = require('./schoolClass')
@@ -26,12 +26,12 @@ SubjectInYear.init({
     name: {
         type: DataTypes.STRING, allowNull: false
     },
-}, { sequelize, modelName: 'subjectInYear', timestamps: false })
+}, {sequelize, modelName: 'subjectInYear', timestamps: false})
 
-SubjectInYear.belongsTo(Category, { foreignKey: { allowNull: false} })
+SubjectInYear.belongsTo(Category, {foreignKey: {allowNull: false}})
 Category.hasMany(SubjectInYear)
 
-SubjectInYear.belongsTo(SchoolClass, { foreignKey: { allowNull: false } })
+SubjectInYear.belongsTo(SchoolClass, {foreignKey: {allowNull: false}})
 SchoolClass.hasMany(SubjectInYear)
 
 module.exports = SubjectInYear

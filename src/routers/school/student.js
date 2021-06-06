@@ -47,33 +47,12 @@ router.post('/:siteName/:startYear-:endYear/students/add', auth, async (req, res
 
         const student = await Student.create(req.body, {include: ['account', 'personalInfo']})
         const studentInSchool = await StudentInSchool.create({studentId: student.id, schoolId: req.account.school.id})
-        await StudentInClass.create({studentInSchoolId: studentInSchool.id, schoolClassId: schoolClass.id})
+        await StudentInClass.create({
+            studentInSchoolId: studentInSchool.id, schoolClassId: schoolClass.id,
+            classroomId: req.body.classroomId
+        })
 
         res.status(201).send(student)
-    } catch (e) {
-        console.log(e)
-        res.status(400).send(e.message)
-    }
-})
-
-// get Students In a School (in a year)
-// /alhbd/2020-2021/students
-router.get('/:siteName/:startYear-:endYear/students', auth, async (req, res) => {
-    try {
-        const studentsInSchool = await StudentInSchool.findAll({
-            where: {
-                schoolId: req.account.school.id,
-                //    startYear: req.params.startYear, endYear: req.params.endYear
-            },
-            include: [{
-                association: 'studentInClasses', include: {
-                    association: 'schoolClass'
-                    , where: {startYear: req.params.startYear, endYear: req.params.endYear}
-                }
-            }, {association: 'student', include: ['personalInfo', 'account', 'class']}]
-        })
-        res.send(studentsInSchool.filter(studentInSchool => studentInSchool.studentInClasses.length)
-            .map(studentInSchool => studentInSchool.student))
     } catch (e) {
         console.log(e)
         res.status(400).send(e.message)

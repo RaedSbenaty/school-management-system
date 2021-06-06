@@ -33,7 +33,7 @@ SchoolClass.init({
     endYear: {
         type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass',
         validate: {
-            isValidYears(year) {
+            isValidPeriod(year) {
                 if (year < this.startYear)
                     throw new Error('Start year must be before end year.')
             }

@@ -14,8 +14,6 @@ class Classroom extends Model {
             }
         })
     }
-
-
 }
 
 Classroom.init({
@@ -27,7 +25,5 @@ Classroom.init({
 Classroom.belongsTo(SchoolClass, {foreignKey: {allowNull: false, unique: 'uniqueClassroom'}})
 SchoolClass.hasMany(Classroom)
 
-Classroom.hasMany(Student)
-Student.belongsTo(Classroom, {foreignKey: {allowNull: false}})
 
 module.exports = Classroom

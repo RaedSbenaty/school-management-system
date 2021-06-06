@@ -3,6 +3,7 @@ const router = express.Router()
 const auth = require('../../middlewares/auth')
 
 const School = require('../../models/school')
+const StudentInSchool = require('../../models/student/studentInSchool')
 
 
 /* post Classes
@@ -37,6 +38,12 @@ router.get('/:siteName/:startYear-:endYear/classes', auth, async (req, res) => {
         res.status(400).send(e.message)
     }
 })
+
+// get Students In a class (in a year)
+// /alhbd/2020-2021/classes/Second_Grade/students
+router.get('/:siteName/:startYear-:endYear/classes/:className/students', auth
+    , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
+
 
 
 module.exports = router

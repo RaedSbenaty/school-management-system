@@ -7,8 +7,8 @@ const ExamType = require('./models/subject/examType')
 
 const runServer = async () => {
     await sequelize.authenticate()
-    await sequelize.sync({force: true})
-    //await sequelize.sync()
+   await sequelize.sync({force: true})
+  //  await sequelize.sync()
     await Class.defaultClasses.forEach(myClass => Class.create(myClass))
     await Category.defaultCategories.forEach(myCategory => Category.create(myCategory))
     await ExamType.defaultExamTypes.forEach(type => ExamType.create(type))

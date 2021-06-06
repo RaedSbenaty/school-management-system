@@ -1,8 +1,11 @@
 const express = require('express')
 const router = express.Router()
+const auth = require('../../middlewares/auth')
 
 const School = require('../../models/school')
 const Account = require('../../models/account')
+const StudentInSchool = require('../../models/student/studentInSchool')
+
 
 //example
 /*
@@ -33,5 +36,9 @@ router.post('/schools/signup', async (req, res) => {
     }
 })
 
+// get Students In a School (in a year)
+// /alhbd/2020-2021/students
+router.get('/:siteName/:startYear-:endYear/students', auth
+    , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
 
 module.exports = router

@@ -6,6 +6,9 @@ const Classroom = require('../class/classroom')
 const StudentInSchool = require('./studentInSchool')
 
 class StudentInClass extends Model {
+    static async getStudent(schoolId, startYear, endYear, className, classroomNumber) {
+
+    }
 }
 
 StudentInClass.init({}, {sequelize, modelName: 'studentInClass', timestamps: false})

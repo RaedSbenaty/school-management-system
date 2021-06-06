@@ -4,6 +4,8 @@ const auth = require('../../middlewares/auth')
 
 const SchoolClass = require('../../models/class/schoolClass')
 const Classroom = require('../../models/class/classroom')
+const StudentInSchool = require('../../models/student/studentInSchool')
+
 const SubjectInSemester = require('../../models/subject/subjectInSemester')
 
 
@@ -82,7 +84,6 @@ router.patch('/:siteName/:startYear-:endYear/classes/:className/classrooms/:clas
         }
     })
 
-
 /* delete Classroom
 /alhbd/2020-2021/classes/Second_Grade/classrooms/2
  */
@@ -102,42 +103,10 @@ router.delete('/:siteName/:startYear-:endYear/classes/:className/classrooms/:cla
         }
     })
 
-
-//adding subjects from possible categories to a school class through specific semesters
-/*
-example
-{
-    "subjects": [
-        {
-            "categoryId": 1,
-            "name": "ck",
-            "subjectInSemesters": [
-                {"semester": 1},
-                {"semester": 3}
-            ]
-        }
-    ]
-}
-*/
-router.post('/:schoolName/:startYear-:endYear/subjects/:className/add', auth, async (req, res) => {
-    try {
-        const className = req.params.className.replace('_', ' ')
-
-        const schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
-            req.params.endYear, className)
-
-        if (!schoolClass)
-            return res.status(404).send('This school does not have a ' + className + ' class')
-
-        for (let subject of req.body.subjects)
-            await schoolClass.createSubjectInYear(subject, {include: [SubjectInSemester]})
-
-        res.status(201).send('Subjects were added for this class.')
-    } catch (e) {
-        console.log(e)
-        res.status(400).send('Unable to add all subjects.')
-    }
-})
+// get Students In a classroom (in a year)
+// /alhbd/2020-2021/classes/Second_Grade/classrooms/1/students
+router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber/students', auth
+    , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
 
 
 module.exports = router

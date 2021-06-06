@@ -2,25 +2,35 @@ const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../../db/sequelize')
 
 const SubjectInSemester = require('./subjectInSemester')
+const ExamType = require('./examType')
 const StudentInClass = require('../student/studentInClass')
 
-class Exam extends Model {
+class Mark extends Model {
 }
 
-Exam.init({
-    mark: {type: DataTypes.INTEGER, allowNull: false},
+Mark.init({
+    value: {
+        type: DataTypes.INTEGER, allowNull: false,
+        validate: {
+            notHigherThanFullMarks(value) {
+                if(value < 0 || value > this.fullMarks)
+                    throw new Error('Mark can\'nt be higher than full marks.')
+            }
+        }
+    },
     fullMarks: {type: DataTypes.INTEGER, allowNull: false}
 }, {sequelize, modelName: 'Exams', timestamps: false})
 
+Mark.belongsTo(ExamType,{foreignKey: {allowNull: false}})
+ExamType.hasMany(Mark)
 
+Mark.belongsTo(SubjectInSemester, {foreignKey: {allowNull: false}})
+SubjectInSemester.hasMany(Mark)
 
-Exam.belongsTo(SubjectInSemester, {foreignKey: {allowNull: false}})
-SubjectInSemester.hasMany(Exam)
+Mark.belongsTo(StudentInClass, {foreignKey: {allowNull: false}})
+StudentInClass.hasMany(Mark)
 
-Exam.belongsTo(StudentInClass, {foreignKey: {allowNull: false}})
-StudentInClass.hasMany(Exam)
-
-module.exports = Exam
+module.exports = Mark
 
 
 

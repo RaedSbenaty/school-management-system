@@ -1,10 +1,5 @@
-var express = require('express')
-var app = express()
-
-var generalRouter = require('./routers/general')
-var teacherRouter = require('./routers/teacher')
-var studentRouter = require('./routers/student')
-var schoolRouter = require('./routers/school')
+const express = require('express')
+const app = express()
 
 app.use(express.json())
 app.use((req, res, next) => {
@@ -14,9 +9,15 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use(generalRouter)
-app.use(teacherRouter)
-app.use(studentRouter)
-app.use(schoolRouter)
+app.use(require('./routers/general'))
+app.use(require('./routers/teacher'))
+app.use(require('./routers/student'))
+
+app.use(require('./routers/school/school'))
+app.use(require('./routers/school/class'))
+app.use(require('./routers/school/classroom'))
+app.use(require('./routers/school/student'))
+app.use(require('./routers/school/subject'))
+app.use(require('./routers/school/teacher'))
 
 module.exports = app

@@ -1,11 +1,11 @@
-var {DataTypes, Model} = require('sequelize')
-var sequelize = require('../db/sequelize')
-var Category = require('./category')
-var SchoolClass = require('./schoolClass')
+const {DataTypes, Model} = require('sequelize')
+const sequelize = require('../../db/sequelize')
+const Category = require('./category')
+const SchoolClass = require('../class/schoolClass')
 
 class SubjectInYear extends Model {
     // static async findByCriteria(siteName, searchClass) {
-    //     var school = await School.findOne({
+    //     const school = await School.findOne({
     //         where: { siteName },
     //         include: {
     //             association: 'schoolClasses',

@@ -1,12 +1,12 @@
-var jwt = require('jsonwebtoken')
-var Account = require('../models/account')
+const jwt = require('jsonwebtoken')
+const Account = require('../models/account')
 
 module.exports = async (req, res, next) => {
     try {
-        var token = req.header('Authorization').replace('Bearer ', '')
-        var payload = jwt.verify(token, process.env.JWT_SECRET)
+        const token = req.header('Authorization').replace('Bearer ', '')
+        const payload = jwt.verify(token, process.env.JWT_SECRET)
 
-        var account = await Account.findByPk(payload.id, {
+        const account = await Account.findByPk(payload.id, {
             include: [
                 {association: 'school'},
                 {association: 'teacher', include: 'personalInfo'},

@@ -1,11 +1,11 @@
-var {DataTypes, Model} = require('sequelize')
-var sequelize = require('../db/sequelize')
-var jwt = require('jsonwebtoken')
-var bcrypt = require('bcrypt')
+const {DataTypes, Model} = require('sequelize')
+const sequelize = require('../db/sequelize')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 class Account extends Model {
     static async findByCriteria(email, password) {
-        var account = await Account.findOne({
+        const account = await Account.findOne({
             include: ['school',
                 {association: 'teacher', include: 'personalInfo'},
                 {association: 'student', include: 'personalInfo'},
@@ -14,14 +14,14 @@ class Account extends Model {
 
         if (!account) throw new Error('Cannot find account.')
 
-        var isMatch = await bcrypt.compare(password, account.password)
+        const isMatch = await bcrypt.compare(password, account.password)
         if (!isMatch) throw new Error('Wrong password.')
 
         return account
     }
 
     generateAuthToken() {
-        var payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
+        const payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
         return jwt.sign(payload, process.env.JWT_SECRET)
     }
 }

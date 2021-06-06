@@ -1,23 +1,22 @@
-var {DataTypes, Model} = require('sequelize')
-var sequelize = require('../db/sequelize')
-var School = require('./school')
-var Class = require('./class')
+const {DataTypes, Model} = require('sequelize')
+const sequelize = require('../../db/sequelize')
+const School = require('../school')
+const Class = require('./class')
 
 class SchoolClass extends Model {
-
 
     static async findByCriteria(schoolId, startYear, endYear, className) {
         className = className.replace('_', ' ')
         return await SchoolClass.findOne({
             where: {schoolId, startYear, endYear},
-            include: ['classrooms', 'subjectInYears',{association:'class',where:{name:className}}],
+            include: ['classrooms', 'subjectInYears', {association: 'class', where: {name: className}}],
         }) || {classrooms: []}
 
     }
 
     async createClassrooms(classrooms) {
         //MIND BLOWING :O
-        var oldClassrooms = classrooms.filter(newClassroom => this.classrooms.find(
+        const oldClassrooms = classrooms.filter(newClassroom => this.classrooms.find(
             classroom => classroom.classroomNumber === newClassroom.classroomNumber))
             .map(classroom => classroom.classroomNumber)
 
@@ -46,7 +45,7 @@ SchoolClass.init({
 SchoolClass.belongsTo(Class, {foreignKey: {allowNull: false, unique: 'uniqueSchoolClass'}})
 Class.hasMany(SchoolClass)
 
-SchoolClass.belongsTo(School, {foreignKey: {allowNull: false}})
+SchoolClass.belongsTo(School, {foreignKey: {allowNull: false, unique: 'uniqueSchoolClass'}})
 School.hasMany(SchoolClass)
 
 

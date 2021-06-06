@@ -1,7 +1,7 @@
 //modules
 const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../db/sequelize')
-var Account = require('./account')
+const Account = require('./account')
 
 class School extends Model {
 
@@ -13,7 +13,7 @@ class School extends Model {
     }
 
     async createSchoolClasses(startYear, endYear, classes) {
-        var oldClasses = classes.filter(newClass =>
+        const oldClasses = classes.filter(newClass =>
             this.schoolClasses.find(schoolClass => schoolClass.classId === newClass
                 && schoolClass.startYear == startYear && schoolClass.endYear == endYear))
 

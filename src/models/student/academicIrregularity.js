@@ -1,9 +1,9 @@
 //modules
-const sequelize = require('../db/sequelize')
-const { DataTypes, Model } = require('sequelize')
-const Student = require('./student')
+const sequelize = require('../../db/sequelize')
+const {DataTypes, Model} = require('sequelize')
 
-class AcademicIrregularity extends Model { }
+class AcademicIrregularity extends Model {
+}
 
 //AcademicIrregularity properties
 AcademicIrregularity.init({
@@ -17,7 +17,7 @@ AcademicIrregularity.init({
     date: {
         type: DataTypes.DATE
     }
-}, { sequelize,timestamps:false })
+}, {sequelize, timestamps: false})
 
 //AcademicIrregularity Relations
 

@@ -1,8 +1,8 @@
-var sequelize = require('../db/sequelize')
-var {DataTypes, Model} = require('sequelize')
+const sequelize = require('../../db/sequelize')
+const {Model} = require('sequelize')
 
-var School = require('./school')
-var Student = require('./student')
+const School = require('../school')
+const Student = require('./student')
 
 class StudentInSchool extends Model {
 }

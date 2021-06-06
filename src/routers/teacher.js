@@ -1,8 +1,8 @@
-var express = require('express')
-var router = express.Router()
-var Teacher = require('../models/teacher')
-var Account = require('../models/account')
-var PersonalInfo = require('../models/personalInfo')
+const express = require('express')
+const router = express.Router()
+const Teacher = require('../models/teacher/teacher')
+const Account = require('../models/account')
+const PersonalInfo = require('../models/personalInfo')
 
 
 /*
@@ -25,7 +25,7 @@ var PersonalInfo = require('../models/personalInfo')
 router.post('/teachers/signup', async (req, res) => {
     try {
         req.body.account.user = 'Teacher'
-        var teacher = await Teacher.create(req.body, {include: [Account, PersonalInfo]})
+        const teacher = await Teacher.create(req.body, {include: [Account, PersonalInfo]})
         teacher.dataValues.token = teacher.account.generateAuthToken()
         res.status(201).send(teacher)
     } catch (e) {

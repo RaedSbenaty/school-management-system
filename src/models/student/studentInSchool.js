@@ -20,7 +20,7 @@ class StudentInSchool extends Model {
             include: [{association: 'student', include: ['personalInfo', 'account']},
                 {
                     association: 'studentInClasses', attributes: ['id'],
-                    include: ['classroom', {association: 'schoolClass', attributes: [], include: 'class'}]
+                    include: ['classroom', {association: 'schoolClass', include: 'class'}]
                 }]
         })
     }

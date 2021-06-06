@@ -9,8 +9,8 @@ ExamType.init({
 }, {sequelize, modelName: 'examType', timestamps: false})
 
 ExamType.defaultExamTypes = [
-    {name: "Quiz"}, {name: "Test"}, {name: "Midterm_Exam"}
-    , {name: "Final_Exam"}, {name: "Other"},
+    {name: "Quiz"}, {name: "Test"}, {name: "Midterm Exam"}
+    , {name: "Final Exam"}, {name: "Other"},
 ]
 
 module.exports = ExamType

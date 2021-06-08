@@ -36,7 +36,7 @@ router.post('/testMarks', auth, async (req, res) => {
     //         {value: 70, studentInClassId: 6, examId: 5}, {value: 70, studentInClassId: 7, examId: 6},
     //     ])
     // await Exam.create({fullMarks: 80, examTypeId: 1, subjectInSemesterId: 1})
-     await Mark.create({value: 700, studentInClassId: 4, examId: 8})
+    //    await Mark.create({value: 700, studentInClassId: 4, examId: 8})
     res.send()
 })
 

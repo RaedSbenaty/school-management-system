@@ -1,27 +1,61 @@
-const {DataTypes, Model} = require('sequelize')
+const {DataTypes, Model, Sequelize} = require('sequelize')
 const sequelize = require('../../db/sequelize')
 
-const SubjectInSemester = require('./subjectInSemester')
-const ExamType = require('./examType')
-const StudentInSchool = require('../student/studentInSchool')
 const StudentInClass = require('../student/studentInClass')
+const Exam = require('./exam')
 
 class Mark extends Model {
-    static async getStudentsMarks(schoolId, startYear, endYear, className, classroomNumber) {
-        const students = await StudentInSchool.getStudents(schoolId, startYear, endYear, className, classroomNumber)
-        for (const student of students) {
-            student.studentInClasses[0].dataValues.marks = await (await student.getStudentInClasses())[0].getMarks()
+    static async getStudentsMarks(schoolId, startYear, endYear, className, classroomNumber, subjectInSemesterId, examTypeId) {
+        const where = {
+            '$marks.studentInClass.studentInSchool.schoolId$': schoolId,
+            '$marks.studentInClass.schoolClass.startYear$': startYear,
+            '$marks.studentInClass.schoolClass.endYear$': endYear,
+            '$marks.studentInClass.schoolClass.class.name$': className,
+            subjectInSemesterId, examTypeId,
         }
-        return students
+        if (classroomNumber) where['$marks.studentInClass.classroom.classroomNumber$'] = classroomNumber
+
+        const markAssociation = {
+            association: 'studentInClass', attributes: [],
+            include: [
+                {association: 'schoolClass', attributes: [], include: {association: 'class', attributes: []}},
+                {association: 'classroom', attributes: []},
+                {
+                    association: 'studentInSchool', attributes: [],
+                    include: [
+                        {association: 'school', attributes: []},
+                        {
+                            association: 'student', attributes: [],
+                            include: {association: 'personalInfo', attributes: []}
+                        }]
+                }]
+        }
+
+        const exams = await Exam.findAll({
+            where,
+            attributes: ['id', 'createdAt', 'fullMarks'],
+            include: {association: 'marks', attributes: [], include: markAssociation}
+        })
+
+        for (const exam of exams) {
+            exam.dataValues.marks = await exam.getMarks({
+                include: markAssociation
+                , attributes: ['value'
+                    , [Sequelize.col('studentInClass.studentInSchool.student.personalInfo.firstName'), 'firstName']
+                    , [Sequelize.col('studentInClass.studentInSchool.student.personalInfo.lastName'), 'lastName']
+                ]
+            })
+        }
+        return exams
     }
 
     static async handleGetMarksRequest(req, res) {
         try {
             let className
             if (req.params.className) className = req.params.className.replace('_', ' ')
-            const students = await Mark.getStudentsMarks(req.account.school.id, req.params.startYear,
-                req.params.endYear, className, req.params.classroomNumber)
-            res.send({students})
+            const exams = await Mark.getStudentsMarks(req.account.school.id, req.params.startYear,
+                req.params.endYear, className, req.params.classroomNumber, req.params.sisId, req.params.typeId)
+            res.send({exams})
         } catch (e) {
             console.log(e)
             res.status(400).send(e)
@@ -30,27 +64,20 @@ class Mark extends Model {
 }
 
 Mark.init({
-    value: {
-        type: DataTypes.INTEGER, allowNull: false,
-        validate: {
-            notHigherThanFullMarks(value) {
-                if (value < 0 || value > this.fullMarks)
-                    throw new Error('Mark can\'nt be higher than full marks.')
-            }
-        }
-    },
-    fullMarks: {type: DataTypes.INTEGER, allowNull: false}
+    value: {type: DataTypes.INTEGER, allowNull: false},
 }, {sequelize, modelName: 'mark', timestamps: false})
 
-Mark.belongsTo(ExamType, {foreignKey: {allowNull: false}})
-ExamType.hasMany(Mark)
-
-Mark.belongsTo(SubjectInSemester, {foreignKey: {allowNull: false}})
-SubjectInSemester.hasMany(Mark)
-
-
-Mark.belongsTo(StudentInClass, {foreignKey: {allowNull: false}})
+Mark.belongsTo(StudentInClass, {foreignKey: {allowNull: false, unique: 'uniqueStudentMark'}})
 StudentInClass.hasMany(Mark)
+
+Mark.belongsTo(Exam, {foreignKey: {allowNull: false, unique: 'uniqueStudentMark'}})
+Exam.hasMany(Mark)
+
+Mark.beforeSave(async (mark) => {
+    const exam = await mark.getExam()
+    if (mark.value < 0 || mark.value > exam.fullMarks)
+        throw new Error('Mark can\'t be higher than full marks.')
+})
 
 module.exports = Mark
 

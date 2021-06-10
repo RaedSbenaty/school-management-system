@@ -1,9 +1,7 @@
-var {DataTypes, Model} = require('sequelize')
-var sequelize = require('../db/sequelize')
-var School = require('./school')
-var SchoolClass = require('./schoolClass')
-var Teacher = require('./teacher')
-var Student = require('./student')
+const {DataTypes, Model} = require('sequelize')
+const sequelize = require('../../db/sequelize')
+const SchoolClass = require('./schoolClass')
+const Student = require('../student/student')
 
 
 class Classroom extends Model {
@@ -16,8 +14,6 @@ class Classroom extends Model {
             }
         })
     }
-
-
 }
 
 Classroom.init({
@@ -29,7 +25,5 @@ Classroom.init({
 Classroom.belongsTo(SchoolClass, {foreignKey: {allowNull: false, unique: 'uniqueClassroom'}})
 SchoolClass.hasMany(Classroom)
 
-Classroom.hasMany(Student)
-Student.belongsTo(Classroom, {foreignKey: {allowNull: false}})
 
 module.exports = Classroom

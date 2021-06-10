@@ -1,9 +1,9 @@
 //modules
-const sequelize = require('../db/sequelize')
+const sequelize = require('../../db/sequelize')
 const {DataTypes, Model} = require('sequelize')
-const Account = require('./account')
-const PersonalInfo = require('./personalInfo')
-var Class = require('./class')
+const Account = require('../account')
+const PersonalInfo = require('../personalInfo')
+const Class = require('../class/class')
 
 class Student extends Model {
 }

@@ -35,3 +35,19 @@ router.post('/teachers/signup', async (req, res) => {
 })
 
 module.exports = router
+
+
+// post New Teacher
+// /alhbd/2020-2021/teachers/add
+router.post('/:siteName/:startYear-:endYear/teachers/add', async (req, res) => {
+    try {
+        req.body.account.user = 'Teacher'
+        var teacher = await Teacher.create(req.body, {include: [Account, PersonalInfo]})
+        await TeacherInSchool.create({teacherId: teacher.id, schoolId: req.account.school.id})
+        res.status(201).send(teacher)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+module.exports = router

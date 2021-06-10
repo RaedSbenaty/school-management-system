@@ -9,7 +9,7 @@ const SubjectInSemester = require('../../models/subject/subjectInSemester')
 //adding subjects from possible categories to a school class through specific semesters
 /*
 example
-/alhbd/2020-2021/Third_Grade/subjects/add
+/alhbd/2020-2021/Second_Grade/subjects/add
 
 {
     "subjects": [

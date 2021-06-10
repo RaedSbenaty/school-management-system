@@ -1,9 +1,58 @@
 const express = require('express')
 const router = express.Router()
 const auth = require('../../middlewares/auth')
-
+const Classroom = require('../../models/class/classroom')
+const SchoolClass = require('../../models/class/schoolClass')
+const Exam = require('../../models/subject/exam')
 const Mark = require('../../models/subject/mark')
 
+//adding marks of an exam for a subject in semester for students in a classroom 
+/*
+example
+/alhbd/2020-2021/classes/Second_Grade/classrooms/1/examMarks/add
+
+{
+    "fullMark": 100,
+    "examTypeId": 1,
+    "subjectInSemesterId": 1,
+    "marks": [
+        {
+            "studentInClassId": 1,
+            "value": 100
+        },
+        {
+            "studentInClassId": 2,
+            "value": 90
+        }
+    ]
+}
+*/
+
+router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber/examMarks/add', auth, async (req, res) => {
+    try {
+        const className = req.params.className.replace('_', ' ')
+
+        const schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
+            req.params.endYear, className)
+
+        if (!schoolClass.id)
+            return res.status(404).send('This school does not have a ' + className + ' class')
+
+        const classroom = await Classroom.findByCriteria(req.account.school.id, req.params.startYear,
+            req.params.endYear, className, req.params.classroomNumber)
+
+        if (!classroom.id)
+            return res.status(404).send('This school does not have a ' + classroomNumber + ' classroom')
+
+        await Exam.create(req.body, { include: [Mark] })
+
+        res.status(201).send('Marks have been successfuly added.')
+
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message.split(','))
+    }
+})
 
 // get Students marks In a class (in a year)
 // /alhbd/2020-2021/classes/Second_Grade/subjects/1/marks/1/types/1

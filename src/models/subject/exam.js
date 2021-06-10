@@ -9,7 +9,7 @@ class Exam extends Model {
 }
 
 Exam.init({
-    fullMarks: {type: DataTypes.INTEGER, allowNull: false},
+    fullMark: {type: DataTypes.INTEGER, allowNull: false},
 }, {sequelize, modelName: 'exam', updatedAt: false})
 
 Exam.belongsTo(ExamType, {foreignKey: {allowNull: false}})

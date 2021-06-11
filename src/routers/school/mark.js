@@ -13,6 +13,7 @@ example
 
 {
     "fullMark": 100,
+    "dateOfExam": "01-01-2021",
     "examTypeId": 1,
     "subjectInSemesterId": 1,
     "marks": [
@@ -44,7 +45,7 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/:class
         if (!classroom.id)
             return res.status(404).send('This school does not have a ' + classroomNumber + ' classroom')
 
-        await Exam.create(req.body, { include: [Mark] })
+       var exam = await Exam.create(req.body, { include: [Mark] })
 
         res.status(201).send('Marks have been successfuly added.')
 

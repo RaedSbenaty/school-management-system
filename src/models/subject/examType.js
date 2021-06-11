@@ -6,7 +6,7 @@ class ExamType extends Model {
 
 ExamType.init({
     name: {type: DataTypes.STRING, allowNull: false}
-}, {sequelize, modelName: 'examType', timestamps: false})
+}, {sequelize, modelName: 'examType.js', timestamps: false})
 
 ExamType.defaultExamTypes = [
     {name: "Quiz"}, {name: "Test"}, {name: "Midterm Exam"}

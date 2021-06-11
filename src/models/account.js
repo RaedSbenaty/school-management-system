@@ -27,6 +27,11 @@ class Account extends Model {
 }
 
 Account.init({
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
     email: {
         type: DataTypes.STRING, allowNull: false,
         validate: {isEmail: true}
@@ -35,7 +40,7 @@ Account.init({
         type: DataTypes.STRING, allowNull: false,
         validate: {min: 8}
     },
-    user: {type: DataTypes.STRING, allowNull: false},
+    user: {type: DataTypes.ENUM('School', 'Teacher', 'Student'), allowNull: false},
     phoneNumber: {type: DataTypes.STRING, allowNull: false},
     image: {type: DataTypes.BLOB},
     siteName: {
@@ -56,7 +61,7 @@ Account.beforeSave(async (account) => {
         if (account.siteName && await Account.findOne({where: {siteName: account.siteName}}))
             errorMessage += 'Validation error: site name must be unique.\n'
 
-        if(errorMessage!=='') throw new Error(errorMessage)
+        if (errorMessage !== '') throw new Error(errorMessage)
 
         if (account.changed('password', true))
             account.password = await bcrypt.hash(account.password, 8)

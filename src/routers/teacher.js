@@ -1,9 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const Teacher = require('../models/teacher/teacher')
-const Account = require('../models/account')
-const PersonalInfo = require('../models/personalInfo')
-
 
 /*
 {
@@ -25,7 +22,7 @@ const PersonalInfo = require('../models/personalInfo')
 router.post('/teachers/signup', async (req, res) => {
     try {
         req.body.account.user = 'Teacher'
-        const teacher = await Teacher.create(req.body, {include: [Account, PersonalInfo]})
+        const teacher = await Teacher.create(req.body, {include: ['account', 'personalInfo']})
         teacher.dataValues.token = teacher.account.generateAuthToken()
         res.status(201).send(teacher)
     } catch (e) {
@@ -33,5 +30,7 @@ router.post('/teachers/signup', async (req, res) => {
         res.status(400).send(e.message)
     }
 })
+
+module.exports = router
 
 module.exports = router

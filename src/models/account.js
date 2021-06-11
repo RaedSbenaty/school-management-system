@@ -9,8 +9,8 @@ class Account extends Model {
             include: ['school',
                 {association: 'teacher', include: 'personalInfo'},
                 {association: 'student', include: 'personalInfo'},
-            ]
-        }, {where: {email}})
+            ], where: {email}
+        })
 
         if (!account) throw new Error('Cannot find account.')
 
@@ -20,6 +20,16 @@ class Account extends Model {
         return account
     }
 
+    static async findByIdAndEmail(id, email) {
+        return await Account.findOne({
+            attributes: ['email'],
+            include: ['school',
+                {association: 'teacher', include: {association: 'personalInfo', attributes: ['firstName', 'lastName']}},
+                {association: 'student', include: {association: 'personalInfo', attributes: ['firstName', 'lastName']}},
+            ], where: {email, id}
+        })
+    }
+
     generateAuthToken() {
         const payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
         return jwt.sign(payload, process.env.JWT_SECRET)
@@ -27,6 +37,11 @@ class Account extends Model {
 }
 
 Account.init({
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
     email: {
         type: DataTypes.STRING, allowNull: false,
         validate: {isEmail: true}
@@ -35,7 +50,7 @@ Account.init({
         type: DataTypes.STRING, allowNull: false,
         validate: {min: 8}
     },
-    user: {type: DataTypes.STRING, allowNull: false},
+    user: {type: DataTypes.ENUM('School', 'Teacher', 'Student'), allowNull: false},
     phoneNumber: {type: DataTypes.STRING, allowNull: false},
     image: {type: DataTypes.BLOB},
     siteName: {
@@ -56,7 +71,7 @@ Account.beforeSave(async (account) => {
         if (account.siteName && await Account.findOne({where: {siteName: account.siteName}}))
             errorMessage += 'Validation error: site name must be unique.\n'
 
-        if(errorMessage!=='') throw new Error(errorMessage)
+        if (errorMessage !== '') throw new Error(errorMessage)
 
         if (account.changed('password', true))
             account.password = await bcrypt.hash(account.password, 8)

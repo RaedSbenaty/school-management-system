@@ -4,8 +4,16 @@ const {DataTypes, Model} = require('sequelize')
 const Account = require('../account')
 const PersonalInfo = require('../personalInfo')
 const Class = require('../class/class')
+const SchoolClass = require('../class/schoolClass')
+
 
 class Student extends Model {
+
+    async assignClassId(schoolClassId) {
+        const schoolClass = await SchoolClass.findByPk(schoolClassId)
+        if (!schoolClass) throw new Error('SchoolClass not found.')
+        await this.update({classId: schoolClass.classId})
+    }
 }
 
 //Student properties
@@ -30,7 +38,7 @@ PersonalInfo.hasOne(Student)
 Student.belongsTo(Account, {foreignKey: {allowNull: false}})
 Account.hasOne(Student)
 
-Student.belongsTo(Class, {foreignKey: {allowNull: false}})
+Student.belongsTo(Class)
 Class.hasMany(Student)
 
 // Student.hasMany(AcademicIrregularity)

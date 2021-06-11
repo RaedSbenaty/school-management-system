@@ -9,8 +9,8 @@ class Account extends Model {
             include: ['school',
                 {association: 'teacher', include: 'personalInfo'},
                 {association: 'student', include: 'personalInfo'},
-            ]
-        }, {where: {email}})
+            ], where: {email}
+        })
 
         if (!account) throw new Error('Cannot find account.')
 
@@ -18,6 +18,16 @@ class Account extends Model {
         if (!isMatch) throw new Error('Wrong password.')
 
         return account
+    }
+
+    static async findByIdAndEmail(id, email) {
+        return await Account.findOne({
+            attributes: ['email'],
+            include: ['school',
+                {association: 'teacher', include: {association: 'personalInfo', attributes: ['firstName', 'lastName']}},
+                {association: 'student', include: {association: 'personalInfo', attributes: ['firstName', 'lastName']}},
+            ], where: {email, id}
+        })
     }
 
     generateAuthToken() {

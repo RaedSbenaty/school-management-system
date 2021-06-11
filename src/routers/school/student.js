@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../../middlewares/auth')
 
+const Account = require('../../models/account')
 const Student = require('../../models/student/student')
 const SchoolClass = require('../../models/class/schoolClass')
 const StudentInSchool = require('../../models/student/studentInSchool')
@@ -59,5 +60,29 @@ router.post('/:siteName/:startYear-:endYear/students/add', auth, async (req, res
     }
 })
 
+// post Existing Student
+// /alhbd/2020-2021/students/addExisting
+//{ "id":4,"email":"abd@hbd4.com", "schoolClassId":1}
+router.post('/:siteName/:startYear-:endYear/students/addExisting', auth, async (req, res) => {
+    try {
+        const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
+        if (!account || !account.student) return res.status(404).send('Invalid student criteria.')
+
+        const activeRecords = await StudentInSchool.count({
+            where: {'$student.id$': account.student.id, active: true}, include: 'student'
+        })
+        if (activeRecords) return res.status(401).send('Student is already registered in a school.')
+
+        await account.student.assignClassId(req.body.schoolClassId)
+        const studentInSchool = await StudentInSchool.createIfNotFound(account.student.id, req.account.school.id)
+        await studentInSchool.createStudentInClass({schoolClassId: req.body.schoolClassId})
+
+        account.student.dataValues.account = {email: req.body.email}
+        res.send(account.student)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({error: e.message})
+    }
+})
 
 module.exports = router

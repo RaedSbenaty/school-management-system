@@ -8,7 +8,7 @@ const StudentInSchool = require('./studentInSchool')
 class StudentInClass extends Model {
 }
 
-StudentInClass.init({}, {sequelize, modelName: 'studentInClass', timestamps: false})
+StudentInClass.init({}, {sequelize, modelName: 'studentInClass', updatedAt: false})
 
 StudentInClass.belongsTo(StudentInSchool, {foreignKey: {allowNull: false}})
 StudentInSchool.hasMany(StudentInClass)

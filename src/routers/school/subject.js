@@ -24,7 +24,7 @@ example
     ]
 }
 */
-router.post('/:siteName/:startYear-:endYear/:className/subjects/add', auth, async (req, res) => {
+router.post('/:siteName/:startYear-:endYear/:className/subjects/add', auth(['School']), async (req, res) => {
     try {
         const className = req.params.className.replace('_', ' ')
 
@@ -52,7 +52,7 @@ router.post('/:siteName/:startYear-:endYear/:className/subjects/add', auth, asyn
 example
 /alhbd/2020-2021/Second_Grade/1/subjects
 */
-router.get('/:siteName/:startYear-:endYear/:className/:semester/subjects', auth, async (req, res) => {
+router.get('/:siteName/:startYear-:endYear/:className/:semester/subjects', auth(['School']), async (req, res) => {
    return SubjectInSemester.handleGetSubjectsRequests(req, res)
 })
     // async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))

@@ -12,7 +12,7 @@ const StudentInClass = require('../../models/student/studentInClass')
 /alhbd/2020-2021/classes/add
 {"classes":[1,3,5]}
  */
-router.post('/:siteName/:startYear-:endYear/classes/add', auth, async (req, res) => {
+router.post('/:siteName/:startYear-:endYear/classes/add', auth(['School']), async (req, res) => {
     try {
         const school = req.account.school
         school.schoolClasses = await school.getSchoolClasses()
@@ -29,7 +29,7 @@ router.post('/:siteName/:startYear-:endYear/classes/add', auth, async (req, res)
 /* get Classes
 /alhbd/2020-2021/classes
  */
-router.get('/:siteName/:startYear-:endYear/classes', auth, async (req, res) => {
+router.get('/:siteName/:startYear-:endYear/classes', auth(['School']), async (req, res) => {
     try {
         const school = await School.findByCriteriaInPeriod(req.account.school.id
             , req.params.startYear, req.params.endYear)
@@ -43,7 +43,7 @@ router.get('/:siteName/:startYear-:endYear/classes', auth, async (req, res) => {
 
 // get Students In a class (in a year)
 // /alhbd/2020-2021/classes/Second_Grade/students
-router.get('/:siteName/:startYear-:endYear/classes/:className/students', auth
+router.get('/:siteName/:startYear-:endYear/classes/:className/students', auth(['School'])
     , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
 
 // post Sort Students to classroom
@@ -51,7 +51,7 @@ router.get('/:siteName/:startYear-:endYear/classes/:className/students', auth
 //  [{"id":1,"classroomNumber":180},
 //  {"id":2,"classroomNumber":250}]
 
-router.post('/:siteName/:startYear-:endYear/classes/:className/sortStd', auth
+router.post('/:siteName/:startYear-:endYear/classes/:className/sortStd', auth(['School'])
     , async (req, res) => {
         try {
             for (const student of req.body) {

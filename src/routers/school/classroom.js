@@ -119,7 +119,7 @@ example
     }
 ]
 */
-router.patch('/:siteName/:startYear-:endYear/classes/:className/classrooms_students', auth, async (req, res) => {
+router.patch('/:siteName/:startYear-:endYear/classes/:className/classrooms_students', auth(['School']), async (req, res) => {
 
     const className = req.params.className.replace('_', ' ')
     try {
@@ -151,7 +151,7 @@ router.patch('/:siteName/:startYear-:endYear/classes/:className/classrooms_stude
 
 // get Students In a classroom (in a year)
 // /alhbd/2020-2021/classes/Second_Grade/classrooms/1/students
-router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber/students', auth
+router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber/students', auth(['School'])
     , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
 
 

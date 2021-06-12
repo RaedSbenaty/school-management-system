@@ -13,7 +13,6 @@ const runServer = async () => {
     await Class.bulkCreate(Class.defaultClasses)
     await Category.bulkCreate(Category.defaultCategories)
     await ExamType.bulkCreate(ExamType.defaultExamTypes)
-
     app.listen(process.env.PORT, () => console.log(`Server is up at port: ${process.env.PORT}`))
 }
 

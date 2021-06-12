@@ -24,7 +24,7 @@ const TeacherInSchool = require('../../models/teacher/teacherInSchool')
 }
  */
 
-router.post('/:siteName/:startYear-:endYear/teachers/add', auth, async (req, res) => {
+router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), async (req, res) => {
     try {
         req.body.account.user = 'Teacher'
         const teacher = await Teacher.create(req.body, {include: ['account', 'personalInfo']})

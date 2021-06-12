@@ -66,7 +66,7 @@ const image = multer({
     }
 })
 
-router.post('/me/image', auth, image.single('image'), async (req, res) => {
+router.post('/me/image', auth(), image.single('image'), async (req, res) => {
     req.account.image = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
     await req.account.save({attributes: ['image']})
     res.send('Image was added successfully.')
@@ -74,7 +74,7 @@ router.post('/me/image', auth, image.single('image'), async (req, res) => {
     res.status(400).send(error.message)
 })
 
-router.delete('/me/image', auth, async (req, res) => {
+router.delete('/me/image', auth(), async (req, res) => {
     await req.account.update({image: 0})
     res.send('Image was deleted successfully.')
 })

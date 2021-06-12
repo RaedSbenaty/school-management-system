@@ -6,10 +6,11 @@ const Student = require('./student')
 
 class StudentInSchool extends Model {
 
-    static async createIfNotFound(studentId, schoolId) {
+    static async ActivateAccount(studentId, schoolId) {
         const where = {studentId, schoolId}
         let studentInSchool = await StudentInSchool.findOne({where, include: 'studentInClasses'})
-        if (!studentInSchool) studentInSchool = await StudentInSchool.create(where)
+        if (studentInSchool) await studentInSchool.update({active: true})
+        else studentInSchool = await StudentInSchool.create(where)
         return studentInSchool
     }
 

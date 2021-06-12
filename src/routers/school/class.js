@@ -21,7 +21,7 @@ router.post('/:siteName/:startYear-:endYear/classes/add', auth(['School']), asyn
         res.send(`Classes with id: ${req.body.classes} were added.`)
     } catch (e) {
         console.log(e)
-        res.status(400).send({error: e.message.split(',')})
+        res.status(400).send({ error: e.message.split(',') })
     }
 })
 
@@ -34,7 +34,7 @@ router.get('/:siteName/:startYear-:endYear/classes', auth(['School']), async (re
         const school = await School.findByCriteriaInPeriod(req.account.school.id
             , req.params.startYear, req.params.endYear)
 
-        res.send({schoolClasses: school.schoolClasses})
+        res.send({ schoolClasses: school.schoolClasses })
     } catch (e) {
         console.log(e.message)
         res.status(400).send(e.message)
@@ -55,11 +55,11 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/sortStd', auth(['
     , async (req, res) => {
         try {
             for (const student of req.body) {
-                const {id, classroomNumber} = student
+                const { id, classroomNumber } = student
                 const classroom = await Classroom.findByCriteria(req.account.school.id, req.params.startYear,
                     req.params.endYear, req.params.className, classroomNumber)
                 if (classroom)
-                    await StudentInClass.update({classroomId: classroom.id}, {where: {id}})
+                    await StudentInClass.update({ classroomId: classroom.id }, { where: { id } })
             }
             res.send('Sorting is done.')
         } catch (e) {
@@ -68,5 +68,72 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/sortStd', auth(['
         }
     })
 
+// distribute students through classrooms according to sortType
+/*
+example
+/alhbd/2020-2021/classes/Second_Grade/sortStd/auto
+[
+    {
+        "studentsNumber": 1,
+        "classroomNumber": 1
+    },
+    {
+        "studentsNumber": 1,
+        "classroomNumber": 2
+    }
+]
+*/
+router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:sortType*?', auth, async (req, res) => {
+
+    const className = req.params.className.replace('_', ' ')
+    var msg = ""
+    try {
+        var studentsInSchool = await StudentInSchool.getStudents(req.account.school.id, req.params.startYear, req.params.endYear, className)
+
+        if (req.params.sortType === 'alpha') {
+
+            studentsInSchool.sort((a, b) => {
+                var aPersonalInfo = a.dataValues.student.dataValues.personalInfo
+                var bPersonalInfo = b.dataValues.student.dataValues.personalInfo
+                var res = aPersonalInfo.dataValues.firstName.localeCompare(bPersonalInfo.dataValues.firstName)
+                if (!res)
+                    return aPersonalInfo.dataValues.lastName.localeCompare(bPersonalInfo.dataValues.lastName)
+                return res
+            })
+            msg = "students classrooms for " + className + " class have been updated according to alphabetical order."
+        }
+
+        let studentsInClass = []
+        for (let student of studentsInSchool) {
+            var studentInClass = student.dataValues.studentInClasses
+            studentsInClass.push(studentInClass)
+        }
+
+        var i = 0;
+        element = req.body[i]
+
+        for (let studentInClass of studentsInClass) {
+
+            if (element.studentsNumber === 0) {
+                i++
+                element = req.body[i]
+            }
+            var classroomId = element.classroomNumber
+
+            await studentInClass[0].update({ "classroomId": classroomId })
+
+            element.studentsNumber--
+        }
+
+        if (msg === "")
+            msg = "students classrooms for " + className + " class have been updated according to their registiration date."
+
+        res.status(201).send(msg)
+    }
+    catch (e) {
+        console.log(e)
+        res.status(400).send('Updating failed.')
+    }
+})
 
 module.exports = router

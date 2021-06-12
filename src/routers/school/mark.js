@@ -36,13 +36,13 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/:class
         const schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
             req.params.endYear, className)
 
-        if (!schoolClass.id)
+        if (!schoolClass)
             return res.status(404).send('This school does not have a ' + className + ' class')
 
         const classroom = await Classroom.findByCriteria(req.account.school.id, req.params.startYear,
             req.params.endYear, className, req.params.classroomNumber)
 
-        if (!classroom.id)
+        if (!classroom)
             return res.status(404).send('This school does not have a ' + classroomNumber + ' classroom')
 
         await Exam.create(req.body, {include: [Mark]})

@@ -24,7 +24,7 @@ const SubjectInSemester = require('../../models/subject/subjectInSemester')
 }
  */
 router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/add',
-    auth, async (req, res) => {
+    auth(['School']), async (req, res) => {
         try {
             const className = req.params.className.replace('_', ' ')
             const schoolClass = await SchoolClass.findByCriteria(req.account.school.id, req.params.startYear,
@@ -46,7 +46,7 @@ router.post('/:siteName/:startYear-:endYear/classes/:className/classrooms/add',
 /alhbd/2020-2021/classes/Second_Grade
  */
 router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms'
-    , auth, async (req, res) => {
+    , auth(['School']), async (req, res) => {
         try {
             const className = req.params.className.replace('_', ' ')
 
@@ -65,7 +65,7 @@ router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms'
 /alhbd/2020-2021/classes/Second_Grade/classrooms/2
  */
 router.delete('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber'
-    , auth, async (req, res) => {
+    , auth(['School']), async (req, res) => {
         try {
             const className = req.params.className.replace('_', ' ')
 
@@ -83,7 +83,7 @@ router.delete('/:siteName/:startYear-:endYear/classes/:className/classrooms/:cla
 
 // get Students In a classroom (in a year)
 // /alhbd/2020-2021/classes/Second_Grade/classrooms/1/students
-router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber/students', auth
+router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classroomNumber/students', auth(['School'])
     , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
 
 

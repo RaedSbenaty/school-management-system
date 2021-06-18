@@ -36,4 +36,9 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
     }
 })
 
+// get Teachers In a School (in a year)
+// /alhbd/2020-2021/teachers
+router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
+    , async (req, res) => TeacherInSchool.getTeachers(req, res))
+
 module.exports = router

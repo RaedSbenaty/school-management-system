@@ -5,6 +5,19 @@ const Teacher = require('./teacher')
 
 class TeacherInSchool extends Model {
 
+    static async getTeachers(schoolId, startYear, endYear) {
+        const where = {
+            schoolId,
+            '$schoolClass.startYear$': startYear,
+            '$schoolClass.endYear$': endYear
+        }
+
+        return await StudentInSchool.findAll({
+            where,
+            include: [ {association: 'teacher', include: ['personalInfo', 'account']} ]
+            , order: ['ASC']
+        })
+    }
 }
 
 TeacherInSchool.init({}

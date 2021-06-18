@@ -12,7 +12,7 @@ class TeacherInSchool extends Model {
             '$schoolClass.endYear$': endYear
         }
 
-        return await StudentInSchool.findAll({
+        return await TeacherInSchool.findAll({
             where,
             include: [ {association: 'teacher', include: ['personalInfo', 'account']} ]
             , order: ['ASC']

@@ -4,6 +4,8 @@ const sequelize = require('./db/sequelize')
 const Class = require('./models/class/class')
 const Category = require('./models/subject/category')
 const ExamType = require('./models/subject/examType')
+const Day = require('./models/day')
+
 
 
 const runServer = async () => {
@@ -13,6 +15,8 @@ const runServer = async () => {
     await Class.bulkCreate(Class.defaultClasses)
     await Category.bulkCreate(Category.defaultCategories)
     await ExamType.bulkCreate(ExamType.defaultExamTypes)
+    await Day.bulkCreate(Day.defaultDays)
+
     app.listen(process.env.PORT, () => console.log(`Server is up at port: ${process.env.PORT}`))
 }
 

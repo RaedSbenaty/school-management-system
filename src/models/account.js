@@ -38,7 +38,7 @@ class Account extends Model {
     }
 
     sendMail(subject, text) {
-        var transporter = nodemailer.createTransport({
+D        const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {user: 'schoolink.rar@gmail.com', pass: 'school de l\'hbd'}
         });

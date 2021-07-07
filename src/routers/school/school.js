@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const auth = require('../../middlewares/auth')
 
 const School = require('../../models/school')
 const Account = require('../../models/account')
@@ -27,7 +26,7 @@ router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
         const school = await School.create(req.body, {include: [Account]})
-        school.account.sendMail('Welcome To Schoolink!','Have a nice experience, hbedo')
+        school.account.sendMail('Welcome To Schoolink!', 'Have a nice experience, hbedo')
         school.dataValues.token = await school.account.generateAuthToken()
         res.status(201).send(school)
     } catch (e) {

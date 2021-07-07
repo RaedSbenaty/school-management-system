@@ -8,7 +8,7 @@ const Account = require('../models/account')
 const Class = require('../models/class/class')
 const Category = require('../models/subject/category')
 const ExamType = require('../models/subject/examType')
-const SubjectInYear = require('../models/subject/subjectInYear')
+const Day = require('../models/day')
 
 router.post('/login', async (req, res) => {
     try {
@@ -45,16 +45,14 @@ router.get('/examTypes', async (req, res) => {
     }
 })
 
-
-router.get('/subjects', async (req, res) => {
+router.get('/days', async (req, res) => {
     try {
-        const {startYear, endYear} = req.params
-        const subjectsInYear = await SubjectInYear.findAll({include: Category})
-        await res.status(200).send(subjectsInYear)
+        await res.send(await Day.findAll())
     } catch (e) {
-        res.status(500).send('Failed to fetch subjects in year: ' + startYear + '-' + endYear)
+        res.status(500).send('Failed to fetch days')
     }
 })
+
 
 const image = multer({
     limits: {fileSize: 4194304},

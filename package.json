@@ -22,6 +22,7 @@
   "devDependencies": {
     "env-cmd": "^10.1.0",
     "nodemailer": "^6.6.1",
+    "nodeman": "^1.1.2",
     "nodemon": "^2.0.7"
   },
   "keywords": [],

@@ -8,7 +8,7 @@ const ExamType = require('./models/subject/examType')
 
 const runServer = async () => {
     await sequelize.authenticate()
-    await sequelize.sync({force: true})
+    //await sequelize.sync({force: true})
     await sequelize.sync()
     await Class.bulkCreate(Class.defaultClasses)
     await Category.bulkCreate(Category.defaultCategories)

@@ -37,8 +37,7 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
         const classIds = req.body.schoolClassId
 
         classIds.forEach( async (item) => {
-            console.log(item)
-            
+                    
             const schoolClass = await SchoolClass.findByPk(item)
             if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
                 throw new Error('schoolClassId doesn\'t belong to this school.')
@@ -47,12 +46,12 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
                 || schoolClass.endYear != req.params.endYear)
                 throw new Error('schoolClassId doesn\'t belong to this year.')
 
-           req.body.classId = schoolClass.classId
-           // delete req.body.schooClasslId
+            console.log(schoolClass.startYear, schoolClass.endYear)
+           // req.body.classId = schoolClass.classId
+           // delete req.body.schooClasslI
 
             await TeacherInClass.create({
                 teacherInSchoolId: teacherInSchool.id, schoolClassId: schoolClass.id})
-            console.log("finish")
         });
 
         res.status(201).send(teacher)
@@ -61,6 +60,36 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
         res.status(400).send(e.message)
     }
 })
+
+//added new
+// post Existing Teacher
+// /alhbd/2020-2021/teachers/addExisting
+//{ "id":1,"email":"raneem@hbd.com", "schoolClassId":[1,2]}
+// router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School']), async (req, res) => {
+//     try {
+//         const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
+//         if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
+
+//         const activeRecords = await TeacherInSchool.count({
+//             where: {'$teacher.id$': account.teacher.id, active: true}, include: 'teacher'
+//         })
+//         if (activeRecords) return res.status(401).send('Teacher is already registered in a school.')
+
+//         const classIds = req.body.schoolClassId
+//         classIds.forEach( async (item) => {
+//             await account.teacher.assignClassId(item)
+//             const teacherInSchool = await TeacherInSchool.ActivateAccount(account.teacher.id, req.account.school.id)
+//             await teacherInSchool.createTeacherInClass({schoolClassId: req.body.schoolClassId})
+//         })
+
+//         account.teacher.dataValues.account = {email: req.body.email}
+//         res.send(account.teacher)
+//     } catch (e) {
+//         console.log(e)
+//         res.status(500).send({error: e.message})
+//     }
+// })
+
 
 // get Teachers In a School (in a year)
 // /alhbd/2020-2021/teachers

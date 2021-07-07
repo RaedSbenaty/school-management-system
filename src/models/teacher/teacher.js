@@ -4,6 +4,14 @@ const Account = require('../account')
 const PersonalInfo = require('../personalInfo')
 
 class Teacher extends Model {
+
+    // Added new 
+    // async assignClassId(schoolClassId) {
+    //     const schoolClass = await SchoolClass.findByPk(schoolClassId)
+    //     if (!schoolClass) throw new Error('SchoolClass not found.')
+    //     await this.update({classId: sequelize.fn('array_append', sequelize.col('classId'), schoolClass.classId)})
+    // }
+
 }
 
 Teacher.init({

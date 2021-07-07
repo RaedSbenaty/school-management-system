@@ -5,6 +5,16 @@ const Teacher = require('./teacher')
 
 class TeacherInSchool extends Model {
 
+    // added new
+    // static async ActivateAccount(teacherId, schoolId) {
+    //     const where = {teacherId, schoolId}
+    //     let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacherInClasses'})
+    //     if (teacherInSchool) await teacherInSchool.update({active: true})
+    //     else teacherInSchool = await teacherInSchool.create(where)
+    //     return teacherInSchool
+    // }
+
+
     static async getTeachers(schoolId, startYear, endYear, className) {
         const where = {
             schoolId,
@@ -18,22 +28,12 @@ class TeacherInSchool extends Model {
             where,
             include: [{association: 'teacher', include: ['personalInfo', 'account']},
                 {
-                    association: 'teacherInClasses', attributes: ['id', 'createdAt'],
+                    association: 'teacherInClasses', attributes: ['id', 'createdAt']
                 }]
             , order: [['createdAt', 'ASC']]
         })
     }
-
-    // static async getTeachers(schoolId, startYear, endYear) {
-    //     const where = {schoolId, startYear, endYear}
-
-    //     return await TeacherInSchool.findAll({
-    //         where,
-    //         include: [ {association: 'teacher', include: ['personalInfo', 'account']} ]
-    //     })
-    // }
-
-
+    
     static async handleGetTeachersRequest(req, res) {
         try {
             let className
@@ -46,22 +46,11 @@ class TeacherInSchool extends Model {
             res.status(400).send(e)
         }
     }
-
-    // static async handleGetTeachersRequest(req, res) {
-    //     try {
-    //         // let className
-    //         // if (req.params.className) className = req.params.className.replace('_', ' ')
-    //         const teachers = await TeacherInSchool.getTeachers(req.account.school.id, req.params.startYear, req.params.endYear)
-    //         res.send({teachers})
-    //     } catch (e) {
-    //         console.log(e)
-    //         res.status(400).send(e)
-    //     }
-    // }
-    
 }
 
-TeacherInSchool.init({}, {sequelize, modelName: 'teacherInSchool', timestamps: false})
+TeacherInSchool.init({
+    active: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true}
+}, {sequelize, modelName: 'teacherInSchool', timestamps: false})
 
 TeacherInSchool.belongsTo(School, {foreignKey: {allowNull: false}})
 School.hasMany(TeacherInSchool)

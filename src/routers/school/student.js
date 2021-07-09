@@ -73,7 +73,7 @@ router.post('/:siteName/:startYear-:endYear/students/addExisting', auth(['School
         if (activeRecords) return res.status(401).send('Student is already registered in a school.')
 
         await account.student.assignClassId(req.body.schoolClassId)
-        const studentInSchool = await StudentInSchool.ActivateAccount(account.student.id, req.account.school.id)
+        const studentInSchool = await StudentInSchool.activateAccount(account.student.id, req.account.school.id)
         await studentInSchool.createStudentInClass({schoolClassId: req.body.schoolClassId})
 
         account.student.dataValues.account = {email: req.body.email}

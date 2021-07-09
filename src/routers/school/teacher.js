@@ -6,6 +6,8 @@ const Teacher = require('../../models/teacher/teacher')
 const TeacherInSchool = require('../../models/teacher/teacherInSchool')
 const TeacherInClass = require('../../models/teacher/teacherInClass')
 const SchoolClass = require('../../models/class/schoolClass')
+const Account = require('../../models/account')
+
 
 // post New Teacher
 // /alhbd/2020-2021/teachers/add
@@ -29,28 +31,23 @@ const SchoolClass = require('../../models/class/schoolClass')
 
 router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), async (req, res) => {
     try {
-        
+
         req.body.account.user = 'Teacher'
         const teacher = await Teacher.create(req.body, {include: ['account', 'personalInfo']})
         const teacherInSchool = await TeacherInSchool.create({teacherId: teacher.id, schoolId: req.account.school.id})
-
         const classIds = req.body.schoolClassId
 
-        classIds.forEach( async (item) => {
-                    
+        for (const item of classIds) {
+
             const schoolClass = await SchoolClass.findByPk(item)
             if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
                 throw new Error('schoolClassId doesn\'t belong to this school.')
 
-            if (schoolClass.startYear != req.params.startYear
-                || schoolClass.endYear != req.params.endYear)
+            if (schoolClass.startYear != req.params.startYear || schoolClass.endYear != req.params.endYear)
                 throw new Error('schoolClassId doesn\'t belong to this year.')
 
-            console.log(schoolClass.startYear, schoolClass.endYear)
-
-            await TeacherInClass.create({
-                teacherInSchoolId: teacherInSchool.id, schoolClassId: schoolClass.id})
-        });
+            await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: schoolClass.id})
+        }
 
         res.status(201).send(teacher)
     } catch (e) {
@@ -59,8 +56,7 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
     }
 })
 
-//added new
-// post Existing Teacher
+//post Existing Teacher
 // /alhbd/2020-2021/teachers/addExisting
 //{ "id":1,"email":"raneem@hbd.com", "schoolClassId":[1,2]}
 router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School']), async (req, res) => {
@@ -96,6 +92,6 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 // get Teachers In a School (in a year)
 // /alhbd/2020-2021/teachers
 router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
-    , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req,res))
+    , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req, res))
 
 module.exports = router

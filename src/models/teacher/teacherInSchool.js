@@ -19,7 +19,7 @@ class TeacherInSchool extends Model {
         const where = {
             schoolId,
             '$teacherInClasses.schoolClass.startYear$': startYear,
-            '$teacherInClasses.schoolClass.endYear$': endYear
+            '$teacherInClasses.schoolClass.endYear$': endYear,
         }
 
         if (className) where['$teacherInClasses.schoolClass.class.name$'] = className
@@ -27,13 +27,10 @@ class TeacherInSchool extends Model {
         return await TeacherInSchool.findAll({
             where,
             include: [{association: 'teacher', include: ['personalInfo', 'account']},
-                {
-                    association: 'teacherInClasses', attributes: ['id', 'createdAt']
-                }]
-            , order: [['teacherInClasses', 'createdAt', 'ASC']]
+                {association: 'teacherInClasses', attributes: ['id'], include: 'schoolClass'}]
         })
     }
-    
+
     static async handleGetTeachersRequest(req, res) {
         try {
             let className

@@ -2,7 +2,6 @@ const { DataTypes, Model, Sequelize } = require('sequelize')
 const sequelize = require('../../db/sequelize')
 
 const StudentInClass = require('../student/studentInClass')
-const StudentInSchool = require('../student/studentInSchool')
 const Exam = require('./exam')
 
 class Mark extends Model {
@@ -34,7 +33,7 @@ class Mark extends Model {
 
         const exams = await Exam.findAll({
             where,
-            attributes: ['id', 'createdAt', 'fullMarks'],
+            attributes: ['id', 'fullMark'],
             include: { association: 'marks', attributes: [], include: markAssociation }
         })
 

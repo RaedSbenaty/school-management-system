@@ -6,7 +6,7 @@ const Student = require('./student')
 
 class StudentInSchool extends Model {
 
-    static async ActivateAccount(studentId, schoolId) {
+    static async activateAccount(studentId, schoolId) {
         const where = {studentId, schoolId}
         let studentInSchool = await StudentInSchool.findOne({where, include: 'studentInClasses'})
         if (studentInSchool) await studentInSchool.update({active: true})

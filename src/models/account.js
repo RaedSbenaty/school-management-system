@@ -37,13 +37,16 @@ class Account extends Model {
         return jwt.sign(payload, process.env.JWT_SECRET)
     }
 
-    sendMail(subject, text) {
-D        const transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: {user: 'schoolink.rar@gmail.com', pass: 'school de l\'hbd'}
-        });
-
-        transporter.sendMail({from: 'Schoolink', to: this.email, subject, text});
+    async sendMail(subject, text) {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {user: 'schoolink.rar@gmail.com', pass: 'school de l\'hbd'}
+            })
+            await transporter.sendMail({from: 'Schoolink', to: this.email, subject, text});
+        } catch (e) {
+            console.log(`Mail with subject: ${subject}\nand text: ${text}\nwasn\'t sent.`)
+        }
     }
 }
 

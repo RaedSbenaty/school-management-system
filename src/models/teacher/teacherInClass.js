@@ -7,7 +7,7 @@ const TeacherInSchool = require('./teacherInSchool')
 class TeacherInClass extends Model {
 }
 
-TeacherInClass.init({}, {sequelize, modelName: 'teacherInClass', updatedAt: false})
+TeacherInClass.init({}, {sequelize, modelName: 'teacherInClass', timestamps: false})
 
 TeacherInClass.belongsTo(TeacherInSchool, {foreignKey: {allowNull: false}})
 TeacherInSchool.hasMany(TeacherInClass)

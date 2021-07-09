@@ -1,4 +1,4 @@
-const { DataTypes, Model, Sequelize } = require('sequelize')
+const {DataTypes, Model, Sequelize} = require('sequelize')
 const sequelize = require('../../db/sequelize')
 
 const StudentInClass = require('../student/studentInClass')
@@ -18,23 +18,23 @@ class Mark extends Model {
         const markAssociation = {
             association: 'studentInClass', attributes: [],
             include: [
-                { association: 'schoolClass', attributes: [], include: { association: 'class', attributes: [] } },
-                { association: 'classroom', attributes: [] },
+                {association: 'schoolClass', attributes: [], include: {association: 'class', attributes: []}},
+                {association: 'classroom', attributes: []},
                 {
                     association: 'studentInSchool', attributes: [],
                     include: [
-                        { association: 'school', attributes: [] },
+                        {association: 'school', attributes: []},
                         {
                             association: 'student', attributes: [],
-                            include: { association: 'personalInfo', attributes: [] }
+                            include: {association: 'personalInfo', attributes: []}
                         }]
                 }]
         }
 
         const exams = await Exam.findAll({
             where,
-            attributes: ['id', 'fullMark'],
-            include: { association: 'marks', attributes: [], include: markAssociation }
+            attributes: ['id', 'dateOfExam', 'fullMark'],
+            include: {association: 'marks', attributes: [], include: markAssociation}
         })
 
         for (const exam of exams) {
@@ -55,7 +55,7 @@ class Mark extends Model {
             if (req.params.className) className = req.params.className.replace('_', ' ')
             const exams = await Mark.getStudentsMarks(req.account.school.id, req.params.startYear,
                 req.params.endYear, className, req.params.classroomNumber, req.params.sisId, req.params.typeId)
-            res.send({ exams })
+            res.send({exams})
         } catch (e) {
             console.log(e)
             res.status(400).send(e)
@@ -64,13 +64,13 @@ class Mark extends Model {
 }
 
 Mark.init({
-    value: { type: DataTypes.INTEGER, allowNull: false },
-}, { sequelize, modelName: 'mark', timestamps: false })
+    value: {type: DataTypes.INTEGER, allowNull: false},
+}, {sequelize, modelName: 'mark', timestamps: false})
 
-Mark.belongsTo(StudentInClass, { foreignKey: { allowNull: false, unique: 'uniqueStudentMark' } })
+Mark.belongsTo(StudentInClass, {foreignKey: {allowNull: false, unique: 'uniqueStudentMark'}})
 StudentInClass.hasMany(Mark)
 
-Mark.belongsTo(Exam, { foreignKey: { allowNull: false, unique: 'uniqueStudentMark' } })
+Mark.belongsTo(Exam, {foreignKey: {allowNull: false, unique: 'uniqueStudentMark'}})
 Exam.hasMany(Mark)
 
 Mark.beforeSave(async (mark) => {
@@ -78,11 +78,11 @@ Mark.beforeSave(async (mark) => {
     if (mark.value < 0 || mark.value > exam.fullMarks)
         throw new Error('Mark can\'t be higher than full mark.')
 
-        const addedStudent = await mark.dataValues.studentInClassId
-        const studentInClass = await StudentInClass.findByPk(addedStudent)
-        console.log('studentId: ', studentInClass);
-        if (studentInClass== null)
-            throw new Error('student with id: ' + addedStudent + ' was not found.')
+    const addedStudent = await mark.dataValues.studentInClassId
+    const studentInClass = await StudentInClass.findByPk(addedStudent)
+    console.log('studentId: ', studentInClass);
+    if (studentInClass == null)
+        throw new Error('student with id: ' + addedStudent + ' was not found.')
 })
 
 module.exports = Mark

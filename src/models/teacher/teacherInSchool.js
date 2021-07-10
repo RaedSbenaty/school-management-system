@@ -10,7 +10,7 @@ class TeacherInSchool extends Model {
         const where = {teacherId, schoolId}
         let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacherInClasses'})
         if (teacherInSchool) await teacherInSchool.update({active: true})
-        else teacherInSchool = await teacherInSchool.create(where)
+        else teacherInSchool = await TeacherInSchool.create(where)
         return teacherInSchool
     }
 

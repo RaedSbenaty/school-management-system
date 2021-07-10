@@ -58,27 +58,24 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
 
 //post Existing Teacher
 // /alhbd/2020-2021/teachers/addExisting
-//{ "id":1,"email":"raneem@hbd.com", "schoolClassId":[1,2]}
+//{ "id":2,"email":"raneem@hbd.com", "schoolClassId":[3]}
 router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School']), async (req, res) => {
     try {
         const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
         if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
 
-        // const checkFound = await TeacherInSchool.count({
-        //     where: {teacherId: account.teacher.id, schoolId: req.account.school.id}
-        // })
-
         const teacherInSchool = await TeacherInSchool.ActivateAccount(account.teacher.id, req.account.school.id)
 
         const classIds = req.body.schoolClassId
-        classIds.forEach( async (item) => {
+        for (const item of classIds) {
             
-            const teacherInClass = TeacherInClass.findOne({
+            const teacherInClass = await TeacherInClass.findOne({
                 where: {teacherInSchoolId: teacherInSchool.id, schoolClassId: item}
             })
-            if(!teacherInClass)
-                await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: item})
-        })
+            if(teacherInClass) return res.status(404).send('Teacher is already added to schoolClass '+ item)
+
+            await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: item})
+        }
 
         account.teacher.dataValues.account = {email: req.body.email}
         res.send(account.teacher)

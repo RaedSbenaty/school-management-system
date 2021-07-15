@@ -61,6 +61,14 @@ router.get('/days', async (req, res) => {
     }
 })
 
+router.get('/getFile', (req, res) => {
+    try {
+        res.sendFile(path.join(__dirname, '.', '..', '..', req.body.path))
+    } catch (e) {
+        console.log(e)
+        res.status(500).send('Failed to get file')
+    }
+})
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -98,7 +106,10 @@ router.post('/:siteName/:startYear-:endYear/announcements/add', auth(), upload.a
     try {
         const values = {...JSON.parse(req.body.json), startYear: req.params.startYear, endYear: req.params.endYear}
         const announcement = await Announcement.create(values)
-        req.files.forEach(file => Attachment.create({announcementId: announcement.id, path: 'upload/' + file.filename}))
+        req.files.forEach(file => Attachment.create({
+            announcementId: announcement.id,
+            path: 'uploads/' + file.filename
+        }))
         res.status(201).send('Done.')
     } catch (e) {
         console.log(e)

@@ -9,7 +9,7 @@ AnnouncementType.init({
     name: {type: DataTypes.STRING, allowNull: false}
 }, {sequelize, modelName: 'announcementType', timestamps: false})
 
-AnnouncementType.defaultAnnouncementTypes = [{name: 'Exam'}, {name: 'Sessions Scedual'}
+AnnouncementType.defaultAnnouncementTypes = [{name: 'Exam'}, {name: 'Sessions Schedule'}
     , {name: 'Additional Session'}, {name: 'Other'}]
 
 module.exports = AnnouncementType

@@ -20,5 +20,6 @@ app.use(require('./routers/school/student'))
 app.use(require('./routers/school/subject'))
 app.use(require('./routers/school/teacher'))
 app.use(require('./routers/school/mark'))
+app.use(require('./routers/school/session'))
 
 module.exports = app

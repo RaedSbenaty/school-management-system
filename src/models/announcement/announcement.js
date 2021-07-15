@@ -48,7 +48,7 @@ Announcement.beforeSave((announcement) => {
     const destList = [announcement.destinationSchoolId, announcement.destinationTeacherInClassId
         , announcement.destinationStudentInClassId, announcement.destinationSchoolClassId, announcement.destinationClassroomId]
 
-    sourceList.forEach(source => source !== undefined ? senders++ : senders)
+    sourceList.forEach(source => source? senders++ : senders)
     destList.forEach(dest => dest !== undefined ? receivers++ : receivers)
 
     if (senders !== 1 || receivers !== 1)

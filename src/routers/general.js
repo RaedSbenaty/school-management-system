@@ -84,7 +84,7 @@ const upload = multer({
     limits: {fileSize: 4194304},
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(png|jpg|jpeg|pdf)$/))
-            return cb(new Error('Please upload an image.'))
+            return cb(new Error('Please upload an image or a pdf.'))
         cb(undefined, true)
     }
 })
@@ -92,7 +92,7 @@ const upload = multer({
 /*
 post announcement
 /alhbd/2020-2021/announcements/add
-{
+"json": {
     "sourceSchoolId":1,
     "destinationStudentInClassId":1,
     "heading": "head",
@@ -110,7 +110,7 @@ router.post('/:siteName/:startYear-:endYear/announcements/add', auth(), upload.a
             announcementId: announcement.id,
             path: 'uploads/' + file.filename
         }))
-        res.status(201).send('Done.')
+        res.status(201).send('Announcement posting is done.')
     } catch (e) {
         console.log(e)
         res.status(500).send(e.message)

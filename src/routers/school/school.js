@@ -1,8 +1,12 @@
 const express = require('express')
 const router = express.Router()
+const multer = require('multer')
+const path = require('path')
 
 const School = require('../../models/school')
 const Account = require('../../models/account')
+const Announcement = require('../../models/announcement/announcement')
+const Attachment = require('../../models/announcement/attachment')
 
 
 //example
@@ -34,6 +38,8 @@ router.post('/schools/signup', async (req, res) => {
         res.status(400).send(e.message)
     }
 })
+
+
 
 
 module.exports = router

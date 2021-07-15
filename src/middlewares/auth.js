@@ -16,7 +16,7 @@ module.exports = (userTypes) => {
             })
             if (!account || account.email !== payload.email) throw new Error('Account not found.')
             if (userTypes && !userTypes.includes(account.user)) throw new Error('Invalid account type.')
-            if (req.params.siteName && account.siteName !== req.params.siteName) throw new Error('Unauthorized site name.')
+            if (account.school && account.siteName !== req.params.siteName) throw new Error('Unauthorized site name.')
 
             req.account = account
             next()

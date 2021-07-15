@@ -2,6 +2,7 @@ const sequelize = require('../../db/sequelize')
 const {DataTypes, Model} = require('sequelize')
 
 const SchoolClass = require('../class/schoolClass')
+const Classroom = require('../class/classroom')
 const TeacherInSchool = require('./teacherInSchool')
 
 class TeacherInClass extends Model {
@@ -14,5 +15,8 @@ TeacherInSchool.hasMany(TeacherInClass)
 
 TeacherInClass.belongsTo(SchoolClass, {foreignKey: {allowNull: false}})
 SchoolClass.hasMany(TeacherInClass)
+
+TeacherInClass.belongsTo(Classroom)
+Classroom.hasMany(TeacherInClass)
 
 module.exports = TeacherInClass

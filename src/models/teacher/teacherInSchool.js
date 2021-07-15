@@ -6,13 +6,13 @@ const Teacher = require('./teacher')
 class TeacherInSchool extends Model {
 
     // added new
-    // static async activateAccount(teacherId, schoolId) {
-    //     const where = {teacherId, schoolId}
-    //     let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacherInClasses'})
-    //     if (teacherInSchool) await teacherInSchool.update({active: true})
-    //     else teacherInSchool = await teacherInSchool.create(where)
-    //     return teacherInSchool
-    // }
+    static async ActivateAccount(teacherId, schoolId) {
+        const where = {teacherId, schoolId}
+        let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacherInClasses'})
+        if (teacherInSchool) await teacherInSchool.update({active: true})
+        else teacherInSchool = await teacherInSchool.create(where)
+        return teacherInSchool
+    }
 
 
     static async getTeachers(schoolId, startYear, endYear, className) {
@@ -27,8 +27,8 @@ class TeacherInSchool extends Model {
         return await TeacherInSchool.findAll({
             where,
             include: [{association: 'teacher', include: ['personalInfo', 'account']},
-                {association: 'teacherInClasses', attributes: ['id'], include: 'schoolClass'}]
-        })
+                      {association: 'teacherInClasses', attributes: ['id'], include:{association:'schoolClass', include:'class'}}]
+                })
     }
 
     static async handleGetTeachersRequest(req, res) {

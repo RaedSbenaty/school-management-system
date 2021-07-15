@@ -6,6 +6,7 @@ const School = require('../../models/school')
 const Classroom = require('../../models/class/classroom')
 const StudentInSchool = require('../../models/student/studentInSchool')
 const StudentInClass = require('../../models/student/studentInClass')
+const TeacherInSchool = require('../../models/teacher/teacherInSchool')
 
 
 /* post Classes
@@ -135,5 +136,10 @@ router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:so
         res.status(400).send('Updating failed.')
     }
 })
+
+// get Teachers In a class (in a year)
+// /alhbd/2020-2021/classes/Fifth_Grade/teachers
+router.get('/:siteName/:startYear-:endYear/classes/:className/teachers', auth(['School'])
+    , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req, res))
 
 module.exports = router

@@ -25,4 +25,5 @@ TeacherInClass.hasMany(Session)
 Session.belongsTo(Day, {foreignKey: {allowNull: false}})
 Day.hasMany(Session)
 
+
 module.exports = Session

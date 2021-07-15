@@ -11,6 +11,7 @@ const Class = require('../models/class/class')
 const Category = require('../models/subject/category')
 const ExamType = require('../models/subject/examType')
 const Day = require('../models/day')
+const AnnouncementType = require('../models/announcement/announcementType')
 const Announcement = require('../models/announcement/announcement')
 const Attachment = require('../models/announcement/attachment')
 
@@ -33,7 +34,7 @@ router.get('/classes', async (req, res) => {
     try {
         await res.send(await Class.findAll())
     } catch (e) {
-        res.status(500).send('Failed to fetch classes')
+        res.status(500).send('Failed to fetch classes.')
     }
 })
 
@@ -41,7 +42,7 @@ router.get('/categories', async (req, res) => {
     try {
         await res.status(200).send(await Category.findAll())
     } catch (e) {
-        res.status(500).send('Failed to fetch categories')
+        res.status(500).send('Failed to fetch categories.')
     }
 })
 
@@ -49,7 +50,7 @@ router.get('/examTypes', async (req, res) => {
     try {
         await res.send(await ExamType.findAll())
     } catch (e) {
-        res.status(500).send('Failed to fetch exam types')
+        res.status(500).send('Failed to fetch exam types.')
     }
 })
 
@@ -57,7 +58,15 @@ router.get('/days', async (req, res) => {
     try {
         await res.send(await Day.findAll())
     } catch (e) {
-        res.status(500).send('Failed to fetch days')
+        res.status(500).send('Failed to fetch days.')
+    }
+})
+
+router.get('/announcementTypes', async (req, res) => {
+    try {
+        await res.send(await AnnouncementType.findAll())
+    } catch (e) {
+        res.status(500).send('Failed to fetch announcement types.')
     }
 })
 

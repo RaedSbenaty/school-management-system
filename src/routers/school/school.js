@@ -85,8 +85,6 @@ router.post('/:siteName/:startYear-:endYear/generalInfo/add',
                 });
            req.body.schoolId = req.account.school.id
 
-           console.log(req.body);
-
             await GeneralInfo.create(req.body)
             res.status(201).send('School general Information has been successfully added.')
         } catch (e) {

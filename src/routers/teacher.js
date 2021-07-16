@@ -23,7 +23,7 @@ router.post('/teachers/signup', async (req, res) => {
     try {
         req.body.account.user = 'Teacher'
         const teacher = await Teacher.create(req.body, {include: ['account', 'personalInfo']})
-        teacher.dataValues.token = teacher.account.generateAuthToken()
+        teacher.dataValues.token = await teacher.account.generateAuthToken()
         res.status(201).send(teacher)
     } catch (e) {
         console.log(e)

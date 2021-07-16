@@ -7,7 +7,6 @@ const belongsTo = require('../middlewares/studentBelongsToSchool')
 const Student = require('../models/student/student')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
-const School = require('../models/school')
 const SchoolClass = require('../models/class/schoolClass')
 const StudentInClass = require('../models/student/studentInClass')
 
@@ -37,7 +36,7 @@ router.post('/students/signup', async (req, res) => {
     try {
         req.body.account.user = 'Student'
         const student = await Student.create(req.body, {include: ['account', 'personalInfo']})
-        student.dataValues.token = student.account.generateAuthToken()
+        student.dataValues.token = await student.account.generateAuthToken()
         res.status(201).send(student)
     } catch (e) {
         console.log(e)

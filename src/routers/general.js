@@ -21,7 +21,7 @@ const TeacherInClass = require('../models/teacher/teacherInClass')
 router.post('/login', async (req, res) => {
     try {
         const account = await Account.findByCriteria(req.body.email, req.body.password)
-        account.dataValues.token = account.generateAuthToken()
+        account.dataValues.token = await account.generateAuthToken()
         res.status(201).send(account)
     } catch (e) {
         console.log(e)

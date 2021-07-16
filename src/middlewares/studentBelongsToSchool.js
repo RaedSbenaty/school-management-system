@@ -1,4 +1,4 @@
-const School = require('../models/school')
+const School = require('../models/school/school')
 const StudentInClass = require('../models/student/studentInClass')
 
 module.exports = async (req, res, next) => {

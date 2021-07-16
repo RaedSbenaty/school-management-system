@@ -1,7 +1,6 @@
 const express = require('express')
 const multer = require('multer')
 const path = require('path')
-const sharp = require('sharp')
 const router = express.Router()
 const {Op} = require('sequelize')
 const auth = require('../middlewares/auth')
@@ -128,36 +127,16 @@ router.post('/:siteName/:startYear-:endYear/announcements/add', auth(), upload.a
     res.status(400).send(error.message)
 })
 
-// get announcements
+// get announcements for a school
 // /alhbd/2020-2021/announcements
 
-router.get('/:siteName/:startYear-:endYear/announcements', auth(), async (req, res) => {
+router.get('/:siteName/:startYear-:endYear/announcements', auth(['School']), async (req, res) => {
     try {
-        let where
-        const school = await School.findOne({where: {'$account.siteName$': req.params.siteName}, include: 'account'})
-
-        if (req.account.student) {
-            const studentInClass = await StudentInClass.findOne({
-                subQuery: false, attributes: ['id', 'schoolClassId', 'classroomId'],
-                include: [{association: 'classroom', attributes: []}, {
-                    attributes: [], association: 'schoolClass',
-                    where: {startYear: req.params.startYear, endYear: req.params.endYear}
-                }, {association: 'studentInSchool', where: {studentId: req.account.student.id, schoolId: school.id}}]
-            })
-
-            where = {
-                [Op.or]: [{destinationStudentInClassId: {[Op.eq]: studentInClass.id}},
-                    {destinationSchoolClassId: {[Op.eq]: studentInClass.schoolClassId}},
-                    {destinationClassroomId: {[Op.eq]: studentInClass.classroomId}},]
-            }
-
-        } else if (req.account.school) where = {destinationSchoolId: school.id}
-
-
-        where['startYear'] = req.params.startYear
-        where['endYear'] = req.params.endYear
         const announcements = await Announcement.findAll({
-            where, include: {association: 'attachments', attributes: ['path']}
+            where: {
+                startYear: req.params.startYear, endYear: req.params.endYear,
+                destinationSchoolId: req.account.school.id
+            }, include: {association: 'attachments', attributes: ['path']}
         })
 
         res.send(announcements)

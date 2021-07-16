@@ -1,7 +1,7 @@
 const sequelize = require('../../db/sequelize')
 const {DataTypes, Model} = require('sequelize')
 
-const School = require('../school')
+const School = require('../school/school')
 const Student = require('./student')
 
 class StudentInSchool extends Model {

@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../../middlewares/auth')
 
-const School = require('../../models/school')
+const School = require('../../models/school/school')
 const Classroom = require('../../models/class/classroom')
 const StudentInSchool = require('../../models/student/studentInSchool')
 const StudentInClass = require('../../models/student/studentInClass')

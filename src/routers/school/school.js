@@ -9,6 +9,8 @@ const Account = require('../../models/account')
 const Announcement = require('../../models/announcement/announcement')
 const Attachment = require('../../models/announcement/attachment')
 const Class = require('../../models/class/class')
+const GeneralInfo = require('../../models/school/generalInfo')
+const  Session  = require('../../models/session/session')
 
 
 
@@ -45,7 +47,7 @@ router.post('/schools/signup', async (req, res) => {
 //school general information
 /*
 example
-/alhbd/2020-2021/generalInfo
+/alhbd/2020-2021/generalInfo/add
 
 {
     "startTime": "01:00",
@@ -55,7 +57,7 @@ example
     "activeDays": [1,2,3,4]
 }
 */
-router.post('/:siteName/:startYear-:endYear/generalInfo',
+router.post('/:siteName/:startYear-:endYear/generalInfo/add',
     auth(['School']), async (req, res) => {
         try {
             let session = await School.findAll({
@@ -66,30 +68,32 @@ router.post('/:siteName/:startYear-:endYear/generalInfo',
                     association: 'schoolClasses', required: true,
                     include: {
                         association: 'classrooms', required: true,
-                        // include: {
-                        //     accosiation: 'sessions', required: true
-                        // }
+                        include: {
+                            association: 'sessions', required: true
+                        }
                     }
                 }
             })
-            console.log(session);
-            if (session)
+            if (session.length)
                 return res.status(400).send('Consider changing schedules before changing this information.')
                 let days = req.body.activeDays
                 delete req.body.activeDays
                
                 days.forEach(element => {
+                   req.body.Days= []
                    req.body.Days.push({"id": element})
                 });
+           req.body.schoolId = req.account.school.id
 
-            await req.account.school.createGeneralInfo(req.body)
+           console.log(req.body);
+
+            await GeneralInfo.create(req.body)
             res.status(201).send('School general Information has been successfully added.')
         } catch (e) {
             console.log(e)
             res.status(400).send(e.message.split(','))
         }
     })
-
 
 
 module.exports = router

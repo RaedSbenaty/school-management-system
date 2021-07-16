@@ -15,7 +15,7 @@ GeneralInfo.init({
         allowNull: false
     },
     breakFrequency: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.STRING,
         allowNull: false
     },
     breakDuration: {
@@ -33,6 +33,6 @@ GeneralInfo.belongsTo(School, {foreignKey: {allowNull: false, unique: true}})
 School.hasOne(GeneralInfo)
 
 GeneralInfo.hasMany(Day)
-Day.belongsTo(GeneralInfo)
+Day.belongsTo(GeneralInfo, {foreignKey: {allowNull: true}})
 
 module.exports = GeneralInfo

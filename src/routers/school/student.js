@@ -8,7 +8,6 @@ const SchoolClass = require('../../models/class/schoolClass')
 const StudentInSchool = require('../../models/student/studentInSchool')
 const StudentInClass = require('../../models/student/studentInClass')
 
-
 // post New Student
 // /alhbd/2020-2021/students/add
 /*
@@ -31,7 +30,7 @@ const StudentInClass = require('../../models/student/studentInClass')
 }
 */
 
-router.post('/:siteName/:startYear-:endYear/students/add', auth, async (req, res) => {
+router.post('/:siteName/:startYear-:endYear/students/add', auth(['School']), async (req, res) => {
     try {
         const schoolClass = await SchoolClass.findByPk(req.body.schoolClassId)
         if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
@@ -63,7 +62,7 @@ router.post('/:siteName/:startYear-:endYear/students/add', auth, async (req, res
 // post Existing Student
 // /alhbd/2020-2021/students/addExisting
 //{ "id":4,"email":"abd@hbd4.com", "schoolClassId":1}
-router.post('/:siteName/:startYear-:endYear/students/addExisting', auth, async (req, res) => {
+router.post('/:siteName/:startYear-:endYear/students/addExisting', auth(['School']), async (req, res) => {
     try {
         const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
         if (!account || !account.student) return res.status(404).send('Invalid student criteria.')
@@ -74,7 +73,7 @@ router.post('/:siteName/:startYear-:endYear/students/addExisting', auth, async (
         if (activeRecords) return res.status(401).send('Student is already registered in a school.')
 
         await account.student.assignClassId(req.body.schoolClassId)
-        const studentInSchool = await StudentInSchool.createIfNotFound(account.student.id, req.account.school.id)
+        const studentInSchool = await StudentInSchool.activateAccount(account.student.id, req.account.school.id)
         await studentInSchool.createStudentInClass({schoolClassId: req.body.schoolClassId})
 
         account.student.dataValues.account = {email: req.body.email}
@@ -84,5 +83,27 @@ router.post('/:siteName/:startYear-:endYear/students/addExisting', auth, async (
         res.status(500).send({error: e.message})
     }
 })
+
+// get Students In a School (in a year)
+// /alhbd/2020-2021/students
+router.get('/:siteName/:startYear-:endYear/students', auth(['School'])
+    , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
+
+// patch Disable Student In School
+// /alhbd/2020-2021/students/disable
+// {"studentId":1}
+
+router.patch('/:siteName/:startYear-:endYear/students/disable', auth(['School']),
+    async (req, res) => {
+        try {
+            const updateRows = await StudentInSchool.update({active: false},
+                {where: {schoolId: req.account.school.id, studentId: req.body.studentId}})
+            if (!updateRows[0]) return res.status(404).send('Student not found in this school.')
+            res.send('Account has been disabled.')
+        } catch (e) {
+            console.log(e)
+            res.status(500).send('Disabling failed.')
+        }
+    })
 
 module.exports = router

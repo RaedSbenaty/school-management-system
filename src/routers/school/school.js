@@ -1,10 +1,15 @@
 const express = require('express')
 const router = express.Router()
+const multer = require('multer')
+const path = require('path')
 const auth = require('../../middlewares/auth')
 
-const School = require('../../models/school')
+const School = require('../../models/school/school')
 const Account = require('../../models/account')
-const StudentInSchool = require('../../models/student/studentInSchool')
+const Announcement = require('../../models/announcement/announcement')
+const Attachment = require('../../models/announcement/attachment')
+const Class = require('../../models/class/class')
+
 
 
 //example
@@ -27,7 +32,8 @@ const StudentInSchool = require('../../models/student/studentInSchool')
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
-        const school = await School.create(req.body, {include: [Account]})
+        const school = await School.create(req.body, { include: [Account] })
+        school.account.sendMail('Welcome To Schoolink!', 'Have a nice experience, hbedo')
         school.dataValues.token = await school.account.generateAuthToken()
         res.status(201).send(school)
     } catch (e) {
@@ -36,9 +42,54 @@ router.post('/schools/signup', async (req, res) => {
     }
 })
 
-// get Students In a School (in a year)
-// /alhbd/2020-2021/students
-router.get('/:siteName/:startYear-:endYear/students', auth
-    , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
+//school general information
+/*
+example
+/alhbd/2020-2021/generalInfo
+
+{
+    "startTime": "01:00",
+    "breakFrequency": "2",
+    "breakDuration": "15",
+    "sessionDuration": "45",
+    "activeDays": [1,2,3,4]
+}
+*/
+router.post('/:siteName/:startYear-:endYear/generalInfo',
+    auth(['School']), async (req, res) => {
+        try {
+            let session = await School.findAll({
+                subQuery: false,
+                where: {
+                    id: req.account.school.id,
+                }, include: {
+                    association: 'schoolClasses', required: true,
+                    include: {
+                        association: 'classrooms', required: true,
+                        // include: {
+                        //     accosiation: 'sessions', required: true
+                        // }
+                    }
+                }
+            })
+            console.log(session);
+            if (session)
+                return res.status(400).send('Consider changing schedules before changing this information.')
+                let days = req.body.activeDays
+                delete req.body.activeDays
+               
+                days.forEach(element => {
+                   req.body.Days.push({"id": element})
+                });
+
+            await req.account.school.createGeneralInfo(req.body)
+            res.status(201).send('School general Information has been successfully added.')
+        } catch (e) {
+            console.log(e)
+            res.status(400).send(e.message.split(','))
+        }
+    })
+
+
 
 module.exports = router

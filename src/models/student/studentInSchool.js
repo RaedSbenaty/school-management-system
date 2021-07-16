@@ -1,15 +1,16 @@
 const sequelize = require('../../db/sequelize')
 const {DataTypes, Model} = require('sequelize')
 
-const School = require('../school')
+const School = require('../school/school')
 const Student = require('./student')
 
 class StudentInSchool extends Model {
 
-    static async createIfNotFound(studentId, schoolId) {
+    static async activateAccount(studentId, schoolId) {
         const where = {studentId, schoolId}
         let studentInSchool = await StudentInSchool.findOne({where, include: 'studentInClasses'})
-        if (!studentInSchool) studentInSchool = await StudentInSchool.create(where)
+        if (studentInSchool) await studentInSchool.update({active: true})
+        else studentInSchool = await StudentInSchool.create(where)
         return studentInSchool
     }
 

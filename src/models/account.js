@@ -2,6 +2,8 @@ const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../db/sequelize')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const nodemailer = require('nodemailer')
+
 
 class Account extends Model {
     static async findByCriteria(email, password) {
@@ -33,6 +35,18 @@ class Account extends Model {
     generateAuthToken() {
         const payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
         return jwt.sign(payload, process.env.JWT_SECRET)
+    }
+
+    async sendMail(subject, text) {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {user: 'schoolink.rar@gmail.com', pass: 'school de l\'hbd'}
+            })
+            await transporter.sendMail({from: 'Schoolink', to: this.email, subject, text});
+        } catch (e) {
+            console.log(`Mail with subject: ${subject}\nand text: ${text}\nwasn\'t sent.`)
+        }
     }
 }
 

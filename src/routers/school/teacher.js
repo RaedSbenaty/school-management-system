@@ -4,36 +4,91 @@ const auth = require('../../middlewares/auth')
 
 const Teacher = require('../../models/teacher/teacher')
 const TeacherInSchool = require('../../models/teacher/teacherInSchool')
+const TeacherInClass = require('../../models/teacher/teacherInClass')
+const SchoolClass = require('../../models/class/schoolClass')
+const Account = require('../../models/account')
+
 
 // post New Teacher
 // /alhbd/2020-2021/teachers/add
 /*
 {
+    "schoolClassId": [1,2],
     "certification": "PHD. HBD",
     "personalInfo":{
-    "firstName": "Raed",
-    "lastName": "Sbenaty",
-    "birthDate": "04-17-2001",
+    "firstName": "Raneem",
+    "lastName": "Alhassan",
+    "birthDate": "05-22-1999",
     "residentialAddress": "Damascus"
     },
     "account" : {
-        "email": "raed@hbd.com",
+        "email": "raneem@hbd.com",
         "password": "12345678",
-        "phoneNumber": "+963994418123"
+        "phoneNumber": "+963945587149"
     }
 }
- */
+*/
 
-router.post('/:siteName/:startYear-:endYear/teachers/add', auth, async (req, res) => {
+router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), async (req, res) => {
     try {
+
         req.body.account.user = 'Teacher'
         const teacher = await Teacher.create(req.body, {include: ['account', 'personalInfo']})
-        await TeacherInSchool.create({teacherId: teacher.id, schoolId: req.account.school.id})
+        const teacherInSchool = await TeacherInSchool.create({teacherId: teacher.id, schoolId: req.account.school.id})
+        const classIds = req.body.schoolClassId
+
+        for (const item of classIds) {
+
+            const schoolClass = await SchoolClass.findByPk(item)
+            if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
+                throw new Error('schoolClassId doesn\'t belong to this school.')
+
+            if (schoolClass.startYear != req.params.startYear || schoolClass.endYear != req.params.endYear)
+                throw new Error('schoolClassId doesn\'t belong to this year.')
+
+            await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: schoolClass.id})
+        }
+
         res.status(201).send(teacher)
     } catch (e) {
         console.log(e)
         res.status(400).send(e.message)
     }
 })
+
+//post Existing Teacher
+// /alhbd/2020-2021/teachers/addExisting
+//{ "id":2,"email":"raneem@hbd.com", "schoolClassId":[3]}
+router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School']), async (req, res) => {
+    try {
+        const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
+        if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
+
+        const teacherInSchool = await TeacherInSchool.ActivateAccount(account.teacher.id, req.account.school.id)
+
+        const classIds = req.body.schoolClassId
+        for (const item of classIds) {
+            
+            const teacherInClass = await TeacherInClass.findOne({
+                where: {teacherInSchoolId: teacherInSchool.id, schoolClassId: item}
+            })
+            if(teacherInClass) return res.status(404).send('Teacher is already added to schoolClass '+ item)
+
+            await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: item})
+        }
+
+        account.teacher.dataValues.account = {email: req.body.email}
+        res.send(account.teacher)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({error: e.message})
+    }
+})
+
+
+// get Teachers In a School (in a year)
+// /alhbd/2020-2021/teachers
+router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
+    , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req, res))
 
 module.exports = router

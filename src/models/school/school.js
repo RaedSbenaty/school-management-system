@@ -1,7 +1,7 @@
 //modules
 const {DataTypes, Model} = require('sequelize')
-const sequelize = require('../db/sequelize')
-const Account = require('./account')
+const sequelize = require('../../db/sequelize')
+const Account = require('../account')
 
 class School extends Model {
 

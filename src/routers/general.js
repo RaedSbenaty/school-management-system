@@ -14,7 +14,7 @@ const AnnouncementType = require('../models/announcement/announcementType')
 const Announcement = require('../models/announcement/announcement')
 const Attachment = require('../models/announcement/attachment')
 
-const School = require('../models/school')
+const School = require('../models/school/school')
 const StudentInClass = require('../models/student/studentInClass')
 const TeacherInClass = require('../models/teacher/teacherInClass')
 

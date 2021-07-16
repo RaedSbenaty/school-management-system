@@ -2,7 +2,7 @@ const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../../db/sequelize')
 
 const AnnouncementType = require('./announcementType')
-const School = require('../school')
+const School = require('../school/school')
 const SchoolClass = require('../class/schoolClass')
 const Classroom = require('../class/classroom')
 const TeacherInClass = require('../teacher/teacherInClass')

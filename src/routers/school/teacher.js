@@ -4,16 +4,17 @@ const auth = require('../../middlewares/auth')
 
 const Teacher = require('../../models/teacher/teacher')
 const TeacherInSchool = require('../../models/teacher/teacherInSchool')
+const TeacherInYear = require('../../models/teacher/teacherInYear')
 const TeacherInClass = require('../../models/teacher/teacherInClass')
 const SchoolClass = require('../../models/class/schoolClass')
 const Account = require('../../models/account')
+const { findOne } = require('../../models/account')
 
 
 // post New Teacher
 // /alhbd/2020-2021/teachers/add
 /*
 {
-    "schoolClassId": [1,2],
     "certification": "PHD. HBD",
     "personalInfo":{
     "firstName": "Raneem",
@@ -31,25 +32,19 @@ const Account = require('../../models/account')
 
 router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), async (req, res) => {
     try {
-
         req.body.account.user = 'Teacher'
         const teacher = await Teacher.create(req.body, {include: ['account', 'personalInfo']})
-        const teacherInSchool = await TeacherInSchool.create({teacherId: teacher.id, schoolId: req.account.school.id})
-        const classIds = req.body.schoolClassId
 
-        for (const item of classIds) {
+        teacherInSchool = await TeacherInSchool.create({teacherId: teacher.id, schoolId: req.account.school.id})
+        await TeacherInYear.create({
+            teacherInSchoolId: teacherInSchool.id,
+            startYear: req.params.startYear,
+            endYear: req.params.endYear
+        })
 
-            const schoolClass = await SchoolClass.findByPk(item)
-            if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
-                throw new Error('schoolClassId doesn\'t belong to this school.')
-
-            if (schoolClass.startYear != req.params.startYear || schoolClass.endYear != req.params.endYear)
-                throw new Error('schoolClassId doesn\'t belong to this year.')
-
-            await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: schoolClass.id})
-        }
-
+        console.log("teacher was added to the school")
         res.status(201).send(teacher)
+
     } catch (e) {
         console.log(e)
         res.status(400).send(e.message)
@@ -58,33 +53,40 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
 
 //post Existing Teacher
 // /alhbd/2020-2021/teachers/addExisting
-//{ "id":2,"email":"raneem@hbd.com", "schoolClassId":[3]}
+//{ "accountId":from postman ,"email":"raneem@hbd.com" }
 router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School']), async (req, res) => {
     try {
         const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
         if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
-
-        const teacherInSchool = await TeacherInSchool.ActivateAccount(account.teacher.id, req.account.school.id)
-
-        const classIds = req.body.schoolClassId
-        for (const item of classIds) {
-            
-            const teacherInClass = await TeacherInClass.findOne({
-                where: {teacherInSchoolId: teacherInSchool.id, schoolClassId: item}
-            })
-            if(teacherInClass) return res.status(404).send('Teacher is already added to schoolClass '+ item)
-
-            await TeacherInClass.create({teacherInSchoolId: teacherInSchool.id, schoolClassId: item})
+    
+        let where ={
+            teacherId: account.teacher.id, 
+            schoolId: req.account.school.id
         }
+        let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacher'})
+
+        if(!teacherInSchool)
+            teacherInSchool = await TeacherInSchool.create(where)
+
+        where ={
+            teacherInSchoolId: teacherInSchool.id,
+            startYear: req.params.startYear,
+            endYear: req.params.endYear
+        }        
+        let teacherInYear = await TeacherInYear.findOne({where, include: 'teacherInSchool'})
+
+        if(teacherInYear) return res.status(404).send('Teacher was already added in this year.')
+
+        teacherInYear = await TeacherInYear.create(where)
 
         account.teacher.dataValues.account = {email: req.body.email}
-        res.send(account.teacher)
+        console.log("Teacher was added to the school")
+        res.send(account.teacher) 
     } catch (e) {
         console.log(e)
         res.status(500).send({error: e.message})
     }
 })
-
 
 // get Teachers In a School (in a year)
 // /alhbd/2020-2021/teachers

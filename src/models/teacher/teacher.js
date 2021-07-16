@@ -6,9 +6,6 @@ const PersonalInfo = require('../personalInfo')
 class Teacher extends Model {}
 
 Teacher.init({
-    id: { type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true},
     certification: {type: DataTypes.STRING, allowNull: false},
     certificationIssuer: {type: DataTypes.STRING},
     certificationDate: {type: DataTypes.DATE},

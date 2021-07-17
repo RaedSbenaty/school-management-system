@@ -3,40 +3,34 @@ const {DataTypes, Model} = require('sequelize')
 const School = require('../school/school')
 const Teacher = require('./teacher')
 
+
 class TeacherInSchool extends Model {
 
     // added new
-    static async ActivateAccount(teacherId, schoolId) {
-        const where = {teacherId, schoolId}
-        let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacherInClasses'})
-        if (teacherInSchool) await teacherInSchool.update({active: true})
-        else teacherInSchool = await teacherInSchool.create(where)
-        return teacherInSchool
-    }
-
-
-    static async getTeachers(schoolId, startYear, endYear, className) {
-        const where = {
-            schoolId,
-            '$teacherInClasses.schoolClass.startYear$': startYear,
-            '$teacherInClasses.schoolClass.endYear$': endYear,
-        }
-
-        if (className) where['$teacherInClasses.schoolClass.class.name$'] = className
-
+    // static async ActivateAccount(teacherId, schoolId) {
+    //     const where = {teacherId, schoolId}
+    //     let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacherInClasses'})
+    //     if (teacherInSchool) await teacherInSchool.update({active: true})
+    //     else teacherInSchool = await teacherInSchool.create(where)
+    //     return teacherInSchool
+    // }
+    
+    static async getTeachers(schoolId, startYear, endYear) {
+        
         return await TeacherInSchool.findAll({
-            where,
-            include: [{association: 'teacher', include: ['personalInfo', 'account']},
-                      {association: 'teacherInClasses', attributes: ['id'], include:{association:'schoolClass', include:'class'}}]
-                })
+            subQuery: false,
+            where: {schoolId},
+            include:{
+                association: 'teacherInYears', where:{startYear,endYear}, required: true
+            }
+        })
     }
 
     static async handleGetTeachersRequest(req, res) {
         try {
-            let className
-            if (req.params.className) className = req.params.className.replace('_', ' ')
-            const teachers = await TeacherInSchool.getTeachers(req.account.school.id, req.params.startYear,
-                req.params.endYear, className)
+            // let className
+            // if (req.params.className) className = req.params.className.replace('_', ' ')
+            const teachers = await TeacherInSchool.getTeachers(req.account.school.id, req.params.startYear, req.params.endYear)
             res.send({teachers})
         } catch (e) {
             console.log(e)

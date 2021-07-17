@@ -32,8 +32,21 @@ class Account extends Model {
         })
     }
 
-    generateAuthToken() {
-        const payload = {id: this.id, email: this.email, user: this.user, siteName: this.siteName}
+    async generateAuthToken() {
+        const payload = {id: this.id,email: this.email, user: this.user, siteName: this.siteName}
+        const account = await Account.findByIdAndEmail(this.id, this.email)
+
+        if(account.teacher)
+        {
+            payload.fullName = account.teacher.personalInfo.firstName + ' ' + account.teacher.personalInfo.lastName
+            payload.teacherId = account.teacher.id
+        }
+        if(account.student)
+        {
+            payload.fullName = account.student.personalInfo.firstName + ' ' + account.student.personalInfo.lastName
+            payload.studentId = account.student.id
+        }
+
         return jwt.sign(payload, process.env.JWT_SECRET)
     }
 

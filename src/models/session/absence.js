@@ -14,7 +14,7 @@ Absence.init({
 }, {sequelize, modelName: 'absence', timestamps: false})
 
 
-Absence.belongsTo(Session) //, {foreignKey: {allowNull: false}})
+Absence.belongsTo(Session)
 Session.hasMany(Absence)
 
 Absence.belongsTo(StudentInClass)

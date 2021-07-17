@@ -1,5 +1,8 @@
 const express = require('express')
 const router = express.Router()
+const auth = require('../middlewares/auth')
+
+
 const Teacher = require('../models/teacher/teacher')
 
 /*
@@ -31,6 +34,18 @@ router.post('/teachers/signup', async (req, res) => {
     }
 })
 
-module.exports = router
+
+//get teacher's info
+// /teacher/1/info
+router.get('/teachers/:teacherId/info', auth(['Teacher']), async (req, res) => {
+    try {
+        res.status(201).send(req.account)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
+
 
 module.exports = router

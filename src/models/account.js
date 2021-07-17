@@ -47,7 +47,6 @@ class Account extends Model {
             payload.studentId = account.student.id
         }
 
-        console.log(payload)
         return jwt.sign(payload, process.env.JWT_SECRET)
     }
 

@@ -8,7 +8,6 @@ const Student = require('../models/student/student')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
 const SchoolClass = require('../models/class/schoolClass')
-const StudentInClass = require('../models/student/studentInClass')
 
 //example
 /*
@@ -43,6 +42,19 @@ router.post('/students/signup', async (req, res) => {
         res.status(400).send(e.message)
     }
 })
+
+
+//get student's info
+// /students/1/info
+router.get('/students/:studentId/info', auth(['Student']), async (req, res) => {
+    try {
+        res.status(201).send(req.account)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
 
 // get schools for a student
 // /students/1/schools

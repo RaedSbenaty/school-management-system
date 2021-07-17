@@ -19,20 +19,17 @@ GeneralInfo.init({
         allowNull: false
     },
     breakDuration: {
-        type: DataTypes.STRING,
+        type: DataTypes.TIME,
         allowNull: false
     },
     sessionDuration: {
-        type: DataTypes.STRING,
+        type: DataTypes.TIME,
         allowNull: false
     },
 }, {sequelize, modelName: 'generalInfo', timestamps: false})
 
 //generalInfo relations
-GeneralInfo.belongsTo(School, {foreignKey: {allowNull: false, unique: true}})
+GeneralInfo.belongsTo(School, {foreignKey: {allowNull: false}})
 School.hasOne(GeneralInfo)
-
-GeneralInfo.hasMany(Day)
-Day.belongsTo(GeneralInfo, {foreignKey: {allowNull: true}})
 
 module.exports = GeneralInfo

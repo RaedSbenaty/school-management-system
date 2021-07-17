@@ -84,7 +84,7 @@ example
     }
 ]
 */
-router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:sortType*?', auth, async (req, res) => {
+router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:sortType*?',auth(['School']), async (req, res) => {
 
     const className = req.params.className.replace('_', ' ')
     var msg = ""

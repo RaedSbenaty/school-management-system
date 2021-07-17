@@ -10,8 +10,8 @@ const Announcement = require('../../models/announcement/announcement')
 const Attachment = require('../../models/announcement/attachment')
 const Class = require('../../models/class/class')
 const GeneralInfo = require('../../models/school/generalInfo')
-const  Session  = require('../../models/session/session')
-
+const Session = require('../../models/session/session')
+const ActiveDaysInGeneralInfo = require('../../models/school/ActiveDaysInGeneralInfo')
 
 
 //example
@@ -44,7 +44,7 @@ router.post('/schools/signup', async (req, res) => {
     }
 })
 
-//school general information
+//adding or updating school general information
 /*
 example
 /alhbd/2020-2021/generalInfo/add
@@ -57,15 +57,17 @@ example
     "activeDays": [1,2,3,4]
 }
 */
-router.post('/:siteName/:startYear-:endYear/generalInfo/add',
+router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
     auth(['School']), async (req, res) => {
+
+        //checking if there was a schedule for this school in this year
         try {
             let session = await School.findAll({
                 subQuery: false,
                 where: {
                     id: req.account.school.id,
                 }, include: {
-                    association: 'schoolClasses', required: true,
+                    association: 'schoolClasses', where: { startYear: req.params.startYear, endYear: req.params.endYear }, required: true,
                     include: {
                         association: 'classrooms', required: true,
                         include: {
@@ -76,22 +78,58 @@ router.post('/:siteName/:startYear-:endYear/generalInfo/add',
             })
             if (session.length)
                 return res.status(400).send('Consider changing schedules before changing this information.')
-                let days = req.body.activeDays
-                delete req.body.activeDays
-               
-                days.forEach(element => {
-                   req.body.Days= []
-                   req.body.Days.push({"id": element})
-                });
-           req.body.schoolId = req.account.school.id
 
-            await GeneralInfo.create(req.body)
+            //formatting the request
+            req.body.activeDaysInGeneralInfos = []
+
+            req.body.activeDays.forEach(element => {
+                req.body.activeDaysInGeneralInfos.push({ dayId: element })
+            });
+            delete req.body.activeDays
+            req.body.schoolId = req.account.school.id
+
+            //checking if there were previous generalInfos
+            const generalInfo = await GeneralInfo.findOne({
+                where: { schoolId: req.body.schoolId },
+                include: [ActiveDaysInGeneralInfo]
+            })
+
+            //creating instances according to the previous result
+            if (generalInfo) {
+                let bla = generalInfo.activeDaysInGeneralInfos
+                for (let index = 0; index < bla.length; index++) {
+                    await bla[index].destroy()
+                }
+                await generalInfo.destroy()
+                await GeneralInfo.create(req.body, { include: [ActiveDaysInGeneralInfo] })
+            }
+            else
+                await GeneralInfo.create(req.body, { include: [ActiveDaysInGeneralInfo] })
+
             res.status(201).send('School general Information has been successfully added.')
         } catch (e) {
             console.log(e)
             res.status(400).send(e.message.split(','))
         }
     })
-
+//getting school general information
+/*
+example
+/alhbd/2020-2021/generalInfo/get
+*/
+router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
+    , async (req, res) => {
+        try {
+            const generalInfo = await GeneralInfo.findOne({
+                where: { schoolId: req.account.school.id},
+                include: [ActiveDaysInGeneralInfo]
+            })
+            res.send(generalInfo)
+        }
+        catch(e) {
+            console.log(e)
+            res.status(400).send(e.message.split(','))
+        }
+    })
 
 module.exports = router

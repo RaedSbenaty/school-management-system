@@ -80,7 +80,6 @@ Mark.beforeSave(async (mark) => {
 
     const addedStudent = await mark.dataValues.studentInClassId
     const studentInClass = await StudentInClass.findByPk(addedStudent)
-    console.log('studentId: ', studentInClass);
     if (studentInClass == null)
         throw new Error('student with id: ' + addedStudent + ' was not found.')
 })

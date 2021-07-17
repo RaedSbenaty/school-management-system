@@ -60,17 +60,6 @@ router.get('/:siteName/:startYear-:endYear/:className/:semester/subjects', auth(
 
 
 
-router.get('/subjects3', async (req, res) => {
-    try
-    {var subjects = SubjectInSemester.findAll({include: {all: true, nested: true}})
-    res.send(subjects)
-
-}
-    catch(e)
-    {
-        console.log(e);
-    }
-})
 
 
 

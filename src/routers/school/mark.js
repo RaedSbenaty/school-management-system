@@ -3,6 +3,8 @@ const router = express.Router()
 const auth = require('../../middlewares/auth')
 const Classroom = require('../../models/class/classroom')
 const SchoolClass = require('../../models/class/schoolClass')
+const StudentInClass = require('../../models/student/studentInClass')
+const SubjectInSemester = require('../../models/subject/subjectInSemester')
 const Exam = require('../../models/subject/exam')
 const Mark = require('../../models/subject/mark')
 
@@ -60,11 +62,26 @@ router.get('/:siteName/:startYear-:endYear/classes/:className/subjects/:sisId' +
     '/marks/types/:typeId', auth(['School'])
     , async (req, res) => Mark.handleGetMarksRequest(req, res))
 
+
 // get Students marks In a classroom (in a year)
 // /alhbd/2020-2021/classes/Second_Grade/classrooms/1/marks/1
 router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/' +
     ':classroomNumber/subjects/:sisId/marks/types/:typeId', auth(['School'])
     , async (req, res) => Mark.handleGetMarksRequest(req, res))
 
+
+// get student marks (in every semester in a year)
+// /alhbd/2020-2021/students/1/marks
+router.get('/:siteName/:startYear-:endYear/students/:studentId/marks', auth(['School']), async (req, res) => {
+    try {
+        const studentInClass = await StudentInClass.getStudentInClass(req.params.studentId
+            , req.account.school.id, req.params.startYear, req.params.endYear)
+        const studentMarks = await SubjectInSemester.getStudentMarksInSemester(studentInClass.id)
+        res.send(studentMarks)
+    }catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
 
 module.exports = router

@@ -8,10 +8,9 @@ const Day = require('./models/day')
 const AnnouncementType = require('./models/announcement/announcementType')
 
 
-
 const runServer = async () => {
     await sequelize.authenticate()
-    await sequelize.sync({force: true})
+    //  await sequelize.sync({force: true})
     await sequelize.sync()
 
     await Class.bulkCreate(Class.defaultClasses)

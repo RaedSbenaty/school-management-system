@@ -17,4 +17,7 @@ Classroom.hasMany(ClassroomExamSchedule)
 ClassroomExamSchedule.belongsTo(ExamSchedule, {foreignKey: {allowNull: false}})
 ExamSchedule.hasMany(ClassroomExamSchedule)
 
+// Classroom.belongsToMany(ExamSchedule, {through: ClassroomExamSchedule})
+// ExamSchedule.belongsToMany(Classroom, {through: ClassroomExamSchedule})
+
 module.exports = ClassroomExamSchedule

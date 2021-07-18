@@ -11,9 +11,8 @@ const AnnouncementType = require('./models/announcement/announcementType')
 
 const runServer = async () => {
     await sequelize.authenticate()
-    await sequelize.sync({force: true})
+    //await sequelize.sync({force: true})
     await sequelize.sync()
-
     await Class.bulkCreate(Class.defaultClasses)
     await Category.bulkCreate(Category.defaultCategories)
     await ExamType.bulkCreate(ExamType.defaultExamTypes)

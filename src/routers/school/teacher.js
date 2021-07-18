@@ -8,7 +8,6 @@ const TeacherInYear = require('../../models/teacher/teacherInYear')
 const TeacherInClass = require('../../models/teacher/teacherInClass')
 const SchoolClass = require('../../models/class/schoolClass')
 const Account = require('../../models/account')
-const { findOne } = require('../../models/account')
 
 
 // post New Teacher
@@ -56,7 +55,7 @@ router.post('/:siteName/:startYear-:endYear/teachers/add', auth(['School']), asy
 //{ "accountId":from postman ,"email":"raneem@hbd.com" }
 router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School']), async (req, res) => {
     try {
-        const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
+        const account = await Account.findByIdAndEmail(req.body.accountId, req.body.email)
         if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
     
         let where ={
@@ -75,13 +74,64 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
         }        
         let teacherInYear = await TeacherInYear.findOne({where, include: 'teacherInSchool'})
 
-        if(teacherInYear) return res.status(404).send('Teacher was already added in this year.')
+        if(teacherInYear) return res.status(401).send('Teacher was already added in this year.')
 
         teacherInYear = await TeacherInYear.create(where)
 
         account.teacher.dataValues.account = {email: req.body.email}
         console.log("Teacher was added to the school")
         res.send(account.teacher) 
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({error: e.message})
+    }
+})
+
+// add teacher to classes
+// /alhbd/2020-2021/teachers/addInClass
+//{ "accountId":from postman ,"email":"raneem@hbd.com", "schoolClassIds": [1,2]}
+router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School']), async (req, res) => {
+    try {
+        console.log('start')
+        const account = await Account.findByIdAndEmail(req.body.accountId, req.body.email)
+        if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
+        console.log('account was founded')
+
+        let where ={
+            teacherId: account.teacher.id, 
+            schoolId: req.account.school.id
+        }
+        const teacherInSchool = await TeacherInSchool.findOne({where})
+        if(!teacherInSchool) return res.status(404).send('Teacher is not existed in this school.')
+        console.log('teacher in school was founded')
+
+        where ={
+            teacherInSchoolId: teacherInSchool.id,
+            startYear: req.params.startYear,
+            endYear: req.params.endYear
+        }        
+        const teacherInYear = await TeacherInYear.findOne({where})
+        if(!teacherInYear) return res.status(404).send('Teacher is not existed in this year.')
+        console.log('teacher in year was founded')
+
+        const schoolClassIds = req.body.schoolClassIds
+        schoolClassIds.forEach( async (element) => {
+            console.log(element)
+
+            const schoolClass = await SchoolClass.findByPk(element)
+            if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
+                throw new Error('schoolClassId doesn\'t belong to this school.')
+
+            if (schoolClass.startYear != req.params.startYear
+                || schoolClass.endYear != req.params.endYear)
+                throw new Error('schoolClassId doesn\'t belong to this year.')
+            
+            await TeacherInClass.create({teacherInYearId: teacherInYear.id, schoolClassId: schoolClass.id})
+            console.log("Teacher was added to the class")
+
+        });
+        res.send(account.teacher) 
+
     } catch (e) {
         console.log(e)
         res.status(500).send({error: e.message})

@@ -37,7 +37,6 @@ router.post('/schools/signup', async (req, res) => {
         const school = await School.create(req.body, { include: [Account] })
         school.account.sendMail('Welcome To Schoolink!', 'Have a nice experience, hbedo')
         school.dataValues.token = await school.account.generateAuthToken()
-        console.log("School was added")
         res.status(201).send(school)
     } catch (e) {
         console.log(e)
@@ -132,5 +131,26 @@ router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
             res.status(400).send(e.message.split(','))
         }
     })
+
+
+
+// get announcements for a school
+// /alhbd/2020-2021/announcements
+router.get('/:siteName/:startYear-:endYear/announcements', auth(['School']), async (req, res) => {
+    try {
+        const announcements = await Announcement.findAll({
+            attributes: ['sourceStudentInClassId', 'sourceTeacherInYearId'], where: {
+                startYear: req.params.startYear, endYear: req.params.endYear,
+                destinationSchoolId: req.account.school.id
+            }, include: {association: 'attachments', attributes: ['path']}
+        })
+
+        res.send(announcements)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
 
 module.exports = router

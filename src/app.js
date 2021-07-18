@@ -12,6 +12,7 @@ app.use((req, res, next) => {
 app.use(require('./routers/general'))
 app.use(require('./routers/teacher'))
 app.use(require('./routers/student'))
+app.use(require('./routers/upload'))
 
 app.use(require('./routers/school/school'))
 app.use(require('./routers/school/class'))

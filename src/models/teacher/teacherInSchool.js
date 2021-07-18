@@ -15,22 +15,39 @@ class TeacherInSchool extends Model {
     //     return teacherInSchool
     // }
     
-    static async getTeachers(schoolId, startYear, endYear) {
-        
+    static async getTeachers(schoolId, startYear, endYear, className) {
+
+        let rel
+        rel = {
+                association: 'teacherInYears', where:{startYear,endYear}, include: {
+                    association: 'teacherInSchool', include:{
+                       association: 'teacher', include: ['account', 'personalInfo']}
+                   }
+        }
+
+        console.log(className)
+        if(className) 
+        rel = {
+                association: 'teacherInYears', where:{startYear,endYear}, include: {
+                    association: 'teacherInClasses', include: {
+                        association: 'schoolClass', include: {
+                            association: 'class', where: {name: className}
+                        }
+                    }
+                }
+         }
+
         return await TeacherInSchool.findAll({
-            subQuery: false,
-            where: {schoolId},
-            include:{
-                association: 'teacherInYears', where:{startYear,endYear}, required: true
-            }
+            where: {schoolId}, 
+            include: [rel, {association: 'teacher', include: ['account', 'personalInfo']} ]
         })
     }
 
     static async handleGetTeachersRequest(req, res) {
         try {
-            // let className
-            // if (req.params.className) className = req.params.className.replace('_', ' ')
-            const teachers = await TeacherInSchool.getTeachers(req.account.school.id, req.params.startYear, req.params.endYear)
+            let className
+            if (req.params.className) className = req.params.className.replace('_', ' ')
+            const teachers = await TeacherInSchool.getTeachers(req.account.school.id, req.params.startYear, req.params.endYear, className)
             res.send({teachers})
         } catch (e) {
             console.log(e)

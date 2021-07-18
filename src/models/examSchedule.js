@@ -6,9 +6,10 @@ class ExamSchedule extends Model {
 }
 
 ExamSchedule.init({
-    dateOfExam: {type: DataTypes.DATE, allowNull: false},
+    date: {type: DataTypes.DATE, allowNull: false},
     startTime: {type: DataTypes.STRING, allowNull: false},
     endTime: {type: DataTypes.STRING, allowNull: false},
+    etype:{type: DataTypes.STRING}
 }, {sequelize, modelName: 'examSchedule', timestamps: false})
 
 

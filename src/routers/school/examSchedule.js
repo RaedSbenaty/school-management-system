@@ -1,69 +1,113 @@
-// const express = require('express')
-// const router = express.Router()
-// const auth = require('../../middlewares/auth')
-// const Classroom = require('../../models/class/classroom')
-// const ClassroomExamSchedule = require('../../models/classroomExamSchedule')
-// const ExamSchedule = require('../../models/examSchedule')
-// const SubjectInSemester = require('../../models/subject/subjectInSemester')
+const express = require('express')
+const router = express.Router()
+const auth = require('../../middlewares/auth')
+const Classroom = require('../../models/class/classroom')
+const SchoolClass = require('../../models/class/schoolClass')
+const ClassroomExamSchedule = require('../../models/classroomExamSchedule')
+const ExamSchedule = require('../../models/examSchedule')
+const SubjectInSemester = require('../../models/subject/subjectInSemester')
 
-// //adding marks of an exam for a subject in semester for students in a classroom 
-// /*
-// example
-// /alhbd/2020-2021/classes/Second_Grade/classrooms/1/examMarks/add
+//adding examSchedule for a classroom or a schoolClass
+/*
+example
+/alhbd/2020-2021/classes/examSchedule/add
 
-// {
-//     "fullMark": 100,
-//     "dateOfExam": "01-01-2021",
-//     "examTypeId": 1,
-//     "subjectInSemesterId": 1,
-//     "marks": [
-//         {
-//             "studentInClassId": 1,
-//             "value": 100
-//         },
-//         {
-//             "studentInClassId": 2,
-//             "value": 90
-//         }
-//     ]
-// }
-// */
+{
+    "classroomId": 1,
+    "Schedule": [
+        {
+            "subjectInSemesterId": 1,
+            "date": "07-04-2021",
+            "startTime": "01:30",
+            "endTime": "05:50"
+        }
+    ]
+}
+*/
 
-// router.post('/:siteName/:startYear-:endYear/examSchedule/add', auth(['School']), async (req, res) => {
-//     try {
+router.post('/:siteName/:startYear-:endYear/examSchedule/add', auth(['School']), async (req, res) => {
+    try {
+        var classroom, schoolClass
+        //checking the classroom existence
+        if (req.body.classroomId) {
+            classroom = await Classroom.findByPk(req.body.classroomId)
+            if (!classroom)
+                return res.status(404).send('This school does not have a classroom with Id: ' + req.body.classroomId)
+        }
 
-//         let subject = await SubjectInSemester.findByPk(req.body.subjectInSemesterId)
-//         if(!subject)
-//         return res.status(404).send('This school does not have a subject with Id: '+req.body.subjectInSemesterId)
+        //checking the schoolClass existence
+        else if (req.body.schoolClassId) {
+            schoolClass = await SchoolClass.findOne({ where: { id: req.body.schoolClassId }, include: [Classroom] })
+            if (!schoolClass)
+                return res.status(404).send('This school does not have a class with Id: ' + req.body.schoolClassId)
+        }
 
-//         for (let index = 0; index < req.body.classroomsIds.length; index++) {
-//             const classroom = await Classroom.findByPk(req.body.classroomsIds[index])
+        //checking the subject existence
+        for (let index = 0; index < req.body.schedule.length; index++) {
+            const subject = await SubjectInSemester.findByPk(req.body.schedule[index].subjectInSemesterId)
 
-//             if (!classroom)
-//                 return res.status(404).send('This school does not have a classroom with Id: '+classroomsIds[index])
-//         }
+            if (!subject)
+                return res.status(404).send('This school does not have a subject with Id: ' + req.body.schedule[index].subjectInSemesterId)
+        }
 
-//         await ExamSchedule.create(req.body)
+        for (let index = 0; index < req.body.schedule.length; index++) {
+            let exam = await ExamSchedule.create(req.body.schedule[index])
 
-//       res.status(201).send('ExamSchedule has been set successfuly.')
+            if (req.body.classroomId)
+                await ClassroomExamSchedule.create({ classroomId: req.body.classroomId, examScheduleId: exam.id })
+            if (req.body.schoolClassId) {
+                exam.etype = 'class'
+                exam.save()
+                for (let j = 0; j < schoolClass.classrooms.length; j++) {
+                    let i = schoolClass.classrooms[j].id
+                    await ClassroomExamSchedule.create({ classroomId: schoolClass.classrooms[j].id, examScheduleId: exam.id })
 
-//     } catch (e) {
-//         console.log(e)
-//         res.status(400).send(e.message.split(','))
-//     }
-// })
+                }
+            }
+        }
 
-// // // get Students marks In a class (in a year)
-// // // /alhbd/2020-2021/classes/Second_Grade/subjects/1/marks/1/types/1
-// // router.get('/:siteName/:startYear-:endYear/classes/:className/subjects/:sisId' +
-// //     '/marks/types/:typeId', auth(['School'])
-// //     , async (req, res) => Mark.handleGetMarksRequest(req, res))
+        res.status(201).send('ExamSchedule has been set successfuly.')
 
-// // // get Students marks In a classroom (in a year)
-// // // /alhbd/2020-2021/classes/Second_Grade/classrooms/1/marks/1
-// // router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/' +
-// //     ':classroomNumber/subjects/:sisId/marks/types/:typeId', auth(['School'])
-// //     , async (req, res) => Mark.handleGetMarksRequest(req, res))
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message.split(','))
+    }
+})
+
+// get examSchedule for a classroom
+// /alhbd/classroom/1/examSchedule/get
+router.get('/:siteName/classroom/:classroomId/examSchedule/get', auth(['School'])
+    , async (req, res) => {
+        try {
+            let classroomExamSchedule = await Classroom.findOne({ where: { id: req.params.classroomId }, include: [ExamSchedule] })
+            res.send(classroomExamSchedule)
+        } catch (e) {
+            console.log(e)
+            res.status(400).send(e.message.split(','))
+        }
+    })
+
+// // get examSchedule for a schoolClass
+// // /alhbd/class/1/examSchedule/get
+router.get('/:siteName/class/:schoolClassId/examSchedule/get', auth(['School'])
+    , async (req, res) => {
+        try {
+            let schoolClassSchedule = await SchoolClass.findOne({
+                subQuery: false,
+                where: { id: req.params.schoolClassId }, attributes: ['id'], include: {
+                    association: 'classrooms', attributes: ['id'], include: {
+                        association: 'examSchedules', where: { etype: 'class' }, required: true
+                    }, required: true
+                }
+            })
+            res.status(201).send(schoolClassSchedule)
+        }
+        catch (e) {
+            console.log(e)
+            res.status(400).send(e.message.split(','))
+        }
+
+    })
 
 
-// module.exports = router
+module.exports = router

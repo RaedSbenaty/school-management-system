@@ -8,7 +8,7 @@ const TeacherInYear = require('../../models/teacher/teacherInYear')
 const TeacherInClass = require('../../models/teacher/teacherInClass')
 const SchoolClass = require('../../models/class/schoolClass')
 const Account = require('../../models/account')
-const { findOne } = require('../../models/account')
+const {findOne} = require('../../models/account')
 
 
 // post New Teacher
@@ -58,30 +58,23 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
     try {
         const account = await Account.findByIdAndEmail(req.body.id, req.body.email)
         if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
-    
-        let where ={
-            teacherId: account.teacher.id, 
-            schoolId: req.account.school.id
-        }
+
+        let where = {teacherId: account.teacher.id, schoolId: req.account.school.id}
         let teacherInSchool = await TeacherInSchool.findOne({where, include: 'teacher'})
 
-        if(!teacherInSchool)
-            teacherInSchool = await TeacherInSchool.create(where)
+        if (!teacherInSchool) teacherInSchool = await TeacherInSchool.create(where)
 
-        where ={
-            teacherInSchoolId: teacherInSchool.id,
-            startYear: req.params.startYear,
-            endYear: req.params.endYear
-        }        
+        where = {
+            teacherInSchoolId: teacherInSchool.id, startYear: req.params.startYear, endYear: req.params.endYear
+        }
         let teacherInYear = await TeacherInYear.findOne({where, include: 'teacherInSchool'})
 
-        if(teacherInYear) return res.status(404).send('Teacher was already added in this year.')
+        if (teacherInYear) return res.status(404).send('Teacher was already added in this year.')
 
         teacherInYear = await TeacherInYear.create(where)
 
         account.teacher.dataValues.account = {email: req.body.email}
-        console.log("Teacher was added to the school")
-        res.send(account.teacher) 
+        res.send(account.teacher)
     } catch (e) {
         console.log(e)
         res.status(500).send({error: e.message})

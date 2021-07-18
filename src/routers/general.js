@@ -1,8 +1,5 @@
 const express = require('express')
-const multer = require('multer')
-const path = require('path')
 const router = express.Router()
-const {Op} = require('sequelize')
 const auth = require('../middlewares/auth')
 
 const Account = require('../models/account')
@@ -14,9 +11,6 @@ const AnnouncementType = require('../models/announcement/announcementType')
 const Announcement = require('../models/announcement/announcement')
 const Attachment = require('../models/announcement/attachment')
 
-const School = require('../models/school/school')
-const StudentInClass = require('../models/student/studentInClass')
-const TeacherInClass = require('../models/teacher/teacherInClass')
 
 router.post('/login', async (req, res) => {
     try {
@@ -78,73 +72,6 @@ router.get('/getFile', (req, res) => {
     }
 })
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '.', '..', '../uploads'))
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname))
-    }
-})
-
-const upload = multer({
-    storage,
-    limits: {fileSize: 4194304},
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(png|jpg|jpeg|pdf)$/))
-            return cb(new Error('Please upload an image or a pdf.'))
-        cb(undefined, true)
-    }
-})
-
-/*
-post announcement
-/alhbd/2020-2021/announcements/add
-"json": {
-    "sourceSchoolId":1,
-    "destinationStudentInClassId":1,
-    "heading": "head",
-    "body": "body",
-    "date": "1-1-2020",
-    "announcementTypeId" :1
-}
-*/
-
-router.post('/:siteName/:startYear-:endYear/announcements/add', auth(), upload.array('uploads'), async (req, res) => {
-    try {
-        const values = {...JSON.parse(req.body.json), startYear: req.params.startYear, endYear: req.params.endYear}
-        const announcement = await Announcement.create(values)
-        req.files.forEach(file => Attachment.create({
-            announcementId: announcement.id,
-            path: 'uploads/' + file.filename
-        }))
-        res.status(201).send('Announcement posting is done.')
-    } catch (e) {
-        console.log(e)
-        res.status(500).send(e.message)
-    }
-}, (error, req, res) => {
-    res.status(400).send(error.message)
-})
-
-// get announcements for a school
-// /alhbd/2020-2021/announcements
-
-router.get('/:siteName/:startYear-:endYear/announcements', auth(['School']), async (req, res) => {
-    try {
-        const announcements = await Announcement.findAll({
-            where: {
-                startYear: req.params.startYear, endYear: req.params.endYear,
-                destinationSchoolId: req.account.school.id
-            }, include: {association: 'attachments', attributes: ['path']}
-        })
-
-        res.send(announcements)
-    } catch (e) {
-        console.log(e)
-        res.status(400).send(e.message)
-    }
-})
 
 
 //IMAGE (Temp)

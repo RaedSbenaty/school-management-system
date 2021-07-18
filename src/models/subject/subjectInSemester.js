@@ -23,8 +23,6 @@ class SubjectInSemester extends Model {
                 include: [{association: 'schoolClass', include: 'class'}, 'category']
             },
         })
-
-
     }
 
     static async handleGetSubjectsRequests(req, res) {

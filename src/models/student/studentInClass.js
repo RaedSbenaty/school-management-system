@@ -6,6 +6,14 @@ const Classroom = require('../class/classroom')
 const StudentInSchool = require('./studentInSchool')
 
 class StudentInClass extends Model {
+    static async getStudentInClass(studentId, schoolId, startYear, endYear) {
+        return await StudentInClass.findOne({
+            subQuery: false, attributes: ['id', 'schoolClassId', 'classroomId'],
+            include: [{association: 'classroom', attributes: []}, {
+                attributes: [], association: 'schoolClass', where: {startYear, endYear}
+            }, {association: 'studentInSchool', where: {studentId, schoolId}}]
+        })
+    }
 }
 
 StudentInClass.init({}, {sequelize, modelName: 'studentInClass', updatedAt: false})

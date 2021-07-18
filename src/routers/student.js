@@ -8,6 +8,7 @@ const Student = require('../models/student/student')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
 const SchoolClass = require('../models/class/schoolClass')
+const SubjectInSemester = require('../models/subject/subjectInSemester')
 
 //example
 /*
@@ -81,7 +82,6 @@ router.get('/students/:studentId/schools', auth(['Student']), async (req, res) =
 
 // get announcements for a student
 // /students/1/alhbd/2020-2021/announcements
-
 router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', auth(['Student']), belongsTo, async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
@@ -108,7 +108,6 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', a
 
 // get absences for a student
 // /students/1/alhbd/2020-2021/absences
-
 router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth(['Student']), belongsTo, async (req, res) => {
     try {
         const absences = await Absence.findAll({where: {studentInClassId: req.studentInClass.id}})
@@ -119,5 +118,17 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth([
     }
 })
 
+
+// get student marks (in every semester in a year)
+// /students/1/alhbd/2020-2021/marks
+router.get('/students/:studentId/:siteName/:startYear-:endYear/marks', auth(['Student']), belongsTo, async (req, res) => {
+    try {
+        const studentMarks = await SubjectInSemester.getStudentMarksInSemester(req.studentInClass.id)
+        res.send(studentMarks)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
 
 module.exports = router

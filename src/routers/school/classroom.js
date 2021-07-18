@@ -6,7 +6,6 @@ const SchoolClass = require('../../models/class/schoolClass')
 const Classroom = require('../../models/class/classroom')
 const StudentInSchool = require('../../models/student/studentInSchool')
 
-const SubjectInSemester = require('../../models/subject/subjectInSemester')
 
 
 /* post Classrooms

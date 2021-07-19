@@ -73,7 +73,7 @@ router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/announcements', a
 // /teachers/1/alhbd/2020-2021/absences
 router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/absences', auth(['Teacher']), belongsTo, async (req, res) => {
     try {
-        const absences = await Absence.findAll({where: {teacherInClassId: {[Op.in]: req.teacherInClassIds}}})
+        const absences = await Absence.findAll({where: {teacherInYearId: req.teacherInYear.id}})
         res.send(absences)
     } catch (e) {
         console.log(e)

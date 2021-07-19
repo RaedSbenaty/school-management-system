@@ -44,21 +44,13 @@ router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classr
             req.params.endYear, className, req.params.classroomNumber)
 
         const schedule = await Day.getScheduleForClassroomInSemester(classroom.id, req.params.semesterNumber)
-
-        for (const day of schedule)
-            for (const session of day.sessions) {
-                session.dataValues.subjectName = session.subjectInSemester.subjectInYear.name
-                delete session.dataValues.subjectInSemester
-                session.dataValues.teacher = session.teacherInClass.teacherInYear.teacherInSchool.teacher
-                delete session.dataValues.teacherInClass
-            }
-
         res.send(schedule)
     } catch (e) {
         console.log(e)
         res.status(500).send(e.message)
     }
 })
+
 
 /*
  post absences
@@ -72,11 +64,22 @@ router.get('/:siteName/:startYear-:endYear/classes/:className/classrooms/:classr
     }
 ]
  */
-
 router.post('/:siteName/:startYear-:endYear/absences/add', auth(['School']), async (req, res) => {
     try {
         await Absence.bulkCreate(req.body)
         res.status(201).send('Adding absences is Done.')
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
+
+// get absences
+// /alhbd/2020-2021/absences
+router.get('/:siteName/:startYear-:endYear/absences', auth(['School']), async (req, res) => {
+    try {
+        const absences = await Absence.getAbsences(req.params.startYear, req.params.endYear)
+        res.send(absences)
     } catch (e) {
         console.log(e)
         res.status(500).send(e.message)

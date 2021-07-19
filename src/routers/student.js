@@ -7,6 +7,7 @@ const belongsTo = require('../middlewares/studentBelongsToSchool')
 const Student = require('../models/student/student')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
+const Day = require('../models/day')
 const SchoolClass = require('../models/class/schoolClass')
 const SubjectInSemester = require('../models/subject/subjectInSemester')
 
@@ -85,7 +86,7 @@ router.get('/students/:studentId/schools', auth(['Student']), async (req, res) =
 router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', auth(['Student']), belongsTo, async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
-            attributes:['sourceSchoolId','sourceTeacherInYearId'],where: {
+            attributes: ['sourceSchoolId', 'sourceTeacherInYearId'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 [Op.or]: [
                     {destinationStudentInClassId: {[Op.eq]: req.studentInClass.id}},
@@ -131,4 +132,16 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/marks', auth(['St
     }
 })
 
+// get schedule for a classroom in a semester
+// /students/1/alhbd/2020-2021/semesters/1/sessions
+router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semesterNumber/sessions',
+    auth(['Student']), belongsTo, async (req, res) => {
+        try {
+            const schedule = await Day.getScheduleForClassroomInSemester(req.studentInClass.classroomId, req.params.semesterNumber)
+            res.send(schedule)
+        } catch (e) {
+            console.log(e)
+            res.status(500).send(e.message)
+        }
+    })
 module.exports = router

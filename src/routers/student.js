@@ -124,7 +124,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth([
 // /students/1/alhbd/2020-2021/marks
 router.get('/students/:studentId/:siteName/:startYear-:endYear/marks', auth(['Student']), belongsTo, async (req, res) => {
     try {
-        const studentMarks = await SubjectInSemester.getStudentMarksInSemester(req.studentInClass.id)
+        const studentMarks = await SubjectInSemester.getStudentMarksInSemester(req.studentInClass.id, req.studentInClass.schoolClassId)
         res.send(studentMarks)
     } catch (e) {
         console.log(e)

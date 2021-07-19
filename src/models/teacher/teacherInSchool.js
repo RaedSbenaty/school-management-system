@@ -19,27 +19,25 @@ class TeacherInSchool extends Model {
 
         let rel
         rel = {
-                association: 'teacherInYears', where:{startYear,endYear}, include: {
-                    association: 'teacherInSchool', include:{
-                       association: 'teacher', include: ['account', 'personalInfo']}
-                   }
-        }
+                association: 'teacherInYears', where:{startYear,endYear}, attributes: [], required: true, include: {
+                    association: 'teacherInSchool', attributes: [], required: true
+                }
+            }
 
-        console.log(className)
         if(className) 
         rel = {
-                association: 'teacherInYears', where:{startYear,endYear}, include: {
-                    association: 'teacherInClasses', include: {
-                        association: 'schoolClass', include: {
-                            association: 'class', where: {name: className}
-                        }
+            association: 'teacherInYears', where: {startYear,endYear}, attributes: [], required: true, include:{
+                association: 'teacherInClasses', attributes: [], required: true, include:{
+                    association: 'schoolClass', attributes: [], required: true, include:{
+                        association: 'class', required: true, where: {name: className}
                     }
                 }
-         }
+            }
+        }
 
         return await TeacherInSchool.findAll({
             where: {schoolId}, 
-            include: [rel, {association: 'teacher', include: ['account', 'personalInfo']} ]
+            include:[ rel, {association: 'teacher', include: ['account', 'personalInfo']} ]
         })
     }
 

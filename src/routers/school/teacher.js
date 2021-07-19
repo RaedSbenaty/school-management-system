@@ -80,7 +80,7 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 
         account.teacher.dataValues.account = {email: req.body.email}
         console.log("Teacher was added to the school")
-        res.send(account.teacher) 
+        res.send() 
     } catch (e) {
         console.log(e)
         res.status(500).send({error: e.message})
@@ -89,30 +89,11 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 
 // add teacher to classes
 // /alhbd/2020-2021/teachers/addInClass
-//{ "accountId":from postman ,"email":"raneem@hbd.com", "schoolClassIds": [1,2]}
+//{ "teacherInYearId":1 , "schoolClassIds": [1,2]}
 router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School']), async (req, res) => {
     try {
-        console.log('start')
-        const account = await Account.findByIdAndEmail(req.body.accountId, req.body.email)
-        if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
-        console.log('account was founded')
-
-        let where ={
-            teacherId: account.teacher.id, 
-            schoolId: req.account.school.id
-        }
-        const teacherInSchool = await TeacherInSchool.findOne({where})
-        if(!teacherInSchool) return res.status(404).send('Teacher is not existed in this school.')
-        console.log('teacher in school was founded')
-
-        where ={
-            teacherInSchoolId: teacherInSchool.id,
-            startYear: req.params.startYear,
-            endYear: req.params.endYear
-        }        
-        const teacherInYear = await TeacherInYear.findOne({where})
+        const teacherInYear = await TeacherInYear.findOne({id: req.body.teacherInYearId})
         if(!teacherInYear) return res.status(404).send('Teacher is not existed in this year.')
-        console.log('teacher in year was founded')
 
         const schoolClassIds = req.body.schoolClassIds
         schoolClassIds.forEach( async (element) => {
@@ -126,11 +107,10 @@ router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School'
                 || schoolClass.endYear != req.params.endYear)
                 throw new Error('schoolClassId doesn\'t belong to this year.')
             
-            await TeacherInClass.create({teacherInYearId: teacherInYear.id, schoolClassId: schoolClass.id})
-            console.log("Teacher was added to the class")
+            await TeacherInClass.create({teacherInYearId: req.body.teacherInYearId, schoolClassId: schoolClass.id})
 
         });
-        res.send(account.teacher) 
+        res.send(teacherInYear) 
 
     } catch (e) {
         console.log(e)

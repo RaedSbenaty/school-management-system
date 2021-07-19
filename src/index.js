@@ -10,11 +10,7 @@ const AnnouncementType = require('./models/announcement/announcementType')
 
 const runServer = async () => {
     await sequelize.authenticate()
-<<<<<<< HEAD
-    //await sequelize.sync({force: true})
-=======
-    //  await sequelize.sync({force: true})
->>>>>>> 8fb205134425a4292b4824f9c0f22979bf14dad7
+    await sequelize.sync({force: true})
     await sequelize.sync()
     await Class.bulkCreate(Class.defaultClasses)
     await Category.bulkCreate(Category.defaultCategories)

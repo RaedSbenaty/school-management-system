@@ -34,10 +34,9 @@ const ActiveDaysInGeneralInfo = require('../../models/school/ActiveDaysInGeneral
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
-        const school = await School.create(req.body, { include: [Account] })
+        const school = await School.create(req.body, {include: [Account]})
         school.account.sendMail('Welcome To Schoolink!', 'Have a nice experience, hbedo')
         school.dataValues.token = await school.account.generateAuthToken()
-        console.log("School was added")
         res.status(201).send(school)
     } catch (e) {
         console.log(e)
@@ -68,7 +67,9 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
                 where: {
                     id: req.account.school.id,
                 }, include: {
-                    association: 'schoolClasses', where: { startYear: req.params.startYear, endYear: req.params.endYear }, required: true,
+                    association: 'schoolClasses',
+                    where: {startYear: req.params.startYear, endYear: req.params.endYear},
+                    required: true,
                     include: {
                         association: 'classrooms', required: true,
                         include: {
@@ -84,14 +85,14 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
             req.body.activeDaysInGeneralInfos = []
 
             req.body.activeDays.forEach(element => {
-                req.body.activeDaysInGeneralInfos.push({ dayId: element })
+                req.body.activeDaysInGeneralInfos.push({dayId: element})
             });
             delete req.body.activeDays
             req.body.schoolId = req.account.school.id
 
             //checking if there were previous generalInfos
             const generalInfo = await GeneralInfo.findOne({
-                where: { schoolId: req.body.schoolId },
+                where: {schoolId: req.body.schoolId},
                 include: [ActiveDaysInGeneralInfo]
             })
 
@@ -102,10 +103,9 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
                     await bla[index].destroy()
                 }
                 await generalInfo.destroy()
-                await GeneralInfo.create(req.body, { include: [ActiveDaysInGeneralInfo] })
-            }
-            else
-                await GeneralInfo.create(req.body, { include: [ActiveDaysInGeneralInfo] })
+                await GeneralInfo.create(req.body, {include: [ActiveDaysInGeneralInfo]})
+            } else
+                await GeneralInfo.create(req.body, {include: [ActiveDaysInGeneralInfo]})
 
             res.status(201).send('School general Information has been successfully added.')
         } catch (e) {
@@ -122,15 +122,54 @@ router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
     , async (req, res) => {
         try {
             const generalInfo = await GeneralInfo.findOne({
-                where: { schoolId: req.account.school.id},
+                where: {schoolId: req.account.school.id},
                 include: [ActiveDaysInGeneralInfo]
             })
             res.send(generalInfo)
-        }
-        catch(e) {
+        } catch (e) {
             console.log(e)
             res.status(400).send(e.message.split(','))
         }
     })
+
+
+// get announcements for a school
+// /alhbd/2020-2021/announcements
+router.get('/:siteName/:startYear-:endYear/announcements', auth(['School']), async (req, res) => {
+    try {
+        const announcements = await Announcement.findAll({
+            attributes: ['sourceStudentInClassId', 'sourceTeacherInYearId'], where: {
+                startYear: req.params.startYear, endYear: req.params.endYear,
+                destinationSchoolId: req.account.school.id
+            }, include: {association: 'attachments', attributes: ['path']}
+        })
+
+        res.send(announcements)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
+
+// get announcements sent by a school
+// /alhbd/2020-2021/announcements/sent
+router.get('/:siteName/:startYear-:endYear/announcements/sent', auth(['School']), async (req, res) => {
+    try {
+        const announcements = await Announcement.findAll({
+            attributes: ['destinationTeacherInYearId', 'destinationStudentInClassId', 'destinationSchoolClassId', 'destinationClassroomId'],
+            where: {
+                startYear: req.params.startYear, endYear: req.params.endYear, sourceSchoolId: req.account.school.id
+            },
+            include: {association: 'attachments', attributes: ['path']}
+        })
+
+        res.send(announcements)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
 
 module.exports = router

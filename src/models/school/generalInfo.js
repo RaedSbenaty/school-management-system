@@ -15,15 +15,15 @@ GeneralInfo.init({
         allowNull: false
     },
     breakFrequency: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     breakDuration: {
-        type: DataTypes.TIME,
+        type: DataTypes.STRING,
         allowNull: false
     },
     sessionDuration: {
-        type: DataTypes.TIME,
+        type: DataTypes.STRING,
         allowNull: false
     },
 }, {sequelize, modelName: 'generalInfo', timestamps: false})

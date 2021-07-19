@@ -1,9 +1,14 @@
 const express = require('express')
 const router = express.Router()
+const {Op} = require('sequelize')
 const auth = require('../middlewares/auth')
-
+const belongsTo = require('../middlewares/teacherBelongsToSchool')
 
 const Teacher = require('../models/teacher/teacher')
+const Announcement = require('../models/announcement/announcement')
+const Absence = require('../models/session/absence')
+const SchoolClass = require('../models/class/schoolClass')
+
 
 /*
 {
@@ -46,6 +51,35 @@ router.get('/teachers/:teacherId/info', auth(['Teacher']), async (req, res) => {
     }
 })
 
+// get announcements for a teacher
+// /teachers/1/alhbd/2020-2021/announcements
+router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/announcements', auth(['Teacher']), belongsTo, async (req, res) => {
+    try {
+        const announcements = await Announcement.findAll({
+            attributes: ['sourceSchoolId', 'sourceStudentInClassId'], where: {
+                startYear: req.params.startYear, endYear: req.params.endYear,
+                destinationTeacherInYearId: req.teacherInYear.id
+            }, include: {association: 'attachments', attributes: ['path']}
+        })
+        res.send(announcements)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
+
+// get absences for a teacher
+// /teachers/1/alhbd/2020-2021/absences
+router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/absences', auth(['Teacher']), belongsTo, async (req, res) => {
+    try {
+        const absences = await Absence.findAll({where: {teacherInYearId: req.teacherInYear.id}})
+        res.send(absences)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
 
 
 module.exports = router

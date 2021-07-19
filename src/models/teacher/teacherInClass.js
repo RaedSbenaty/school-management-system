@@ -16,7 +16,5 @@ TeacherInYear.hasMany(TeacherInClass)
 TeacherInClass.belongsTo(SchoolClass, {foreignKey: {allowNull: false}})
 SchoolClass.hasMany(TeacherInClass)
 
-TeacherInClass.belongsTo(Classroom)
-Classroom.hasMany(TeacherInClass)
 
 module.exports = TeacherInClass

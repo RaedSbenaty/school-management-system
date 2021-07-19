@@ -10,6 +10,8 @@ class Session extends Model {
 }
 
 Session.init({
+    startTime: {type: DataTypes.STRING, allowNull: false},
+    endTime: {type: DataTypes.STRING, allowNull: false}
 }, {sequelize, modelName: 'session', timestamps: false})
 
 

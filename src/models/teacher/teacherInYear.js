@@ -3,10 +3,17 @@ const {DataTypes, Model} = require('sequelize')
 const TeacherInSchool = require('./teacherInSchool')
 
 class TeacherInYear extends Model {
+    static async getTeacherInYear(teacherId, schoolId, startYear, endYear) {
+        return await TeacherInYear.findOne({
+            where: {startYear, endYear},
+            include: [{association: 'teacherInSchool', attributes: [], where: {teacherId, schoolId}},
+                {association: 'teacherInClasses', attributes: ['id', 'schoolClassId', 'classroomId']}]
+        })
+    }
 }
 
 TeacherInYear.init({
-    startYear: { type: DataTypes.INTEGER, allowNull: false },
+    startYear: {type: DataTypes.INTEGER, allowNull: false},
     endYear: {
         type: DataTypes.INTEGER, allowNull: false,
         validate: {

@@ -12,6 +12,7 @@ app.use((req, res, next) => {
 app.use(require('./routers/general'))
 app.use(require('./routers/teacher'))
 app.use(require('./routers/student'))
+app.use(require('./routers/upload'))
 
 app.use(require('./routers/school/school'))
 app.use(require('./routers/school/class'))
@@ -21,6 +22,6 @@ app.use(require('./routers/school/subject'))
 app.use(require('./routers/school/teacher'))
 app.use(require('./routers/school/mark'))
 app.use(require('./routers/school/session'))
-//app.use(require('./routers/school/examSchedule'))
+app.use(require('./routers/school/examSchedule'))
 
 module.exports = app

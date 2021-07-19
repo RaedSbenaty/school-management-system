@@ -7,7 +7,7 @@ module.exports = async (req, res, next) => {
     const studentInClass = await StudentInClass.getStudentInClass(req.params.studentId,
         school.id, req.params.startYear, req.params.endYear)
 
-    if (!studentInClass) res.status(401).send('Student does\'nt belong to this school in this year.')
+    if (!studentInClass) return res.status(401).send('Student doesn\'t belong to this school in this year.')
 
     req.studentInClass = studentInClass
     next()

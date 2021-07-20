@@ -19,15 +19,15 @@ class TeacherInSchool extends Model {
 
         let rel
         rel = {
-                association: 'teacherInYears', where:{startYear,endYear}, attributes: [], required: true, include: {
-                    association: 'teacherInSchool', attributes: [], required: true
+                association: 'teacherInYears', where:{startYear,endYear}, required: true, include: {
+                    association: 'teacherInSchool',attributes: [], required: true
                 }
             }
 
         if(className) 
         rel = {
-            association: 'teacherInYears', where: {startYear,endYear}, attributes: [], required: true, include:{
-                association: 'teacherInClasses', attributes: [], required: true, include:{
+            association: 'teacherInYears', where: {startYear,endYear}, required: true, include:{
+                association: 'teacherInClasses', required: true, include:{
                     association: 'schoolClass', attributes: [], required: true, include:{
                         association: 'class', required: true, where: {name: className}
                     }

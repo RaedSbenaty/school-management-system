@@ -106,7 +106,9 @@ router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School'
             if (schoolClass.startYear != req.params.startYear
                 || schoolClass.endYear != req.params.endYear)
                 throw new Error('schoolClassId doesn\'t belong to this year.')
-            
+      
+            const teacherInClass = await TeacherInClass.findOne({teacherInYearId: req.body.teacherInYearId, schoolClassId: schoolClass.id})
+            if(teacherInClass) throw new Error('teacher is already added to class whith school class '+ element)
             await TeacherInClass.create({teacherInYearId: req.body.teacherInYearId, schoolClassId: schoolClass.id})
 
         });

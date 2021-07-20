@@ -14,6 +14,28 @@ class TeacherInSchool extends Model {
     //     else teacherInSchool = await teacherInSchool.create(where)
     //     return teacherInSchool
     // }
+
+    static async getTeacherClasses(req,res){
+
+        try{
+            const classes = await TeacherInSchool.findAll({
+                where: {schoolId: req.account.school.id}, attributes: [], required: true, include: {
+                    association: 'teacherInYears', where: {
+                        id: req.body.teacherInYearId,
+                        startYear: req.params.startYear,
+                        endYear: req.params.endYear
+                    }, required: true, include:{
+                        association: 'teacherInClasses', attributes: ['schoolClassId']
+                    }
+                }
+            })
+            
+            res.send({classes})
+        } catch (e) {
+            console.log(e)
+            res.status(400).send(e)
+        }
+    }
     
     static async getTeachers(schoolId, startYear, endYear, className) {
 

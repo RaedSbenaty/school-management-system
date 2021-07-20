@@ -92,14 +92,14 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 //{ "teacherInYearId":1 , "schoolClassIds": [1,2]}
 router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School']), async (req, res) => {
     try {
-        const teacherInYear = await TeacherInYear.findOne({id: req.body.teacherInYearId})
+        const teacherInYear = await TeacherInYear.findOne({ where: {id: req.body.teacherInYearId} })
         if(!teacherInYear) return res.status(404).send('Teacher is not existed in this year.')
 
-        const schoolClassIds = req.body.schoolClassIds
+        let schoolClassIds = req.body.schoolClassIds
         schoolClassIds.forEach( async (element) => {
             console.log(element)
 
-            const schoolClass = await SchoolClass.findByPk(element)
+            let schoolClass = await SchoolClass.findByPk(element)
             if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
                 throw new Error('schoolClassId doesn\'t belong to this school.')
 
@@ -107,12 +107,13 @@ router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School'
                 || schoolClass.endYear != req.params.endYear)
                 throw new Error('schoolClassId doesn\'t belong to this year.')
       
-            const teacherInClass = await TeacherInClass.findOne({teacherInYearId: req.body.teacherInYearId, schoolClassId: schoolClass.id})
-            if(teacherInClass) throw new Error('teacher is already added to class whith school class '+ element)
-            await TeacherInClass.create({teacherInYearId: req.body.teacherInYearId, schoolClassId: schoolClass.id})
+            let teacherInClass = await TeacherInClass.findOne({ where: {teacherInYearId: req.body.teacherInYearId, schoolClassId: element} })
+             if(teacherInClass) 
+                throw new Error('teacher is already added to class whith schoolClassId '+ element)
+            teacherInClass = await TeacherInClass.create({ teacherInYearId: req.body.teacherInYearId, schoolClassId: element })
 
         });
-        res.send(teacherInYear) 
+        res.send('teacher was added to the classes') 
 
     } catch (e) {
         console.log(e)
@@ -124,5 +125,11 @@ router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School'
 // /alhbd/2020-2021/teachers
 router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
     , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req, res))
+
+//get Teacher Classes in a school (in a year)
+// /alhbd/2020-2021/teachers/classes
+// { "teacherInYearId": 1 }
+router.get('/:siteName/:startYear-:endYear/teachers/classes', auth(['School'])
+    , async (req, res) => TeacherInSchool.getTeacherClasses(req, res))
 
 module.exports = router

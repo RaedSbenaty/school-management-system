@@ -21,7 +21,7 @@ class TeacherInSchool extends Model {
             const classes = await TeacherInSchool.findAll({
                 where: {schoolId: req.account.school.id}, attributes: [], required: true, include: {
                     association: 'teacherInYears', where: {
-                        id: req.body.teacherInYearId,
+                        id: req.params.teacherInYearId,
                         startYear: req.params.startYear,
                         endYear: req.params.endYear
                     }, required: true, include:{

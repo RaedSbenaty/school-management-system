@@ -128,8 +128,7 @@ router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
 
 //get Teacher Classes in a school (in a year)
 // /alhbd/2020-2021/teachers/classes
-// { "teacherInYearId": 1 }
-router.get('/:siteName/:startYear-:endYear/teachers/classes', auth(['School'])
+router.get('/:siteName/:startYear-:endYear/teachers/:teacherInYearId/classes', auth(['School'])
     , async (req, res) => TeacherInSchool.getTeacherClasses(req, res))
 
 module.exports = router

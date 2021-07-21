@@ -93,26 +93,25 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School']), async (req, res) => {
     try {
         const teacherInYear = await TeacherInYear.findOne({ where: {id: req.body.teacherInYearId} })
-        if(!teacherInYear) return res.status(404).send('Teacher is not existed in this year.')
+        if(!teacherInYear) return res.status(400).send('Teacher is not existed in this year.')
 
         let schoolClassIds = req.body.schoolClassIds
-        schoolClassIds.forEach( async (element) => {
+        for(let element of schoolClassIds) {
             console.log(element)
 
             let schoolClass = await SchoolClass.findByPk(element)
             if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
-                throw new Error('schoolClassId doesn\'t belong to this school.')
+                return res.status(400).send('schoolClassId doesn\'t belong to this school.')
 
-            if (schoolClass.startYear != req.params.startYear
-                || schoolClass.endYear != req.params.endYear)
-                throw new Error('schoolClassId doesn\'t belong to this year.')
+            if (schoolClass.startYear != req.params.startYear || schoolClass.endYear != req.params.endYear)
+                return res.status(400).send('schoolClassId doesn\'t belong to this year.')
       
             let teacherInClass = await TeacherInClass.findOne({ where: {teacherInYearId: req.body.teacherInYearId, schoolClassId: element} })
-             if(teacherInClass) 
-                throw new Error('teacher is already added to class whith schoolClassId '+ element)
+             if(teacherInClass) return res.status(400).send('Teacher is already added to this class.')
+
             teacherInClass = await TeacherInClass.create({ teacherInYearId: req.body.teacherInYearId, schoolClassId: element })
 
-        });
+        }
         res.send('teacher was added to the classes') 
 
     } catch (e) {

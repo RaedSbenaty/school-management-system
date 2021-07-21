@@ -7,7 +7,7 @@ module.exports = async (req, res, next) => {
     const teacherInYear = await TeacherInYear.getTeacherInYear(req.params.teacherId,
         school.id, req.params.startYear, req.params.endYear)
 
-    if (!teacherInYear) res.status(401).send('Teacher does\'nt belong to this school in this year.')
+    if (!teacherInYear) return res.status(401).send('Teacher doesn\'t belong to this school in this year.')
 
     req.teacherInYear = teacherInYear
     req.teacherInClassIds = teacherInYear.teacherInClasses.map(element => element.id)

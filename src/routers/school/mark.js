@@ -76,9 +76,10 @@ router.get('/:siteName/:startYear-:endYear/students/:studentId/marks', auth(['Sc
     try {
         const studentInClass = await StudentInClass.getStudentInClass(req.params.studentId
             , req.account.school.id, req.params.startYear, req.params.endYear)
-        const studentMarks = await SubjectInSemester.getStudentMarksInSemester(studentInClass.id)
+        if (!studentInClass) return res.status(400).send('Invalid student id.')
+        const studentMarks = await SubjectInSemester.getStudentMarksInSemester(studentInClass.id,studentInClass.schoolClassId)
         res.send(studentMarks)
-    }catch (e) {
+    } catch (e) {
         console.log(e)
         res.status(500).send(e.message)
     }

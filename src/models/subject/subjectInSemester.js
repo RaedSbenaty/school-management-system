@@ -39,10 +39,10 @@ class SubjectInSemester extends Model {
     }
 
 
-    static async getStudentMarksInSemester(studentInClassId) {
+    static async getStudentMarksInSemester(studentInClassId, schoolClassId) {
         const subjectInSemesters = await SubjectInSemester.findAll({
             attributes: ['semester'], include: [
-                {association: 'subjectInYear', attributes: ['name']},
+                {association: 'subjectInYear', attributes: ['name'], where: {schoolClassId}},
                 {
                     association: 'exams', attributes: ['fullMark', 'dateOfExam'],
                     include: [{association: 'examType', attributes: ['name']},

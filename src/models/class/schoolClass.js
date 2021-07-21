@@ -1,4 +1,4 @@
-const { DataTypes, Model } = require('sequelize')
+const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../../db/sequelize')
 const School = require('../school/school')
 const Class = require('./class')
@@ -8,9 +8,9 @@ class SchoolClass extends Model {
     static async findByCriteria(schoolId, startYear, endYear, className) {
         className = className.replace('_', ' ')
         return await SchoolClass.findOne({
-            where: { schoolId, startYear, endYear },
-            include: ['classrooms', 'subjectInYears', { association: 'class', where: { name: className } }],
-        }) || { classrooms: [] }
+            where: {schoolId, startYear, endYear},
+            include: ['classrooms', 'subjectInYears', {association: 'class', where: {name: className}}],
+        }) || {classrooms: []}
 
     }
 
@@ -20,34 +20,26 @@ class SchoolClass extends Model {
             classroom => classroom.classroomNumber === newClassroom.classroomNumber))
             .map(classroom => classroom.classroomNumber)
 
-        if (oldClassrooms.length)
-            throw new Error(oldClassrooms)
+        if (oldClassrooms.length) throw new Error(oldClassrooms)
 
         for (let classroom of classrooms)
             await this.createClassroom(classroom)
     }
 
     async checkSubjectsExist(subjects) {
+        const mySubjects = []
+        this.subjectInYears.forEach(subject => mySubjects.push(subject.name))
 
-        var mySubjects = []
-        this.subjectInYears.forEach(subject=>{
-            console.log('subjectInYear: ', subject);
-            mySubjects.push(subject.name)})
-                
-        subjects.forEach(subject => {
-            mySubjects.push(subject.name)
-        });
-
-        var existSubjects = mySubjects.filter((subject, index, arr) => arr.indexOf(subject) !== index)
+        subjects.forEach(subject => mySubjects.push(subject.name))
+        const existSubjects = mySubjects.filter((subject, index, arr) => arr.indexOf(subject) !== index)
 
 
-        if (existSubjects.length)
-            throw new Error(existSubjects)
+        if (existSubjects.length) throw new Error(existSubjects)
     }
 }
 
 SchoolClass.init({
-    startYear: { type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass' },
+    startYear: {type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass'},
     endYear: {
         type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass',
         validate: {
@@ -57,13 +49,13 @@ SchoolClass.init({
             }
         }
     }
-}, { sequelize, modelName: 'schoolClass', timestamps: false })
+}, {sequelize, modelName: 'schoolClass', timestamps: false})
 
 
-SchoolClass.belongsTo(Class, { foreignKey: { allowNull: false, unique: 'uniqueSchoolClass' } })
+SchoolClass.belongsTo(Class, {foreignKey: {allowNull: false, unique: 'uniqueSchoolClass'}})
 Class.hasMany(SchoolClass)
 
-SchoolClass.belongsTo(School, { foreignKey: { allowNull: false, unique: 'uniqueSchoolClass' } })
+SchoolClass.belongsTo(School, {foreignKey: {allowNull: false, unique: 'uniqueSchoolClass'}})
 School.hasMany(SchoolClass)
 
 

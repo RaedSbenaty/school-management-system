@@ -80,7 +80,7 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 
         account.teacher.dataValues.account = {email: req.body.email}
         console.log("Teacher was added to the school")
-        res.send(account.teacher) 
+        res.send() 
     } catch (e) {
         console.log(e)
         res.status(500).send({error: e.message})
@@ -89,48 +89,30 @@ router.post('/:siteName/:startYear-:endYear/teachers/addExisting', auth(['School
 
 // add teacher to classes
 // /alhbd/2020-2021/teachers/addInClass
-//{ "accountId":from postman ,"email":"raneem@hbd.com", "schoolClassIds": [1,2]}
+//{ "teacherInYearId":1 , "schoolClassIds": [1,2]}
 router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School']), async (req, res) => {
     try {
-        console.log('start')
-        const account = await Account.findByIdAndEmail(req.body.accountId, req.body.email)
-        if (!account || !account.teacher) return res.status(404).send('Invalid teacher criteria.')
-        console.log('account was founded')
+        const teacherInYear = await TeacherInYear.findOne({ where: {id: req.body.teacherInYearId} })
+        if(!teacherInYear) return res.status(400).send('Teacher is not existed in this year.')
 
-        let where ={
-            teacherId: account.teacher.id, 
-            schoolId: req.account.school.id
-        }
-        const teacherInSchool = await TeacherInSchool.findOne({where})
-        if(!teacherInSchool) return res.status(404).send('Teacher is not existed in this school.')
-        console.log('teacher in school was founded')
-
-        where ={
-            teacherInSchoolId: teacherInSchool.id,
-            startYear: req.params.startYear,
-            endYear: req.params.endYear
-        }        
-        const teacherInYear = await TeacherInYear.findOne({where})
-        if(!teacherInYear) return res.status(404).send('Teacher is not existed in this year.')
-        console.log('teacher in year was founded')
-
-        const schoolClassIds = req.body.schoolClassIds
-        schoolClassIds.forEach( async (element) => {
+        let schoolClassIds = req.body.schoolClassIds
+        for(let element of schoolClassIds) {
             console.log(element)
 
-            const schoolClass = await SchoolClass.findByPk(element)
+            let schoolClass = await SchoolClass.findByPk(element)
             if (!schoolClass || schoolClass.schoolId !== req.account.school.id)
-                throw new Error('schoolClassId doesn\'t belong to this school.')
+                return res.status(400).send('schoolClassId doesn\'t belong to this school.')
 
-            if (schoolClass.startYear != req.params.startYear
-                || schoolClass.endYear != req.params.endYear)
-                throw new Error('schoolClassId doesn\'t belong to this year.')
-            
-            await TeacherInClass.create({teacherInYearId: teacherInYear.id, schoolClassId: schoolClass.id})
-            console.log("Teacher was added to the class")
+            if (schoolClass.startYear != req.params.startYear || schoolClass.endYear != req.params.endYear)
+                return res.status(400).send('schoolClassId doesn\'t belong to this year.')
+      
+            let teacherInClass = await TeacherInClass.findOne({ where: {teacherInYearId: req.body.teacherInYearId, schoolClassId: element} })
+             if(teacherInClass) return res.status(400).send('Teacher is already added to this class.')
 
-        });
-        res.send(account.teacher) 
+            teacherInClass = await TeacherInClass.create({ teacherInYearId: req.body.teacherInYearId, schoolClassId: element })
+
+        }
+        res.send('teacher was added to the classes') 
 
     } catch (e) {
         console.log(e)
@@ -142,5 +124,10 @@ router.post('/:siteName/:startYear-:endYear/teachers/addInClass', auth(['School'
 // /alhbd/2020-2021/teachers
 router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
     , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req, res))
+
+//get Teacher Classes in a school (in a year)
+// /alhbd/2020-2021/teachers/classes
+router.get('/:siteName/:startYear-:endYear/teachers/:teacherInYearId/classes', auth(['School'])
+    , async (req, res) => TeacherInSchool.getTeacherClasses(req, res))
 
 module.exports = router

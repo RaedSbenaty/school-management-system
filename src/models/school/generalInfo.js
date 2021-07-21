@@ -26,10 +26,20 @@ GeneralInfo.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    startYear: {type: DataTypes.INTEGER, allowNull: false},
+    endYear: {
+        type: DataTypes.INTEGER, allowNull: false,
+        validate: {
+            isValidPeriod(year) {
+                if (year < this.startYear)
+                    throw new Error('Start year must be before end year.')
+            }
+        }
+    }
 }, {sequelize, modelName: 'generalInfo', timestamps: false})
 
 //generalInfo relations
 GeneralInfo.belongsTo(School, {foreignKey: {allowNull: false}})
-School.hasOne(GeneralInfo)
+School.hasMany(GeneralInfo)
 
 module.exports = GeneralInfo

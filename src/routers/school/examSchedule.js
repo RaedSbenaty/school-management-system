@@ -10,11 +10,11 @@ const SubjectInSemester = require('../../models/subject/subjectInSemester')
 //adding examSchedule for a classroom or a schoolClass
 /*
 example
-/alhbd/2020-2021/classes/examSchedule/add
+/alhbd/2020-2021/examSchedule/add
 
 {
     "classroomId": 1,
-    "Schedule": [
+    "schedule": [
         {
             "subjectInSemesterId": 1,
             "date": "07-04-2021",
@@ -87,8 +87,8 @@ router.get('/:siteName/classroom/:classroomId/examSchedule/get', auth(['School']
         }
     })
 
-// // get examSchedule for a schoolClass
-// // /alhbd/class/1/examSchedule/get
+// get examSchedule for a schoolClass
+// /alhbd/class/1/examSchedule/get
 router.get('/:siteName/class/:schoolClassId/examSchedule/get', auth(['School'])
     , async (req, res) => {
         try {

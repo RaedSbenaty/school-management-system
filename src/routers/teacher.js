@@ -88,13 +88,30 @@ router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/absences', auth([
 router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes', auth(['Teacher']), belongsTo, async (req, res) => {
     try {
         const classes = await TeacherInYear.findAll({where: {id: req.teacherInYear.id},required: true, include:{
-            association: 'teacherInClasses', attributes: ['schoolClassId']
-        }})
+            association: 'teacherInClasses', attributes: ['schoolClassId'], required: true, include:{
+                association: 'schoolClass', attributes: ['classId'], required: true, include:{
+                    association: 'class', attributes: ['name']
+        }}}})
         res.send(classes)
     } catch (e) {
         console.log(e)
         res.status(400).send(e.message)
     }
 })
+
+// get classrooms for a class for a teacher in a year
+// /teachers/1/alhbd/2020-2021/classes/Fourth_Grade/classrooms
+// router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes/:ClassName/classrooms', auth(['Teacher']), belongsTo, async (req, res) => {
+//     try {
+//         const classerooms = await TeacherInYear.findAll({where: {id: req.teacherInYear.id},required: true, include:{
+//             association: 'teacherInClasses', attributes: ['schoolClassId'], required: true, include:{
+//                 association: 'class'
+//         }}})
+//         res.send(classes)
+//     } catch (e) {
+//         console.log(e)
+//         res.status(400).send(e.message)
+//     }
+// })
 
 module.exports = router

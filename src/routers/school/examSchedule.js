@@ -10,11 +10,11 @@ const SubjectInSemester = require('../../models/subject/subjectInSemester')
 //adding examSchedule for a classroom or a schoolClass
 /*
 example
-/alhbd/2020-2021/classes/examSchedule/add
+/alhbd/2020-2021/examSchedule/add
 
 {
     "classroomId": 1,
-    "Schedule": [
+    "schedule": [
         {
             "subjectInSemesterId": 1,
             "date": "07-04-2021",
@@ -75,32 +75,44 @@ router.post('/:siteName/:startYear-:endYear/examSchedule/add', auth(['School']),
 })
 
 // get examSchedule for a classroom
-// /alhbd/classroom/1/examSchedule/get
-router.get('/:siteName/classroom/:classroomId/examSchedule/get', auth(['School'])
+// /alhbd/2021-2022/classroom/1/examSchedule/get
+router.get('/:siteName/:startYear-:endYear/classroom/:classroomId/examSchedule/get', auth(['School'])
     , async (req, res) => {
         try {
-            let classroomExamSchedule = await Classroom.findOne({ where: { id: req.params.classroomId }, include: [ExamSchedule] })
-            res.send(classroomExamSchedule)
+            let classroomSchedule = await SchoolClass.findAll({
+                subQuery: false,
+                where: { startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
+                    association: 'classrooms', attributes: ['id'], where: { id: req.params.classroomId }, include: {
+                        association: 'examSchedules', required: true
+                    }, required: true
+                }
+            })
+            if (!classroomSchedule.length)
+                return res.status(404).send('No exam schedule was found for the specified classroom in the specified year.')
+            res.status(201).send(classroomSchedule[0].classrooms[0].examSchedules)
         } catch (e) {
             console.log(e)
             res.status(400).send(e.message.split(','))
         }
     })
 
-// // get examSchedule for a schoolClass
-// // /alhbd/class/1/examSchedule/get
-router.get('/:siteName/class/:schoolClassId/examSchedule/get', auth(['School'])
+// get examSchedule for a schoolClass
+// /alhbd/2021-2022/class/1/examSchedule/get
+router.get('/:siteName/:startYear-:endYear/class/:schoolClassId/examSchedule/get', auth(['School'])
     , async (req, res) => {
         try {
-            let schoolClassSchedule = await SchoolClass.findOne({
+            let schoolClassSchedule = await SchoolClass.findAll({
                 subQuery: false,
-                where: { id: req.params.schoolClassId }, attributes: ['id'], include: {
+                where: { id: req.params.schoolClassId, startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
                     association: 'classrooms', attributes: ['id'], include: {
                         association: 'examSchedules', where: { etype: 'class' }, required: true
                     }, required: true
                 }
             })
-            res.status(201).send(schoolClassSchedule)
+            console.log(schoolClassSchedule);
+            if (!schoolClassSchedule.length)
+                return res.status(404).send('No exam schedule was found for the specified school class in the specified year.')
+            res.status(201).send(schoolClassSchedule[0].classrooms[0].examSchedules)
         }
         catch (e) {
             console.log(e)

@@ -126,7 +126,7 @@ router.get('/:siteName/:startYear-:endYear/teachers', auth(['School'])
     , async (req, res) => TeacherInSchool.handleGetTeachersRequest(req, res))
 
 //get Teacher Classes in a school (in a year)
-// /alhbd/2020-2021/teachers/classes
+// /alhbd/2020-2021/teachers/1/classes
 router.get('/:siteName/:startYear-:endYear/teachers/:teacherInYearId/classes', auth(['School'])
     , async (req, res) => TeacherInSchool.getTeacherClasses(req, res))
 

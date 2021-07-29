@@ -7,7 +7,7 @@ class TeacherInYear extends Model {
         return await TeacherInYear.findOne({
             where: {startYear, endYear},
             include: [{association: 'teacherInSchool', attributes: [], where: {teacherId, schoolId}},
-                {association: 'teacherInClasses', attributes: ['id', 'schoolClassId', 'classroomId']}]
+                {association: 'teacherInClasses'}]
         })
     }
 }

@@ -8,6 +8,7 @@ const Teacher = require('../models/teacher/teacher')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
 const SchoolClass = require('../models/class/schoolClass')
+const TeacherInYear = require('../models/teacher/teacherInYear')
 
 
 /*
@@ -81,5 +82,19 @@ router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/absences', auth([
     }
 })
 
+
+// get classes for a teacher in a year
+// /teachers/1/alhbd/2020-2021/classes
+router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes', auth(['Teacher']), belongsTo, async (req, res) => {
+    try {
+        const classes = await TeacherInYear.findAll({where: {id: req.teacherInYear.id},required: true, include:{
+            association: 'teacherInClasses', attributes: ['schoolClassId']
+        }})
+        res.send(classes)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
 
 module.exports = router

@@ -94,7 +94,7 @@ router.get('/teachers/:teacherId/:startYear-:endYear/schedule', auth(['Teacher']
 router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/announcements', auth(['Teacher']), belongsTo, async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
-            attributes: ['sourceSchoolId', 'sourceStudentInClassId', 'heading', 'body'], where: {
+            attributes: ['sourceSchoolId', 'sourceStudentInClassId', 'heading', 'body', 'date'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 destinationTeacherInYearId: req.teacherInYear.id
             }, include: {association: 'attachments', attributes: ['path']}
@@ -124,11 +124,15 @@ router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/absences', auth([
 // /teachers/1/alhbd/2020-2021/classes
 router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes', auth(['Teacher']), belongsTo, async (req, res) => {
     try {
-        const classes = await TeacherInYear.findAll({where: {id: req.teacherInYear.id},required: true, include:{
-            association: 'teacherInClasses', attributes: ['schoolClassId'], required: true, include:{
-                association: 'schoolClass', attributes: ['classId'], required: true, include:{
-                    association: 'class', attributes: ['name']
-        }}}})
+        const classes = await TeacherInYear.findAll({
+            where: {id: req.teacherInYear.id}, required: true, include: {
+                association: 'teacherInClasses', attributes: ['schoolClassId'], required: true, include: {
+                    association: 'schoolClass', attributes: ['classId'], required: true, include: {
+                        association: 'class', attributes: ['name']
+                    }
+                }
+            }
+        })
         res.send(classes)
     } catch (e) {
         console.log(e)

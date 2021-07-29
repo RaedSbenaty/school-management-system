@@ -86,7 +86,7 @@ router.get('/students/:studentId/schools', auth(['Student']), async (req, res) =
 router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', auth(['Student']), belongsTo, async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
-            attributes: ['sourceSchoolId', 'sourceTeacherInYearId', 'heading', 'body'], where: {
+            attributes: ['sourceSchoolId', 'sourceTeacherInYearId', 'heading', 'body', 'date'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 [Op.or]: [
                     {destinationStudentInClassId: {[Op.eq]: req.studentInClass.id}},

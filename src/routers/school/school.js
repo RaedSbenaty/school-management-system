@@ -34,7 +34,7 @@ const ActiveDaysInGeneralInfo = require('../../models/school/ActiveDaysInGeneral
 router.post('/schools/signup', async (req, res) => {
     try {
         req.body.account.user = 'School'
-        const school = await School.create(req.body, { include: [Account] })
+        const school = await School.create(req.body, {include: [Account]})
         school.account.sendMail('Welcome To Schoolink!', 'Have a nice experience, hbedo')
         school.dataValues.token = await school.account.generateAuthToken()
         res.status(201).send(school)
@@ -68,7 +68,7 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
                     id: req.account.school.id,
                 }, include: {
                     association: 'schoolClasses',
-                    where: { startYear: req.params.startYear, endYear: req.params.endYear },
+                    where: {startYear: req.params.startYear, endYear: req.params.endYear},
                     required: true,
                     include: {
                         association: 'classrooms', required: true,
@@ -85,14 +85,14 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
             req.body.activeDaysInGeneralInfos = []
 
             req.body.activeDays.forEach(element => {
-                req.body.activeDaysInGeneralInfos.push({ dayId: element })
+                req.body.activeDaysInGeneralInfos.push({dayId: element})
             });
             delete req.body.activeDays
             req.body.schoolId = req.account.school.id
 
             //checking if there was previous generalInfo in this year
             const generalInfo = await GeneralInfo.findOne({
-                where: { schoolId: req.body.schoolId, startYear: req.params.startYear, endYear: req.params.endYear },
+                where: {schoolId: req.body.schoolId, startYear: req.params.startYear, endYear: req.params.endYear},
                 include: [ActiveDaysInGeneralInfo]
             })
 
@@ -106,9 +106,9 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
                 }
                 await generalInfo.destroy()
 
-                await GeneralInfo.create(req.body, { include: [ActiveDaysInGeneralInfo] })
+                await GeneralInfo.create(req.body, {include: [ActiveDaysInGeneralInfo]})
             } else
-                await GeneralInfo.create(req.body, { include: [ActiveDaysInGeneralInfo] })
+                await GeneralInfo.create(req.body, {include: [ActiveDaysInGeneralInfo]})
 
             res.status(201).send('School general Information has been successfully added.')
         } catch (e) {
@@ -125,11 +125,11 @@ router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
     , async (req, res) => {
         try {
             const generalInfo = await GeneralInfo.findOne({
-                where: { schoolId: req.account.school.id, startYear: req.params.startYear, endYear: req.params.endYear },
+                where: {schoolId: req.account.school.id, startYear: req.params.startYear, endYear: req.params.endYear},
                 include: [ActiveDaysInGeneralInfo]
             })
-            if(!generalInfo)
-            return res.status(404).send('No general information was found for the specified school in the specified year.')
+            if (!generalInfo)
+                return res.status(404).send('No general information was found for the specified school in the specified year.')
             res.send(generalInfo)
         } catch (e) {
             console.log(e)
@@ -143,10 +143,10 @@ router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
 router.get('/:siteName/:startYear-:endYear/announcements', auth(['School']), async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
-            attributes: ['sourceStudentInClassId', 'sourceTeacherInYearId'], where: {
+            attributes: ['sourceStudentInClassId', 'sourceTeacherInYearId', 'heading', 'body'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 destinationSchoolId: req.account.school.id
-            }, include: { association: 'attachments', attributes: ['path'] }
+            }, include: {association: 'attachments', attributes: ['path']}
         })
 
         res.send(announcements)
@@ -166,7 +166,7 @@ router.get('/:siteName/:startYear-:endYear/announcements/sent', auth(['School'])
             where: {
                 startYear: req.params.startYear, endYear: req.params.endYear, sourceSchoolId: req.account.school.id
             },
-            include: { association: 'attachments', attributes: ['path'] }
+            include: {association: 'attachments', attributes: ['path']}
         })
 
         res.send(announcements)

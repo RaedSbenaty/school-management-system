@@ -7,7 +7,7 @@ const belongsTo = require('../middlewares/teacherBelongsToSchool')
 const Teacher = require('../models/teacher/teacher')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
-const SchoolClass = require('../models/class/schoolClass')
+const TeacherInYear = require('../models/teacher/teacherInYear')
 
 
 /*
@@ -51,12 +51,50 @@ router.get('/teachers/:teacherId/info', auth(['Teacher']), async (req, res) => {
     }
 })
 
+// get schools for a teacher
+// /teachers/1/schools
+router.get('/teachers/:teacherId/schools', auth(['Teacher']), async (req, res) => {
+    try {
+        const teacherInYears = await TeacherInYear.findAll({
+            attributes: ['startYear', 'endYear'], include: {
+                association: 'teacherInSchool', attributes: ['id'], where: {teacherId: req.params.teacherId},
+                include: {
+                    association: 'school', attributes: ['id', 'schoolName'], required: true,
+                    include: {association: 'account', attributes: ['siteName'], required: true}
+                }
+            }
+        })
+
+        const years = {}
+        teacherInYears.forEach(teacher => {
+            years[`${teacher.startYear}-${teacher.endYear}`] = years[`${teacher.startYear}-${teacher.endYear}`] || []
+            years[`${teacher.startYear}-${teacher.endYear}`].push(teacher.teacherInSchool.school)
+        })
+        res.send(years)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send('Failed to fetch schools for this teacher.')
+    }
+})
+
+// get schedule for a teacher in a year
+// /teachers/1/2020-2021/schedule
+router.get('/teachers/:teacherId/:startYear-:endYear/schedule', auth(['Teacher']), async (req, res) => {
+    try {
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).send('Failed to fetch schedule for this teacher.')
+    }
+})
+
+
 // get announcements for a teacher
 // /teachers/1/alhbd/2020-2021/announcements
 router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/announcements', auth(['Teacher']), belongsTo, async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
-            attributes: ['sourceSchoolId', 'sourceStudentInClassId'], where: {
+            attributes: ['sourceSchoolId', 'sourceStudentInClassId', 'heading', 'body'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 destinationTeacherInYearId: req.teacherInYear.id
             }, include: {association: 'attachments', attributes: ['path']}

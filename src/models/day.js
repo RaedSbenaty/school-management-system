@@ -31,6 +31,42 @@ class Day extends Model {
             }
         return schedule
     }
+
+
+    static async getScheduleForTeacher(teacherId, startYear, endYear, semester) {
+        const schedule = await Day.findAll({
+            attributes: ['name'], include: {
+                association: 'sessions', attributes: ['startTime', 'endTime'],
+                include: [{
+                    association: 'subjectInSemester', where: {semester},
+                    attributes: ['id'], include: {association: 'subjectInYear', attributes: ['name']}
+                }, {
+                    association: 'teacherInClass', attributes: ['id'], required: true, include: [{
+                        association: 'teacherInYear', attributes: ['id'], required: true, include: {
+                            association: 'teacherInSchool', attributes: ['id'], where: {teacherId},
+                            include: {association: 'school', attributes: ['id', 'schoolName'],}
+                        }
+                    }]
+                }, {
+                    association: 'classroom', attributes: ['classroomNumber'], required: true,
+                    include: {
+                        association: 'schoolClass', attributes: ['id'], where: {startYear, endYear},
+                        include: {association: 'class', attributes: ['name']}
+                    }
+                }]
+            }
+        })
+        for (const day of schedule)
+            for (const session of day.sessions) {
+                session.dataValues.subjectName = session.subjectInSemester.subjectInYear.name
+                delete session.dataValues.subjectInSemester
+                session.dataValues.school = session.teacherInClass.teacherInYear.teacherInSchool.school
+                delete session.dataValues.teacherInClass
+                session.classroom.dataValues.className = session.classroom.schoolClass.class.name
+                delete session.classroom.dataValues.schoolClass
+            }
+        return schedule
+    }
 }
 
 Day.init({

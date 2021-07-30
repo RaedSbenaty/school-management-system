@@ -8,6 +8,7 @@ const Teacher = require('../models/teacher/teacher')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
 const TeacherInYear = require('../models/teacher/teacherInYear')
+const Day = require('../models/day')
 
 
 /*
@@ -78,10 +79,12 @@ router.get('/teachers/:teacherId/schools', auth(['Teacher']), async (req, res) =
 })
 
 // get schedule for a teacher in a year
-// /teachers/1/2020-2021/schedule
-router.get('/teachers/:teacherId/:startYear-:endYear/schedule', auth(['Teacher']), async (req, res) => {
+// /teachers/1/2020-2021/semesters/1/sessions
+router.get('/teachers/:teacherId/:startYear-:endYear/semesters/:semesterNumber/sessions', async (req, res) => {
     try {
-
+        const schedule = await Day.getScheduleForTeacher(req.params.teacherId,
+            req.params.startYear, req.params.endYear, req.params.semesterNumber)
+        res.send(schedule)
     } catch (e) {
         console.log(e)
         res.status(500).send('Failed to fetch schedule for this teacher.')

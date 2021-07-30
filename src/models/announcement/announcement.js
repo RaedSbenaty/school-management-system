@@ -13,7 +13,7 @@ class Announcement extends Model {
 
 Announcement.init({
     heading: {type: DataTypes.STRING, allowNull: false},
-    body: {type: DataTypes.STRING, allowNull: false},
+    body: {type: DataTypes.TEXT, allowNull: false},
     date: {type: DataTypes.DATE, allowNull: false},
     startYear: {type: DataTypes.INTEGER, allowNull: false},
     endYear: {

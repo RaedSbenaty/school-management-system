@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {Op} = require('sequelize')
+const { Op } = require('sequelize')
 const auth = require('../middlewares/auth')
 const belongsTo = require('../middlewares/studentBelongsToSchool')
 
@@ -10,33 +10,51 @@ const Absence = require('../models/session/absence')
 const Day = require('../models/day')
 const SchoolClass = require('../models/class/schoolClass')
 const SubjectInSemester = require('../models/subject/subjectInSemester')
-
+const InLocoParentis = require('../models/inLocoParentis')
 //example
 /*
 {
-        "fatherName": "Aamer",
-        "motherName": "Hanaa",   
-        "lastSchoolAttended": "Bla",
-        "classId": 5,
-        "account": {
+    "fatherName": "Aamer",
+    "motherName": "Hanaa",
+    "lastSchoolAttended": "Bla",
+    "classId": 5,
+    "account": {
         "email": "abd@hbd.com",
         "password": "12345678",
         "phoneNumber": "+961994418888"
-        },
-        "personalInfo": {
+    },
+    "personalInfo": {
         "firstName": "Raghad",
         "lastName": "Al-Halabi",
         "birthDate": "04-17-2001",
         "residentialAddress": "Damascus"
+    },
+        "inLocoParentis": {
+        "account": {
+            "user":"InLocoParentis",
+            "email": "inLocoParentis@gmail.com",
+            "password": "57239000",
+            "phoneNumber": "+963994418888"
+        },
+        "personalInfo": {
+            "firstName": "Bayan",
+            "lastName": "Al-Halabi",
+            "birthDate": "04-09-1997",
+            "residentialAddress": "Damascus"
         }
+    }
 }
 */
+
 
 //sign up
 router.post('/students/signup', async (req, res) => {
     try {
         req.body.account.user = 'Student'
-        const student = await Student.create(req.body, {include: ['account', 'personalInfo']})
+        const student = await Student.create(req.body, {
+            include: [{ association: 'account' }, { association: 'personalInfo' },
+            { association: 'inLocoParentis', include: ['account', 'personalInfo'] }]
+        })
         student.dataValues.token = await student.account.generateAuthToken()
         res.status(201).send(student)
     } catch (e) {
@@ -65,10 +83,10 @@ router.get('/students/:studentId/schools', auth(['Student']), async (req, res) =
         const schoolClasses = await SchoolClass.findAll({
             attributes: ['startYear', 'endYear'], include: {
                 association: 'studentInClasses', attributes: ['createdAt'], required: true, include: {
-                    association: 'studentInSchool', attributes: ['active'], where: {studentId: req.params.studentId},
+                    association: 'studentInSchool', attributes: ['active'], where: { studentId: req.params.studentId },
                     include: {
                         association: 'school', attributes: ['id', 'schoolName'], required: true,
-                        include: {association: 'account', attributes: ['siteName'], required: true}
+                        include: { association: 'account', attributes: ['siteName'], required: true }
                     }
                 }
             }
@@ -89,15 +107,15 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', a
             attributes: ['sourceSchoolId', 'sourceTeacherInYearId', 'heading', 'body', 'date'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 [Op.or]: [
-                    {destinationStudentInClassId: {[Op.eq]: req.studentInClass.id}},
-                    {destinationSchoolClassId: {[Op.eq]: req.studentInClass.schoolClassId}},
+                    { destinationStudentInClassId: { [Op.eq]: req.studentInClass.id } },
+                    { destinationSchoolClassId: { [Op.eq]: req.studentInClass.schoolClassId } },
                     {
                         destinationClassroomId: {
-                            [Op.and]: [{[Op.eq]: req.studentInClass.classroomId}, {[Op.not]: null}]
+                            [Op.and]: [{ [Op.eq]: req.studentInClass.classroomId }, { [Op.not]: null }]
                         }
                     }
                 ]
-            }, include: {association: 'attachments', attributes: ['path']}
+            }, include: { association: 'attachments', attributes: ['path'] }
         })
         res.send(announcements)
     } catch (e) {
@@ -111,7 +129,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', a
 // /students/1/alhbd/2020-2021/absences
 router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth(['Student']), belongsTo, async (req, res) => {
     try {
-        const absences = await Absence.findAll({where: {studentInClassId: req.studentInClass.id}})
+        const absences = await Absence.findAll({ where: { studentInClassId: req.studentInClass.id } })
         res.send(absences)
     } catch (e) {
         console.log(e)

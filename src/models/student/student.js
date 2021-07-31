@@ -41,7 +41,4 @@ Account.hasOne(Student)
 Student.belongsTo(Class)
 Class.hasMany(Student)
 
-// Student.hasMany(AcademicIrregularity)
-// AcademicIrregularity.belongsTo(Student)
-
 module.exports = Student

@@ -5,6 +5,7 @@ const auth = require('../middlewares/auth')
 const belongsTo = require('../middlewares/studentBelongsToSchool')
 
 const Student = require('../models/student/student')
+const StudentInClass = require('../models/student/studentInClass')
 const Teacher = require('../models/teacher/teacher')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
@@ -230,5 +231,18 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semest
         }
     })
 
+
+// get payments
+// /students/1/alhbd/2020-2021/payments
+router.get('/students/:studentId/:siteName/:startYear-:endYear/payments',
+    auth(['Student']), belongsTo, async (req, res) => {
+        try {
+            const payments = await StudentInClass.getPayments(req.studentInClass.id)
+            res.send(payments)
+        } catch (e) {
+            console.log(e)
+            res.status(500).send(e.message)
+        }
+    })
 
 module.exports = router

@@ -7,6 +7,8 @@ const Student = require('../../models/student/student')
 const SchoolClass = require('../../models/class/schoolClass')
 const StudentInSchool = require('../../models/student/studentInSchool')
 const StudentInClass = require('../../models/student/studentInClass')
+const Payment = require('../../models/student/payment')
+
 // post New Student
 // /alhbd/2020-2021/students/add
 /*
@@ -59,8 +61,8 @@ router.post('/:siteName/:startYear-:endYear/students/add', auth(['School']), asy
         delete req.body.schooClasslId
 
         const student = await Student.create(req.body, {
-            include: [{ association: 'account' }, { association: 'personalInfo' },
-            { association: 'inLocoParentis', include: ['account', 'personalInfo'] }]
+            include: [{association: 'account'}, {association: 'personalInfo'},
+                {association: 'inLocoParentis', include: ['account', 'personalInfo']}]
         })
         const studentInSchool = await StudentInSchool.create({studentId: student.id, schoolId: req.account.school.id})
         await StudentInClass.create({
@@ -121,5 +123,38 @@ router.patch('/:siteName/:startYear-:endYear/students/disable', auth(['School'])
             res.status(500).send('Disabling failed.')
         }
     })
+
+/*
+ post payment
+ /alhbd/2020-2021/students/payments/add
+ {
+    "studentInClassId": 1,
+    "value": 1000,
+    "date": "1-1-2020"
+ }
+ */
+router.post('/:siteName/:startYear-:endYear/students/payments/add', auth(['School']), async (req, res) => {
+    try {
+        await Payment.create(req.body)
+        res.send('Adding a payment is done.')
+    } catch (e) {
+        console.log(e.message)
+        res.status(400).send(e.message)
+    }
+})
+
+// get payments
+// /alhbd/2020-2021/students/payments
+// {"studentInClassId": 1}
+router.get('/:siteName/:startYear-:endYear/students/payments', auth(['School']), async (req, res) => {
+    try {
+        const payments = await StudentInClass.getPayments(req.body.studentInClassId)
+        res.send(payments)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
+
 
 module.exports = router

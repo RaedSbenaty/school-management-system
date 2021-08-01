@@ -8,7 +8,7 @@ const Teacher = require('../models/teacher/teacher')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
 const TeacherInYear = require('../models/teacher/teacherInYear')
-const Day = require('../models/day')
+const Day = require('../models/session/day')
 
 
 /*

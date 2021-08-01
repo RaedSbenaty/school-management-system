@@ -1,5 +1,5 @@
 const {DataTypes, Model, Op} = require('sequelize')
-const sequelize = require('../db/sequelize')
+const sequelize = require('../../db/sequelize')
 
 class Day extends Model {
     static async getScheduleForClassroomInSemester(classroomId, semester) {

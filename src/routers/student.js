@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const { Op } = require('sequelize')
+const {Op} = require('sequelize')
 const auth = require('../middlewares/auth')
 const belongsTo = require('../middlewares/studentBelongsToSchool')
 
 const Student = require('../models/student/student')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
-const Day = require('../models/day')
+const Day = require('../models/session/day')
 const SchoolClass = require('../models/class/schoolClass')
 const SubjectInSemester = require('../models/subject/subjectInSemester')
 const InLocoParentis = require('../models/inLocoParentis')
@@ -52,8 +52,8 @@ router.post('/students/signup', async (req, res) => {
     try {
         req.body.account.user = 'Student'
         const student = await Student.create(req.body, {
-            include: [{ association: 'account' }, { association: 'personalInfo' },
-            { association: 'inLocoParentis', include: ['account', 'personalInfo'] }]
+            include: [{association: 'account'}, {association: 'personalInfo'},
+                {association: 'inLocoParentis', include: ['account', 'personalInfo']}]
         })
         student.dataValues.token = await student.account.generateAuthToken()
         res.status(201).send(student)
@@ -83,10 +83,10 @@ router.get('/students/:studentId/schools', auth(['Student']), async (req, res) =
         const schoolClasses = await SchoolClass.findAll({
             attributes: ['startYear', 'endYear'], include: {
                 association: 'studentInClasses', attributes: ['createdAt'], required: true, include: {
-                    association: 'studentInSchool', attributes: ['active'], where: { studentId: req.params.studentId },
+                    association: 'studentInSchool', attributes: ['active'], where: {studentId: req.params.studentId},
                     include: {
                         association: 'school', attributes: ['id', 'schoolName'], required: true,
-                        include: { association: 'account', attributes: ['siteName'], required: true }
+                        include: {association: 'account', attributes: ['siteName'], required: true}
                     }
                 }
             }
@@ -107,15 +107,15 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', a
             attributes: ['sourceSchoolId', 'sourceTeacherInYearId', 'heading', 'body', 'date'], where: {
                 startYear: req.params.startYear, endYear: req.params.endYear,
                 [Op.or]: [
-                    { destinationStudentInClassId: { [Op.eq]: req.studentInClass.id } },
-                    { destinationSchoolClassId: { [Op.eq]: req.studentInClass.schoolClassId } },
+                    {destinationStudentInClassId: {[Op.eq]: req.studentInClass.id}},
+                    {destinationSchoolClassId: {[Op.eq]: req.studentInClass.schoolClassId}},
                     {
                         destinationClassroomId: {
-                            [Op.and]: [{ [Op.eq]: req.studentInClass.classroomId }, { [Op.not]: null }]
+                            [Op.and]: [{[Op.eq]: req.studentInClass.classroomId}, {[Op.not]: null}]
                         }
                     }
                 ]
-            }, include: { association: 'attachments', attributes: ['path'] }
+            }, include: {association: 'attachments', attributes: ['path']}
         })
         res.send(announcements)
     } catch (e) {
@@ -129,7 +129,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', a
 // /students/1/alhbd/2020-2021/absences
 router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth(['Student']), belongsTo, async (req, res) => {
     try {
-        const absences = await Absence.findAll({ where: { studentInClassId: req.studentInClass.id } })
+        const absences = await Absence.findAll({where: {studentInClassId: req.studentInClass.id}})
         res.send(absences)
     } catch (e) {
         console.log(e)
@@ -162,4 +162,27 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semest
             res.status(500).send(e.message)
         }
     })
+
+
+// get examSchedule for a student
+// /students/1/alhbd/2020-2021/examSchedule
+router.get('/students/:studentId/:siteName/:startYear-:endYear/examSchedule', auth(['Student']),
+    belongsTo, async (req, res) => {
+        try {
+            const classroomSchedule = await SchoolClass.findAll({
+                where: {startYear: req.params.startYear, endYear: req.params.endYear}, attributes: ['id'], include: {
+                    association: 'classrooms', attributes: ['id'], where: {id: req.studentInClass.classroomId}
+                    , required: true, include: {association: 'examSchedules', required: true}
+                }
+            })
+            if (!classroomSchedule.length)
+                return res.status(404).send('No exam schedule was found for the specified classroom in the specified year.')
+            res.status(201).send(classroomSchedule[0].classrooms[0].examSchedules)
+        } catch (e) {
+            console.log(e)
+            res.status(500).send(e.message)
+        }
+    })
+
+
 module.exports = router

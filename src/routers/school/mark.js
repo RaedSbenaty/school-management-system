@@ -5,8 +5,8 @@ const Classroom = require('../../models/class/classroom')
 const SchoolClass = require('../../models/class/schoolClass')
 const StudentInClass = require('../../models/student/studentInClass')
 const SubjectInSemester = require('../../models/subject/subjectInSemester')
-const Exam = require('../../models/subject/exam')
-const Mark = require('../../models/subject/mark')
+const Exam = require('../../models/exam/exam')
+const Mark = require('../../models/exam/mark')
 
 //adding marks of an exam for a subject in semester for students in a classroom 
 /*

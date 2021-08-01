@@ -1,7 +1,7 @@
 //modules
 const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../../db/sequelize')
-const Day = require('../day')
+const Day = require('../session/day')
 const School = require('../school/school')
 
 class GeneralInfo extends Model {

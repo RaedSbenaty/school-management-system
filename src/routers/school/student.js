@@ -145,13 +145,16 @@ router.post('/:siteName/:startYear-:endYear/students/payments/add', auth(['Schoo
 
 // get payments
 // /alhbd/2020-2021/students/1/payments
-router.get('/:siteName/:startYear-:endYear/students/:studentInClassId/payments', auth(['School']), async (req, res) => {
+router.get('/:siteName/:startYear-:endYear/students/:studentId/payments', auth(['School']), async (req, res) => {
     try {
-        const payments = await StudentInClass.getPayments(req.params.studentInClassId)
+        const studentInClass = await StudentInClass.getStudentInClass(req.params.studentId
+            , req.account.school.id, req.params.startYear, req.params.endYear)
+        if (!studentInClass) return res.status(400).send('Invalid student id.')
+        const payments = await StudentInClass.getPayments(studentInClass.id)
         res.send(payments)
     } catch (e) {
         console.log(e)
-        res.status(400).send(e.message)
+        res.status(500).send(e.message)
     }
 })
 

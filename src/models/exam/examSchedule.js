@@ -1,6 +1,6 @@
 const {DataTypes, Model} = require('sequelize')
-const sequelize = require('../db/sequelize')
-const SubjectInSemester = require('./subject/subjectInSemester')
+const sequelize = require('../../db/sequelize')
+const SubjectInSemester = require('../subject/subjectInSemester')
 
 class ExamSchedule extends Model {
 }

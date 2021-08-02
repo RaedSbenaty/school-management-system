@@ -3,8 +3,8 @@ const router = express.Router()
 const auth = require('../../middlewares/auth')
 const Classroom = require('../../models/class/classroom')
 const SchoolClass = require('../../models/class/schoolClass')
-const ClassroomExamSchedule = require('../../models/classroomExamSchedule')
-const ExamSchedule = require('../../models/examSchedule')
+const ClassroomExamSchedule = require('../../models/exam/classroomExamSchedule')
+const ExamSchedule = require('../../models/exam/examSchedule')
 const SubjectInSemester = require('../../models/subject/subjectInSemester')
 
 //adding examSchedule for a classroom or a schoolClass
@@ -68,7 +68,7 @@ router.post('/:siteName/:startYear-:endYear/examSchedule/add', auth(['School']),
             }
         }
 
-        res.status(201).send('ExamSchedule has been set successfuly.')
+        res.status(201).send('ExamSchedule has been set successfully.')
 
     } catch (e) {
         console.log(e)

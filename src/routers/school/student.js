@@ -7,6 +7,8 @@ const Student = require('../../models/student/student')
 const SchoolClass = require('../../models/class/schoolClass')
 const StudentInSchool = require('../../models/student/studentInSchool')
 const StudentInClass = require('../../models/student/studentInClass')
+const Payment = require('../../models/student/payment')
+
 // post New Student
 // /alhbd/2020-2021/students/add
 /*
@@ -116,5 +118,40 @@ router.patch('/:siteName/:startYear-:endYear/students/disable', auth(['School'])
             res.status(500).send('Disabling failed.')
         }
     })
+
+/*
+ post payment
+ /alhbd/2020-2021/students/payments/add
+ {
+    "studentInClassId": 1,
+    "value": 1000,
+    "date": "1-1-2020"
+ }
+ */
+router.post('/:siteName/:startYear-:endYear/students/payments/add', auth(['School']), async (req, res) => {
+    try {
+        await Payment.create(req.body)
+        res.send('Adding a payment is done.')
+    } catch (e) {
+        console.log(e.message)
+        res.status(400).send(e.message)
+    }
+})
+
+// get payments
+// /alhbd/2020-2021/students/1/payments
+router.get('/:siteName/:startYear-:endYear/students/:studentId/payments', auth(['School']), async (req, res) => {
+    try {
+        const studentInClass = await StudentInClass.getStudentInClass(req.params.studentId
+            , req.account.school.id, req.params.startYear, req.params.endYear)
+        if (!studentInClass) return res.status(400).send('Invalid student id.')
+        const payments = await StudentInClass.getPayments(studentInClass.id)
+        res.send(payments)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
+
 
 module.exports = router

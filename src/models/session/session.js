@@ -4,7 +4,7 @@ const sequelize = require('../../db/sequelize')
 const Classroom = require('../class/classroom')
 const SubjectInSemester = require('../subject/subjectInSemester')
 const TeacherInClass = require('../teacher/teacherInClass')
-const Day = require('../day')
+const Day = require('./day')
 
 class Session extends Model {
 }

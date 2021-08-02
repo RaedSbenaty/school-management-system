@@ -50,9 +50,11 @@ router.post('/:siteName/:startYear-:endYear/examSchedule/add', auth(['School']),
                 return res.status(404).send('This school does not have a subject with Id: ' + req.body.schedule[index].subjectInSemesterId)
         }
 
+        //bulk create for exams then from what it returns we create an exam schedule
+
         for (let index = 0; index < req.body.schedule.length; index++) {
             let exam = await ExamSchedule.create(req.body.schedule[index])
-
+//outside the loop
             if (req.body.classroomId)
                 await ClassroomExamSchedule.create({ classroomId: req.body.classroomId, examScheduleId: exam.id })
             if (req.body.schoolClassId) {

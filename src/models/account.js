@@ -28,6 +28,7 @@ class Account extends Model {
             include: ['school',
                 {association: 'teacher', include: {association: 'personalInfo', attributes: ['firstName', 'lastName']}},
                 {association: 'student', include: {association: 'personalInfo', attributes: ['firstName', 'lastName']}},
+                {association: 'inLocoParent'},
             ], where: {email, id}
         })
     }
@@ -45,6 +46,11 @@ class Account extends Model {
         {
             payload.fullName = account.student.personalInfo.firstName + ' ' + account.student.personalInfo.lastName
             payload.studentId = account.student.id
+        }
+        if(account.inLocoParent)
+        {
+            payload.inLocoParentId = account.inLocoParent.id
+            payload.studentId = account.inLocoParent.studentId
         }
 
         return jwt.sign(payload, process.env.JWT_SECRET)
@@ -77,7 +83,7 @@ Account.init({
         type: DataTypes.STRING, allowNull: false,
         validate: {min: 8}
     },
-    user: {type: DataTypes.ENUM('School', 'Teacher', 'Student','InLocoParentis'), allowNull: false},
+    user: {type: DataTypes.ENUM('School', 'Teacher', 'Student','InLocoParent'), allowNull: false},
     phoneNumber: {type: DataTypes.STRING, allowNull: false},
     image: {type: DataTypes.BLOB},
     siteName: {

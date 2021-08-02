@@ -9,9 +9,19 @@ module.exports = (userTypes) => {
 
             const account = await Account.findByPk(payload.id, {
                 include: [
-                    {association: 'school'},
-                    {association: 'teacher', include: 'personalInfo'},
-                    {association: 'student', include: ['personalInfo','inLocoParentis']},
+                    { association: 'school' },
+                    { association: 'teacher', include: 'personalInfo' },
+                    {
+                        association: 'student',
+                        include: [{ association: 'personalInfo' }, {
+                            association: 'inLocoParent',
+                            include: ['account']
+                        }]
+                    },
+                    {
+                        association: 'inLocoParent', include:
+                            { association: 'student', include: ['account', 'personalInfo'] }
+                    }
                 ]
             })
             if (!account || account.email !== payload.email) throw new Error('Account not found.')

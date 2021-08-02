@@ -26,18 +26,12 @@ const StudentInClass = require('../../models/student/studentInClass')
         "birthDate": "04-17-2001",
         "residentialAddress": "Damascus"
         },
-        "inLocoParentis": {
+        "inLocoParent": {
         "account": {
-        "user":"InLocoParentis",
+        "user":"InLocoParent",
         "email": "inLocoParentis@gmail.com",
         "password": "57239000",
         "phoneNumber": "+963994418888"
-        },
-        "personalInfo": {
-        "firstName": "Bayan",
-        "lastName": "Al-Halabi",
-        "birthDate": "04-09-1997",
-        "residentialAddress": "Damascus"
         }
         }
 }
@@ -55,12 +49,13 @@ router.post('/:siteName/:startYear-:endYear/students/add', auth(['School']), asy
 
 
         req.body.account.user = 'Student'
+        req.body.inLocoParent.account.user = 'InLocoParent'
         req.body.classId = schoolClass.classId
         delete req.body.schooClasslId
 
         const student = await Student.create(req.body, {
             include: [{ association: 'account' }, { association: 'personalInfo' },
-            { association: 'inLocoParentis', include: ['account', 'personalInfo'] }]
+            { association: 'inLocoParent', include: ['account'] }]
         })
         const studentInSchool = await StudentInSchool.create({studentId: student.id, schoolId: req.account.school.id})
         await StudentInClass.create({

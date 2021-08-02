@@ -8,7 +8,9 @@ const Teacher = require('../models/teacher/teacher')
 const Announcement = require('../models/announcement/announcement')
 const Absence = require('../models/session/absence')
 const TeacherInYear = require('../models/teacher/teacherInYear')
-const Day = require('../models/session/day')
+const Session = require('../models/session/session')
+const TeacherInClass = require('../models/teacher/teacherInClass')
+const Classroom = require('../models/class/classroom')
 
 
 /*
@@ -145,17 +147,30 @@ router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes', auth(['
 
 // get classrooms for a class for a teacher in a year
 // /teachers/1/alhbd/2020-2021/classes/Fourth_Grade/classrooms
-// router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes/:ClassName/classrooms', auth(['Teacher']), belongsTo, async (req, res) => {
-//     try {
-//         const classerooms = await TeacherInYear.findAll({where: {id: req.teacherInYear.id},required: true, include:{
-//             association: 'teacherInClasses', attributes: ['schoolClassId'], required: true, include:{
-//                 association: 'class'
-//         }}})
-//         res.send(classes)
-//     } catch (e) {
-//         console.log(e)
-//         res.status(400).send(e.message)
-//     }
-// })
+router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes/:className/classrooms', auth(['Teacher']), belongsTo, async (req, res) => {
+    try {
+            className = req.params.className.replace('_', ' ')
+            const teacherInClass = await TeacherInClass.findAll({ where:{teacherInYearId: req.teacherInYear.id}, attributes: ['id','schoolClassId'],required: true, include:{
+                association: 'schoolClass', attributes: ['classId'], required: true, include:{
+                    association: 'class', where:{name: className}
+            }}})
+            if(!teacherInClass.length) return res.status(400).send('Teacher doesnt belong to this class')
+
+            const classrooms = await Session.findAll({ where: {teacherInClassId: teacherInClass[0].id}, attributes: ['classroomId'] })
+
+            const classroomsSet = new Set()
+            classrooms.forEach(classroom => classroomsSet.add(classroom.classroomId))
+
+            let returnedClassrooms = new Array()
+            for(id of classroomsSet){
+                let cr = await Classroom.findByPk(id)
+                returnedClassrooms.push(cr)
+            }
+        res.send(returnedClassrooms)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
 
 module.exports = router

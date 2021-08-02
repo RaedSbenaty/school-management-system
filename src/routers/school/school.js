@@ -135,14 +135,14 @@ router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
     })
 
 // post contents
-// /alhbd/2020-2021/contents/add
+// /alhbd/contents/add
 /*
 [
     {"type": "Primary", "header": "about us", "body": "phone: 123"},
     {"type": "Secondary", "header": "services", "body": "getStudents"}
 ]
  */
-router.post('/:siteName/:startYear-:endYear/contents/add', auth(['School']), async (req, res) => {
+router.post('/:siteName/contents/add', auth(['School']), async (req, res) => {
     try {
         req.body.forEach(content => content.schoolId = req.account.school.id)
         await Content.bulkCreate(req.body)
@@ -155,8 +155,8 @@ router.post('/:siteName/:startYear-:endYear/contents/add', auth(['School']), asy
 
 
 // get contents
-// /alhbd/2020-2021/contents
-router.get('/:siteName/:startYear-:endYear/contents', auth(['School']), async (req, res) => {
+// /alhbd/contents
+router.get('/:siteName/contents', auth(['School']), async (req, res) => {
     try {
         const contents = await Content.findAll({
             where: {schoolId: req.account.school.id}, attributes: ['type', 'header', 'body']
@@ -170,11 +170,11 @@ router.get('/:siteName/:startYear-:endYear/contents', auth(['School']), async (r
 
 
 // patch content
-// /alhbd/2020-2021/contents/1
+// /alhbd/contents/1
 /*
     {"type": "Secondary", "header": "about us", "body": "phone: 1234"}
  */
-router.patch('/:siteName/:startYear-:endYear/contents/:contentId', auth(['School']), async (req, res) => {
+router.patch('/:siteName/contents/:contentId', auth(['School']), async (req, res) => {
     try {
         const content = await Content.findOne({where: {id: req.params.contentId}})
         if (!content || content.schoolId !== req.account.school.id) return res.status(400).send('Invalid content id.')
@@ -189,7 +189,7 @@ router.patch('/:siteName/:startYear-:endYear/contents/:contentId', auth(['School
 
 // delete content
 // /alhbd/2020-2021/contents/1
-router.delete('/:siteName/:startYear-:endYear/contents/:contentId', auth(['School']), async (req, res) => {
+router.delete('/:siteName/contents/:contentId', auth(['School']), async (req, res) => {
     try {
         const content = await Content.findOne({where: {id: req.params.contentId}})
         if (!content || content.schoolId !== req.account.school.id) return res.status(400).send('Invalid content id.')

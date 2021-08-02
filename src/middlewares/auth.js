@@ -11,7 +11,7 @@ module.exports = (userTypes) => {
                 include: [
                     {association: 'school'},
                     {association: 'teacher', include: 'personalInfo'},
-                    {association: 'student', include: 'personalInfo'},
+                    {association: 'student', include: ['personalInfo','inLocoParentis']},
                 ]
             })
             if (!account || account.email !== payload.email) throw new Error('Account not found.')

@@ -4,7 +4,7 @@ const auth = require('../../middlewares/auth')
 
 const Absence = require('../../models/session/absence')
 const Session = require('../../models/session/session')
-const Day = require('../../models/day')
+const Day = require('../../models/session/day')
 const Classroom = require('../../models/class/classroom')
 
 

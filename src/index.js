@@ -3,14 +3,14 @@ const sequelize = require('./db/sequelize')
 
 const Class = require('./models/class/class')
 const Category = require('./models/subject/category')
-const ExamType = require('./models/subject/examType')
-const Day = require('./models/day')
+const ExamType = require('./models/exam/examType')
+const Day = require('./models/session/day')
 const AnnouncementType = require('./models/announcement/announcementType')
 
 
 const runServer = async () => {
     await sequelize.authenticate()
-    //await sequelize.sync({force: true})
+//    await sequelize.sync({force: true})
     await sequelize.sync()
     await Class.bulkCreate(Class.defaultClasses)
     await Category.bulkCreate(Category.defaultCategories)

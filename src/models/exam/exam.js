@@ -1,7 +1,7 @@
 const {DataTypes, Model} = require('sequelize')
 const sequelize = require('../../db/sequelize')
 
-const SubjectInSemester = require('./subjectInSemester')
+const SubjectInSemester = require('../subject/subjectInSemester')
 const ExamType = require('./examType')
 
 class Exam extends Model {

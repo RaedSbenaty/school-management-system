@@ -3,6 +3,7 @@ const router = express.Router()
 const auth = require('../../middlewares/auth')
 
 const School = require('../../models/school/school')
+const SchoolClass = require('../../models/class/schoolClass')
 const Classroom = require('../../models/class/classroom')
 const StudentInSchool = require('../../models/student/studentInSchool')
 const StudentInClass = require('../../models/student/studentInClass')
@@ -22,7 +23,7 @@ router.post('/:siteName/:startYear-:endYear/classes/add', auth(['School']), asyn
         res.send(`Classes with id: ${req.body.classes} were added.`)
     } catch (e) {
         console.log(e)
-        res.status(400).send({ error: e.message.split(',') })
+        res.status(400).send({error: e.message.split(',')})
     }
 })
 
@@ -35,32 +36,54 @@ router.get('/:siteName/:startYear-:endYear/classes', auth(['School']), async (re
         const school = await School.findByCriteriaInPeriod(req.account.school.id
             , req.params.startYear, req.params.endYear)
 
-        res.send({ schoolClasses: school.schoolClasses })
+        res.send({schoolClasses: school.schoolClasses})
     } catch (e) {
         console.log(e.message)
         res.status(400).send(e.message)
     }
 })
 
+
+/*
+ patch schoolClasses (for fees)
+ /alhbd/2020-2021/classes/addFees
+ [
+    { "id": 1, "fees": 5000 },
+    { "id": 2, "fees": 6000 }
+ ]
+*/
+router.patch('/:siteName/:startYear-:endYear/classes/addFees', auth(['School']), async (req, res) => {
+    try {
+        const promises = []
+        req.body.forEach(({id, fees}) => promises.push(SchoolClass.update({fees}, {where: {id}})))
+        await Promise.all(promises)
+        res.send('Adding fees is done.')
+    } catch (e) {
+        console.log(e.message)
+        res.status(400).send(e.message)
+    }
+})
+
+
 // get Students In a class (in a year)
 // /alhbd/2020-2021/classes/Second_Grade/students
 router.get('/:siteName/:startYear-:endYear/classes/:className/students', auth(['School'])
     , async (req, res) => StudentInSchool.handleGetStudentsRequest(req, res))
 
+
 // post Sort Students to classroom
 // /alhbd/2020-2021/classes/Preschool/sortStd
 //  [{"id":1,"classroomNumber":180},
 //  {"id":2,"classroomNumber":250}]
-
 router.post('/:siteName/:startYear-:endYear/classes/:className/sortStd', auth(['School'])
     , async (req, res) => {
         try {
             for (const student of req.body) {
-                const { id, classroomNumber } = student
+                const {id, classroomNumber} = student
                 const classroom = await Classroom.findByCriteria(req.account.school.id, req.params.startYear,
                     req.params.endYear, req.params.className, classroomNumber)
                 if (classroom)
-                    await StudentInClass.update({ classroomId: classroom.id }, { where: { id } })
+                    await StudentInClass.update({classroomId: classroom.id}, {where: {id}})
             }
             res.send('Sorting is done.')
         } catch (e) {
@@ -84,7 +107,7 @@ example
     }
 ]
 */
-router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:sortType*?',auth(['School']), async (req, res) => {
+router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:sortType*?', auth(['School']), async (req, res) => {
 
     const className = req.params.className.replace('_', ' ')
     var msg = ""
@@ -121,7 +144,7 @@ router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:so
             }
             var classroomId = element.classroomNumber
 
-            await studentInClass[0].update({ "classroomId": classroomId })
+            await studentInClass[0].update({"classroomId": classroomId})
 
             element.studentsNumber--
         }
@@ -130,8 +153,7 @@ router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:so
             msg = "students classrooms for " + className + " class have been updated according to their registiration date."
 
         res.status(201).send(msg)
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e)
         res.status(400).send('Updating failed.')
     }

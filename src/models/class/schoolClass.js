@@ -33,12 +33,12 @@ class SchoolClass extends Model {
         subjects.forEach(subject => mySubjects.push(subject.name))
         const existSubjects = mySubjects.filter((subject, index, arr) => arr.indexOf(subject) !== index)
 
-
         if (existSubjects.length) throw new Error(existSubjects)
     }
 }
 
 SchoolClass.init({
+    fees: {type: DataTypes.INTEGER, defaultValue: 0},
     startYear: {type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass'},
     endYear: {
         type: DataTypes.INTEGER, allowNull: false, unique: 'uniqueSchoolClass',

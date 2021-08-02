@@ -14,6 +14,15 @@ class StudentInClass extends Model {
             }, {association: 'studentInSchool', where: {studentId, schoolId}}]
         })
     }
+
+    static async getPayments(id) {
+        return await StudentInClass.findOne({
+            attributes: ['id'], where: {id}, include: [
+                {association: 'schoolClass', attributes: ['fees']},
+                {association: 'payments', attributes: ['value', 'date']}
+            ]
+        })
+    }
 }
 
 StudentInClass.init({}, {sequelize, modelName: 'studentInClass', updatedAt: false})

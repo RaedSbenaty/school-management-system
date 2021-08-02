@@ -77,7 +77,7 @@ Account.init({
         type: DataTypes.STRING, allowNull: false,
         validate: {min: 8}
     },
-    user: {type: DataTypes.ENUM('School', 'Teacher', 'Student'), allowNull: false},
+    user: {type: DataTypes.ENUM('School', 'Teacher', 'Student','InLocoParentis'), allowNull: false},
     phoneNumber: {type: DataTypes.STRING, allowNull: false},
     image: {type: DataTypes.BLOB},
     siteName: {

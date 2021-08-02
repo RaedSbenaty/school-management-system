@@ -144,15 +144,14 @@ router.post('/:siteName/:startYear-:endYear/students/payments/add', auth(['Schoo
 })
 
 // get payments
-// /alhbd/2020-2021/students/payments
-// {"studentInClassId": 1}
-router.get('/:siteName/:startYear-:endYear/students/payments', auth(['School']), async (req, res) => {
+// /alhbd/2020-2021/students/1/payments
+router.get('/:siteName/:startYear-:endYear/students/:studentInClassId/payments', auth(['School']), async (req, res) => {
     try {
-        const payments = await StudentInClass.getPayments(req.body.studentInClassId)
+        const payments = await StudentInClass.getPayments(req.params.studentInClassId)
         res.send(payments)
     } catch (e) {
         console.log(e)
-        res.status(500).send(e.message)
+        res.status(400).send(e.message)
     }
 })
 

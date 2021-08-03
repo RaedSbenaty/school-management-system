@@ -89,7 +89,11 @@ router.get('/:siteName/:startYear-:endYear/classroom/:classroomId/examSchedule/g
                 where: { startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
                     association: 'classrooms', attributes: ['id'], where: { id: req.params.classroomId }, include: {
                         association: 'examSchedules', attributes: ['id'], include: {
-                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime', 'subjectInSemesterId'],
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime'],include:{
+                                association:'subjectInSemester', attributes:['id'],include:{
+                                    association:'subjectInYear', attributes:['name'],required: true
+                                },required: true,
+                            },
                             required: true
                         }, required: true
                     }, required: true
@@ -121,7 +125,11 @@ router.get('/:siteName/:startYear-:endYear/class/:schoolClassId/examSchedule/get
                 where: { id: req.params.schoolClassId, startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
                     association: 'classrooms', attributes: ['id'], include: {
                         association: 'examSchedules', attributes: ['id'], where: { scheduleType: 'class' }, include: {
-                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime', 'subjectInSemesterId'],
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime'],include:{
+                                association:'subjectInSemester', attributes:['id'],include:{
+                                    association:'subjectInYear', attributes:['name'],required: true
+                                },required: true,
+                            },
                             required: true
                         }, required: true
                         , required: true

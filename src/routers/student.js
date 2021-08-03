@@ -172,7 +172,11 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/examSchedule', au
                 where: { startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
                     association: 'classrooms', attributes: ['id'], where: { id: req.studentInClass.classroomId }, include: {
                         association: 'examSchedules', attributes: ['id'], include: {
-                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime', 'subjectInSemesterId'],
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime'],include:{
+                                association:'subjectInSemester', attributes:['id'],include:{
+                                    association:'subjectInYear', attributes:['name'],required: true
+                                },required: true,
+                            },
                             required: true
                         }, required: true
                     }, required: true

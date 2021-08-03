@@ -1,23 +1,24 @@
-const app = require('./app')
-const sequelize = require('./db/sequelize')
+const app = require("./app");
+const sequelize = require("./db/sequelize");
 
-const Class = require('./models/class/class')
-const Category = require('./models/subject/category')
-const ExamType = require('./models/exam/examType')
-const Day = require('./models/session/day')
-const AnnouncementType = require('./models/announcement/announcementType')
-
+const Class = require("./models/class/class");
+const Category = require("./models/subject/category");
+const ExamType = require("./models/exam/examType");
+const Day = require("./models/session/day");
+const AnnouncementType = require("./models/announcement/announcementType");
 
 const runServer = async () => {
-    await sequelize.authenticate()
-//    await sequelize.sync({force: true})
-    await sequelize.sync()
-    await Class.bulkCreate(Class.defaultClasses)
-    await Category.bulkCreate(Category.defaultCategories)
-    await ExamType.bulkCreate(ExamType.defaultExamTypes)
-    await Day.bulkCreate(Day.defaultDays)
-    await AnnouncementType.bulkCreate(AnnouncementType.defaultAnnouncementTypes)
-    app.listen(process.env.PORT, () => console.log(`Server is up at port: ${process.env.PORT}`))
-}
+  await sequelize.authenticate();
+  //s await sequelize.sync({ force: true });
+  await sequelize.sync();
+  await Class.bulkCreate(Class.defaultClasses);
+  await Category.bulkCreate(Category.defaultCategories);
+  await ExamType.bulkCreate(ExamType.defaultExamTypes);
+  await Day.bulkCreate(Day.defaultDays);
+  await AnnouncementType.bulkCreate(AnnouncementType.defaultAnnouncementTypes);
+  app.listen(process.env.PORT, () =>
+    console.log(`Server is up at port: ${process.env.PORT}`)
+  );
+};
 
-runServer()
+runServer();

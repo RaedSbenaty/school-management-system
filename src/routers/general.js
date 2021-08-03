@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const auth = require('../middlewares/auth')
+const path = require('path')
 
 const Account = require('../models/account')
 const Class = require('../models/class/class')
@@ -8,9 +8,6 @@ const Category = require('../models/subject/category')
 const ExamType = require('../models/exam/examType')
 const Day = require('../models/session/day')
 const AnnouncementType = require('../models/announcement/announcementType')
-const Announcement = require('../models/announcement/announcement')
-const Attachment = require('../models/announcement/attachment')
-
 
 router.post('/login', async (req, res) => {
     try {
@@ -63,15 +60,14 @@ router.get('/announcementTypes', async (req, res) => {
     }
 })
 
-router.get('/getFile', (req, res) => {
+router.get('/getFile/uploads/:fileName', (req, res) => {
     try {
-        res.sendFile(path.join(__dirname, '.', '..', '..', req.body.path))
+        res.sendFile(path.join(__dirname, '.', '..', '../uploads', req.params.fileName))
     } catch (e) {
         console.log(e)
-        res.status(500).send('Failed to get file')
+        res.status(500).send('Failed to get file.')
     }
 })
-
 
 
 //IMAGE (Temp)

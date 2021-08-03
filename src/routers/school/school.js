@@ -1,17 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const multer = require('multer')
-const path = require('path')
 const auth = require('../../middlewares/auth')
 
 const School = require('../../models/school/school')
 const Account = require('../../models/account')
 const Announcement = require('../../models/announcement/announcement')
-const Attachment = require('../../models/announcement/attachment')
-const Class = require('../../models/class/class')
 const GeneralInfo = require('../../models/school/generalInfo')
-const Session = require('../../models/session/session')
 const ActiveDaysInGeneralInfo = require('../../models/school/ActiveDaysInGeneralInfo')
+const Content = require('../../models/school/content')
 
 
 //example
@@ -116,6 +112,7 @@ router.patch('/:siteName/:startYear-:endYear/generalInfo/add',
             res.status(400).send(e.message.split(','))
         }
     })
+
 //getting school general information
 /*
 example
@@ -136,6 +133,73 @@ router.get('/:siteName/:startYear-:endYear/generalInfo/get', auth(['School'])
             res.status(400).send(e.message.split(','))
         }
     })
+
+// post contents
+// /alhbd/contents/add
+/*
+[
+    {"type": "Primary", "header": "about us", "body": "phone: 123"},
+    {"type": "Secondary", "header": "services", "body": "getStudents"}
+]
+ */
+router.post('/:siteName/contents/add', auth(['School']), async (req, res) => {
+    try {
+        req.body.forEach(content => content.schoolId = req.account.school.id)
+        await Content.bulkCreate(req.body)
+        res.status(201).send('School contents has been successfully added.')
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
+
+
+// get contents
+// /alhbd/contents
+router.get('/:siteName/contents', auth(['School']), async (req, res) => {
+    try {
+        const contents = await Content.findAll({
+            where: {schoolId: req.account.school.id}, attributes: ['type', 'header', 'body']
+        })
+        res.send(contents)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
+
+
+// patch content
+// /alhbd/contents/1
+/*
+    {"type": "Secondary", "header": "about us", "body": "phone: 1234"}
+ */
+router.patch('/:siteName/contents/:contentId', auth(['School']), async (req, res) => {
+    try {
+        const content = await Content.findOne({where: {id: req.params.contentId}})
+        if (!content || content.schoolId !== req.account.school.id) return res.status(400).send('Invalid content id.')
+        await content.update(req.body)
+        res.send('content has been successfully edited.')
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
+
+
+// delete content
+// /alhbd/2020-2021/contents/1
+router.delete('/:siteName/contents/:contentId', auth(['School']), async (req, res) => {
+    try {
+        const content = await Content.findOne({where: {id: req.params.contentId}})
+        if (!content || content.schoolId !== req.account.school.id) return res.status(400).send('Invalid content id.')
+        await content.destroy()
+        res.send('content has been successfully edited.')
+    } catch (e) {
+        console.log(e)
+        res.status(500).send(e.message)
+    }
+})
 
 
 // get announcements for a school

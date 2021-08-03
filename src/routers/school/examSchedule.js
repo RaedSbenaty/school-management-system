@@ -5,6 +5,7 @@ const Classroom = require('../../models/class/classroom')
 const SchoolClass = require('../../models/class/schoolClass')
 const ClassroomExamSchedule = require('../../models/exam/classroomExamSchedule')
 const ExamSchedule = require('../../models/exam/examSchedule')
+const ScheduledExam = require('../../models/exam/scheduledExam')
 const SubjectInSemester = require('../../models/subject/subjectInSemester')
 
 //adding examSchedule for a classroom or a schoolClass
@@ -14,7 +15,7 @@ example
 
 {
     "classroomId": 1,
-    "schedule": [
+    "scheduledExams": [
         {
             "subjectInSemesterId": 1,
             "date": "07-04-2021",
@@ -43,27 +44,31 @@ router.post('/:siteName/:startYear-:endYear/examSchedule/add', auth(['School']),
         }
 
         //checking the subject existence
-        for (let index = 0; index < req.body.schedule.length; index++) {
-            const subject = await SubjectInSemester.findByPk(req.body.schedule[index].subjectInSemesterId)
+        for (let index = 0; index < req.body.scheduledExams.length; index++) {
+            const subject = await SubjectInSemester.findByPk(req.body.scheduledExams[index].subjectInSemesterId)
 
             if (!subject)
-                return res.status(404).send('This school does not have a subject with Id: ' + req.body.schedule[index].subjectInSemesterId)
+                return res.status(404).send('This school does not have a subject with Id: ' + req.body.scheduledExams[index].subjectInSemesterId)
         }
 
-        for (let index = 0; index < req.body.schedule.length; index++) {
-            let exam = await ExamSchedule.create(req.body.schedule[index])
+        //bonding with classroom or classrooms for a class
+        if (req.body.classroomId) {
+            req.body.scheduleType = 'Classroom'
+            let examSchedule = await ExamSchedule.create(req.body, { include: ['scheduledExams'] })
 
-            if (req.body.classroomId)
-                await ClassroomExamSchedule.create({ classroomId: req.body.classroomId, examScheduleId: exam.id })
-            if (req.body.schoolClassId) {
-                exam.etype = 'class'
-                exam.save()
-                for (let j = 0; j < schoolClass.classrooms.length; j++) {
-                    let i = schoolClass.classrooms[j].id
-                    await ClassroomExamSchedule.create({ classroomId: schoolClass.classrooms[j].id, examScheduleId: exam.id })
+            await ClassroomExamSchedule.create({ classroomId: req.body.classroomId, examScheduleId: examSchedule.id })
+        }
 
-                }
-            }
+        else if (req.body.schoolClassId) {
+            req.body.scheduleType = 'Class'
+            let examSchedule = await ExamSchedule.create(req.body, { include: ['scheduledExams'] })
+
+            let promises = []
+            for (let j = 0; j < schoolClass.classrooms.length; j++)
+                promises.push(ClassroomExamSchedule.create({ classroomId: schoolClass.classrooms[j].id, examScheduleId: examSchedule.id }))
+
+            await Promise.all(promises)
+
         }
 
         res.status(201).send('ExamSchedule has been set successfully.')
@@ -83,13 +88,27 @@ router.get('/:siteName/:startYear-:endYear/classroom/:classroomId/examSchedule/g
                 subQuery: false,
                 where: { startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
                     association: 'classrooms', attributes: ['id'], where: { id: req.params.classroomId }, include: {
-                        association: 'examSchedules', required: true
+                        association: 'examSchedules', attributes: ['id'], include: {
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime'],include:{
+                                association:'subjectInSemester', attributes:['id'],include:{
+                                    association:'subjectInYear', attributes:['name'],required: true
+                                },required: true,
+                            },
+                            required: true
+                        }, required: true
                     }, required: true
                 }
             })
+
             if (!classroomSchedule.length)
                 return res.status(404).send('No exam schedule was found for the specified classroom in the specified year.')
-            res.status(201).send(classroomSchedule[0].classrooms[0].examSchedules)
+              
+                let arr =[]
+                classroomSchedule[0].classrooms[0].examSchedules.forEach(element => {
+                    arr.push(element.scheduledExams)
+                })
+                res.status(201).send(arr)
+
         } catch (e) {
             console.log(e)
             res.status(400).send(e.message.split(','))
@@ -105,14 +124,27 @@ router.get('/:siteName/:startYear-:endYear/class/:schoolClassId/examSchedule/get
                 subQuery: false,
                 where: { id: req.params.schoolClassId, startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
                     association: 'classrooms', attributes: ['id'], include: {
-                        association: 'examSchedules', where: { etype: 'class' }, required: true
+                        association: 'examSchedules', attributes: ['id'], where: { scheduleType: 'class' }, include: {
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime'],include:{
+                                association:'subjectInSemester', attributes:['id'],include:{
+                                    association:'subjectInYear', attributes:['name'],required: true
+                                },required: true,
+                            },
+                            required: true
+                        }, required: true
+                        , required: true
                     }, required: true
                 }
             })
-            console.log(schoolClassSchedule);
+
             if (!schoolClassSchedule.length)
                 return res.status(404).send('No exam schedule was found for the specified school class in the specified year.')
-            res.status(201).send(schoolClassSchedule[0].classrooms[0].examSchedules)
+
+            let arr = []
+            schoolClassSchedule[0].classrooms[0].examSchedules.forEach(element => {
+                arr.push(element.scheduledExams)
+            })
+            res.status(201).send(arr)
         }
         catch (e) {
             console.log(e)

@@ -12,9 +12,8 @@ const Absence = require('../models/session/absence')
 const Day = require('../models/session/day')
 const SchoolClass = require('../models/class/schoolClass')
 const SubjectInSemester = require('../models/subject/subjectInSemester')
-const InLocoParentis = require('../models/inLocoParentis')
-
-
+const InLocoParent = require('../models/inLocoParent')
+const Account = require('../models/account')
 //example
 /*
 {
@@ -33,18 +32,11 @@ const InLocoParentis = require('../models/inLocoParentis')
         "birthDate": "04-17-2001",
         "residentialAddress": "Damascus"
     },
-        "inLocoParentis": {
+        "inLocoParent": {
         "account": {
-            "user":"InLocoParentis",
             "email": "inLocoParentis@gmail.com",
             "password": "57239000",
             "phoneNumber": "+963994418888"
-        },
-        "personalInfo": {
-            "firstName": "Bayan",
-            "lastName": "Al-Halabi",
-            "birthDate": "04-09-1997",
-            "residentialAddress": "Damascus"
         }
     }
 }
@@ -54,10 +46,12 @@ const InLocoParentis = require('../models/inLocoParentis')
 //sign up
 router.post('/students/signup', async (req, res) => {
     try {
+
         req.body.account.user = 'Student'
+        req.body.inLocoParent.account.user = 'InLocoParent'
         const student = await Student.create(req.body, {
-            include: [{association: 'account'}, {association: 'personalInfo'},
-                {association: 'inLocoParentis', include: ['account', 'personalInfo']}]
+            include: [{ association: 'account' }, { association: 'personalInfo' },
+            { association: 'inLocoParent', include: 'account' }]
         })
         student.dataValues.token = await student.account.generateAuthToken()
         res.status(201).send(student)
@@ -82,7 +76,7 @@ router.get('/students/:studentId/info', auth(['Student']), async (req, res) => {
 
 // get schools for a student
 // /students/1/schools
-router.get('/students/:studentId/schools', auth(['Student']), async (req, res) => {
+router.get('/students/:studentId/schools', auth(['Student','InLocoParent']), async (req, res) => {
     try {
         const schoolClasses = await SchoolClass.findAll({
             attributes: ['startYear', 'endYear'], include: {
@@ -105,7 +99,7 @@ router.get('/students/:studentId/schools', auth(['Student']), async (req, res) =
 
 // get announcements for a student
 // /students/1/alhbd/2020-2021/announcements
-router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', auth(['Student']), belongsTo, async (req, res) => {
+router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
     try {
         const announcements = await Announcement.findAll({
             attributes: ['sourceSchoolId', 'sourceTeacherInYearId', 'heading', 'body', 'date'], where: {
@@ -131,7 +125,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/announcements', a
 
 // get absences for a student
 // /students/1/alhbd/2020-2021/absences
-router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth(['Student']), belongsTo, async (req, res) => {
+router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
     try {
         const absences = await Absence.findAll({where: {studentInClassId: req.studentInClass.id}})
         res.send(absences)
@@ -144,7 +138,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/absences', auth([
 
 // get student marks (in every semester in a year)
 // /students/1/alhbd/2020-2021/marks
-router.get('/students/:studentId/:siteName/:startYear-:endYear/marks', auth(['Student']), belongsTo, async (req, res) => {
+router.get('/students/:studentId/:siteName/:startYear-:endYear/marks', auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
     try {
         const studentMarks = await SubjectInSemester.getStudentMarksInSemester(req.studentInClass.id, req.studentInClass.schoolClassId)
         res.send(studentMarks)
@@ -157,7 +151,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/marks', auth(['St
 // get schedule for a classroom in a semester
 // /students/1/alhbd/2020-2021/semesters/1/sessions
 router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semesterNumber/sessions',
-    auth(['Student']), belongsTo, async (req, res) => {
+    auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
         try {
             const schedule = await Day.getScheduleForClassroomInSemester(req.studentInClass.classroomId, req.params.semesterNumber)
             res.send(schedule)
@@ -173,16 +167,32 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semest
 router.get('/students/:studentId/:siteName/:startYear-:endYear/examSchedule', auth(['Student']),
     belongsTo, async (req, res) => {
         try {
-            const classroomSchedule = await SchoolClass.findAll({
-                where: {startYear: req.params.startYear, endYear: req.params.endYear}, attributes: ['id'], include: {
-                    association: 'classrooms', attributes: ['id'], where: {id: req.studentInClass.classroomId}
-                    , required: true, include: {association: 'examSchedules', required: true}
+            let classroomSchedule = await SchoolClass.findAll({
+                subQuery: false,
+                where: { startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
+                    association: 'classrooms', attributes: ['id'], where: { id: req.studentInClass.classroomId }, include: {
+                        association: 'examSchedules', attributes: ['id'], include: {
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime'],include:{
+                                association:'subjectInSemester', attributes:['id'],include:{
+                                    association:'subjectInYear', attributes:['name'],required: true
+                                },required: true,
+                            },
+                            required: true
+                        }, required: true
+                    }, required: true
                 }
             })
+
             if (!classroomSchedule.length)
                 return res.status(404).send('No exam schedule was found for the specified classroom in the specified year.')
-            res.status(201).send(classroomSchedule[0].classrooms[0].examSchedules)
-        } catch (e) {
+              
+                let arr =[]
+                classroomSchedule[0].classrooms[0].examSchedules.forEach(element => {
+                    arr.push(element.scheduledExams)
+                })
+                res.status(201).send(arr)
+
+        }catch (e) {
             console.log(e)
             res.status(500).send(e.message)
         }
@@ -192,7 +202,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/examSchedule', au
 // get teachers for a student in a semester
 // /students/1/alhbd/2020-2021/semesters/1/teachers
 router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semesterNumber/teachers',
-    auth(['Student']), belongsTo, async (req, res) => {
+    auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
         try {
             const teachers = await Teacher.findAll({
                 attributes: ['id'], include: [
@@ -235,7 +245,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semest
 // get payments
 // /students/1/alhbd/2020-2021/payments
 router.get('/students/:studentId/:siteName/:startYear-:endYear/payments',
-    auth(['Student']), belongsTo, async (req, res) => {
+    auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
         try {
             const payments = await StudentInClass.getPayments(req.studentInClass.id)
             res.send(payments)

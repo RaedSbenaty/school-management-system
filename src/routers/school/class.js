@@ -135,7 +135,6 @@ router.patch('/:siteName/:startYear-:endYear/classes/:className/sortStd/auto/:so
 
         var i = 0;
         element = req.body[i]
-
         for (let studentInClass of studentsInClass) {
 
             if (element.studentsNumber === 0) {

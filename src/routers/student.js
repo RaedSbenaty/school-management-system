@@ -167,16 +167,28 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semest
 router.get('/students/:studentId/:siteName/:startYear-:endYear/examSchedule', auth(['Student']),
     belongsTo, async (req, res) => {
         try {
-            const classroomSchedule = await SchoolClass.findAll({
-                where: {startYear: req.params.startYear, endYear: req.params.endYear}, attributes: ['id'], include: {
-                    association: 'classrooms', attributes: ['id'], where: {id: req.studentInClass.classroomId}
-                    , required: true, include: {association: 'examSchedules', required: true}
+            let classroomSchedule = await SchoolClass.findAll({
+                subQuery: false,
+                where: { startYear: req.params.startYear, endYear: req.params.endYear }, attributes: ['id'], include: {
+                    association: 'classrooms', attributes: ['id'], where: { id: req.studentInClass.classroomId }, include: {
+                        association: 'examSchedules', attributes: ['id'], include: {
+                            association: 'scheduledExams', attributes: ['id', 'date', 'startTime', 'endTime', 'subjectInSemesterId'],
+                            required: true
+                        }, required: true
+                    }, required: true
                 }
             })
+
             if (!classroomSchedule.length)
                 return res.status(404).send('No exam schedule was found for the specified classroom in the specified year.')
-            res.status(201).send(classroomSchedule[0].classrooms[0].examSchedules)
-        } catch (e) {
+              
+                let arr =[]
+                classroomSchedule[0].classrooms[0].examSchedules.forEach(element => {
+                    arr.push(element.scheduledExams)
+                })
+                res.status(201).send(arr)
+
+        }catch (e) {
             console.log(e)
             res.status(500).send(e.message)
         }

@@ -202,7 +202,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/examSchedule', au
 // get teachers for a student in a semester
 // /students/1/alhbd/2020-2021/semesters/1/teachers
 router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semesterNumber/teachers',
-    auth(['Student']), belongsTo, async (req, res) => {
+    auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
         try {
             const teachers = await Teacher.findAll({
                 attributes: ['id'], include: [
@@ -245,7 +245,7 @@ router.get('/students/:studentId/:siteName/:startYear-:endYear/semesters/:semest
 // get payments
 // /students/1/alhbd/2020-2021/payments
 router.get('/students/:studentId/:siteName/:startYear-:endYear/payments',
-    auth(['Student']), belongsTo, async (req, res) => {
+    auth(['Student','InLocoParent']), belongsTo, async (req, res) => {
         try {
             const payments = await StudentInClass.getPayments(req.studentInClass.id)
             res.send(payments)

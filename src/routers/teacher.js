@@ -11,6 +11,7 @@ const TeacherInYear = require('../models/teacher/teacherInYear')
 const Session = require('../models/session/session')
 const TeacherInClass = require('../models/teacher/teacherInClass')
 const Classroom = require('../models/class/classroom')
+const Day = require('../models/session/day')
 
 
 /*
@@ -82,7 +83,7 @@ router.get('/teachers/:teacherId/schools', auth(['Teacher']), async (req, res) =
 
 // get schedule for a teacher in a year
 // /teachers/1/2020-2021/semesters/1/sessions
-router.get('/teachers/:teacherId/:startYear-:endYear/semesters/:semesterNumber/sessions', async (req, res) => {
+router.get('/teachers/:teacherId/:startYear-:endYear/semesters/:semesterNumber/sessions', auth(['Teacher']), async (req, res) => {
     try {
         const schedule = await Day.getScheduleForTeacher(req.params.teacherId,
             req.params.startYear, req.params.endYear, req.params.semesterNumber)
@@ -149,23 +150,32 @@ router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes', auth(['
 // /teachers/1/alhbd/2020-2021/classes/Fourth_Grade/classrooms
 router.get('/teachers/:teacherId/:siteName/:startYear-:endYear/classes/:className/classrooms', auth(['Teacher']), belongsTo, async (req, res) => {
     try {
-            className = req.params.className.replace('_', ' ')
-            const teacherInClass = await TeacherInClass.findAll({ where:{teacherInYearId: req.teacherInYear.id}, attributes: ['id','schoolClassId'],required: true, include:{
-                association: 'schoolClass', attributes: ['classId'], required: true, include:{
-                    association: 'class', where:{name: className}
-            }}})
-            if(!teacherInClass.length) return res.status(400).send('Teacher doesnt belong to this class')
-
-            const classrooms = await Session.findAll({ where: {teacherInClassId: teacherInClass[0].id}, attributes: ['classroomId'] })
-
-            const classroomsSet = new Set()
-            classrooms.forEach(classroom => classroomsSet.add(classroom.classroomId))
-
-            let returnedClassrooms = new Array()
-            for(id of classroomsSet){
-                let cr = await Classroom.findByPk(id)
-                returnedClassrooms.push(cr)
+        className = req.params.className.replace('_', ' ')
+        const teacherInClass = await TeacherInClass.findAll({
+            where: {teacherInYearId: req.teacherInYear.id},
+            attributes: ['id', 'schoolClassId'],
+            required: true,
+            include: {
+                association: 'schoolClass', attributes: ['classId'], required: true, include: {
+                    association: 'class', where: {name: className}
+                }
             }
+        })
+        if (!teacherInClass.length) return res.status(400).send('Teacher doesnt belong to this class')
+
+        const classrooms = await Session.findAll({
+            where: {teacherInClassId: teacherInClass[0].id},
+            attributes: ['classroomId']
+        })
+
+        const classroomsSet = new Set()
+        classrooms.forEach(classroom => classroomsSet.add(classroom.classroomId))
+
+        let returnedClassrooms = new Array()
+        for (id of classroomsSet) {
+            let cr = await Classroom.findByPk(id)
+            returnedClassrooms.push(cr)
+        }
         res.send(returnedClassrooms)
     } catch (e) {
         console.log(e)

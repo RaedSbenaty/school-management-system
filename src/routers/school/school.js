@@ -156,11 +156,13 @@ router.post('/:siteName/contents/add', auth(['School']), async (req, res) => {
 
 // get contents
 // /alhbd/contents
-router.get('/:siteName/contents', auth(['School']), async (req, res) => {
+router.get('/:siteName/contents', async (req, res) => {
     try {
-        const contents = await Content.findAll({
-            where: {schoolId: req.account.school.id}, attributes: ['type', 'header', 'body']
+        const school = await School.findOne({
+            include: {association: 'account', where: {siteName: req.params.siteName}}
         })
+        if (!school) return res.status(404).send('School not found.')
+        const contents = await Content.findAll({where: {schoolId: school.id}})
         res.send(contents)
     } catch (e) {
         console.log(e)
